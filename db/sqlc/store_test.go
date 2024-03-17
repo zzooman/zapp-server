@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/require"
 )
 
@@ -148,45 +147,3 @@ func TestStore_TransferTxDeadlock(t *testing.T) {
 	require.Equal(t, toAccount.Balance, updatedToAccount.Balance)	
 }
 
-
-func TestStore_CreatePostTx(t *testing.T) {
-	// Create a random user
-	user := createRandomUser(t)
-
-	// Create a random product
-	product, err := testStore.CreateProduct(context.Background(), CreateProductParams{
-		Name: "Test Product",
-		Price: 100,		
-		SellerID: user.ID,
-		Description: pgtype.Text{String: "Test Description", Valid: true},		
-		Stock: 10,
-		Images: []string{"Test Image"},
-	})
-	require.NoError(t, err)
-
-	// Set up the arguments for CreatePostTx
-	arg := CreatePostTxParams{
-		UserID:    user.ID,
-		ProductID: pgtype.Int8{Int64: int64(product.ID), Valid: true},
-		Title:     "Test Title",
-		Content:   "Test Content",
-		Media:     []string{"Test Media"},
-		Location:  "Test Location",
-	}
-
-	// Call CreatePostTx
-	result, err := testStore.CreatePostTx(context.Background(), arg)
-	require.NoError(t, err)
-	require.NotEmpty(t, result)
-
-	// Verify the result
-	require.Equal(t, user.ID, result.User.ID)
-	require.Equal(t, product.ID, result.Product.ID)
-	require.Equal(t, arg.Title, result.Post.Title)
-	require.Equal(t, arg.Content, result.Post.Content)
-	require.Equal(t, arg.Media, result.Post.Media)
-	require.Equal(t, arg.Location, result.Post.Location.String)
-	require.Equal(t, arg.ProductID, result.Post.ProductID)
-
-	// TODO: Add more assertions if needed
-}

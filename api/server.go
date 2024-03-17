@@ -5,19 +5,19 @@ import (
 	db "github.com/zzooman/zapp-server/db/sqlc"
 )
 type Server struct {
-	store *db.Store
+	store db.Store
 	router *gin.Engine
 }
 
-func NewServer(store *db.Store) *Server {
+func NewServer(store db.Store) *Server {
 	server := &Server{
 		store: store, 
 		router: gin.Default(),
 	}	
 
-	server.router.POST("/users", server.createUser)
-	server.router.DELETE("/users/:id", server.deleteUser)
-	server.router.POST("/accounts", server.createAccount)
+	server.router.POST("/user", server.createUser)
+	server.router.DELETE("/user/:id", server.deleteUser)
+	server.router.POST("/account", server.createAccount)
 
 	return server
 }

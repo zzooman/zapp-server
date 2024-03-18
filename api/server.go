@@ -22,8 +22,15 @@ func NewServer(store db.Store) *Server {
 	}
 
 	server.router.POST("/user", server.createUser)
+	server.router.GET("/user/:id", server.getUser)
 	server.router.DELETE("/user/:id", server.deleteUser)
+
 	server.router.POST("/account", server.createAccount)
+	server.router.GET("/account/:id", server.getAccount)
+	server.router.DELETE("/account/:id", server.deleteAccount)
+
+	server.router.POST("/transfer", server.createTransfer)
+	server.router.GET("/transfer/:id", server.getTransfer)
 
 	return server
 }

@@ -2,6 +2,8 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	db "github.com/zzooman/zapp-server/db/sqlc"
 )
 type Server struct {
@@ -14,6 +16,10 @@ func NewServer(store db.Store) *Server {
 		store: store, 
 		router: gin.Default(),
 	}	
+	
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("currency", validCurrency)
+	}
 
 	server.router.POST("/user", server.createUser)
 	server.router.DELETE("/user/:id", server.deleteUser)

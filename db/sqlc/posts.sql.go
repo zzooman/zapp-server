@@ -12,11 +12,11 @@ import (
 )
 
 const createPost = `-- name: CreatePost :one
-INSERT INTO posts (user_id, product_id, title, content, media, location, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, user_id, product_id, title, content, media, location, created_at
+INSERT INTO posts (author, product_id, title, content, media, location, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, author, product_id, title, content, media, location, created_at
 `
 
 type CreatePostParams struct {
-	UserID    int64              `json:"user_id"`
+	Author    string             `json:"author"`
 	ProductID pgtype.Int8        `json:"product_id"`
 	Title     string             `json:"title"`
 	Content   string             `json:"content"`
@@ -27,7 +27,7 @@ type CreatePostParams struct {
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
 	row := q.db.QueryRow(ctx, createPost,
-		arg.UserID,
+		arg.Author,
 		arg.ProductID,
 		arg.Title,
 		arg.Content,
@@ -38,7 +38,7 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 	var i Post
 	err := row.Scan(
 		&i.ID,
-		&i.UserID,
+		&i.Author,
 		&i.ProductID,
 		&i.Title,
 		&i.Content,
@@ -59,7 +59,7 @@ func (q *Queries) DeletePost(ctx context.Context, id int64) error {
 }
 
 const getPost = `-- name: GetPost :one
-SELECT id, user_id, product_id, title, content, media, location, created_at FROM posts WHERE id = $1 LIMIT 1
+SELECT id, author, product_id, title, content, media, location, created_at FROM posts WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
@@ -67,7 +67,7 @@ func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
 	var i Post
 	err := row.Scan(
 		&i.ID,
-		&i.UserID,
+		&i.Author,
 		&i.ProductID,
 		&i.Title,
 		&i.Content,
@@ -79,7 +79,7 @@ func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
 }
 
 const getPosts = `-- name: GetPosts :many
-SELECT id, user_id, product_id, title, content, media, location, created_at FROM posts ORDER BY id LIMIT $1 OFFSET $2
+SELECT id, author, product_id, title, content, media, location, created_at FROM posts ORDER BY id LIMIT $1 OFFSET $2
 `
 
 type GetPostsParams struct {
@@ -98,7 +98,7 @@ func (q *Queries) GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, err
 		var i Post
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserID,
+			&i.Author,
 			&i.ProductID,
 			&i.Title,
 			&i.Content,
@@ -117,12 +117,12 @@ func (q *Queries) GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, err
 }
 
 const updatePost = `-- name: UpdatePost :exec
-UPDATE posts SET user_id = $2, product_id = $3, title = $4, content = $5, media = $6, location = $7 WHERE id = $1
+UPDATE posts SET author = $2, product_id = $3, title = $4, content = $5, media = $6, location = $7 WHERE id = $1
 `
 
 type UpdatePostParams struct {
 	ID        int64       `json:"id"`
-	UserID    int64       `json:"user_id"`
+	Author    string      `json:"author"`
 	ProductID pgtype.Int8 `json:"product_id"`
 	Title     string      `json:"title"`
 	Content   string      `json:"content"`
@@ -133,7 +133,7 @@ type UpdatePostParams struct {
 func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
 	_, err := q.db.Exec(ctx, updatePost,
 		arg.ID,
-		arg.UserID,
+		arg.Author,
 		arg.ProductID,
 		arg.Title,
 		arg.Content,

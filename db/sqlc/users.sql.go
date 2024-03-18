@@ -12,7 +12,7 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (username, password, phone, email, location) VALUES ($1, $2, $3, $4, $5) RETURNING id, username, password, email, phone, location, created_at
+INSERT INTO users (username, password, phone, email, location) VALUES ($1, $2, $3, $4, $5) RETURNING username, password, email, phone, location, password_changed_at, created_at
 `
 
 type CreateUserParams struct {
@@ -33,51 +33,50 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	)
 	var i User
 	err := row.Scan(
-		&i.ID,
 		&i.Username,
 		&i.Password,
 		&i.Email,
 		&i.Phone,
 		&i.Location,
+		&i.PasswordChangedAt,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const deleteUser = `-- name: DeleteUser :exec
-DELETE FROM users WHERE id = $1
+DELETE FROM users WHERE username = $1
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteUser, id)
+func (q *Queries) DeleteUser(ctx context.Context, username string) error {
+	_, err := q.db.Exec(ctx, deleteUser, username)
 	return err
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, username, password, email, phone, location, created_at FROM users WHERE id = $1 LIMIT 1
+SELECT username, password, email, phone, location, password_changed_at, created_at FROM users WHERE username = $1 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
-	row := q.db.QueryRow(ctx, getUser, id)
+func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRow(ctx, getUser, username)
 	var i User
 	err := row.Scan(
-		&i.ID,
 		&i.Username,
 		&i.Password,
 		&i.Email,
 		&i.Phone,
 		&i.Location,
+		&i.PasswordChangedAt,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const updateUser = `-- name: UpdateUser :exec
-UPDATE users SET username = $2, password = $3, phone = $4, email = $5, location = $6 WHERE id = $1
+UPDATE users SET username = $1, password = $2, phone = $3, email = $4, location = $5 WHERE username = $1
 `
 
 type UpdateUserParams struct {
-	ID       int64       `json:"id"`
 	Username string      `json:"username"`
 	Password string      `json:"password"`
 	Phone    pgtype.Text `json:"phone"`
@@ -87,7 +86,6 @@ type UpdateUserParams struct {
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	_, err := q.db.Exec(ctx, updateUser,
-		arg.ID,
 		arg.Username,
 		arg.Password,
 		arg.Phone,

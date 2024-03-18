@@ -33,13 +33,13 @@ func createRandomUser(t *testing.T) User {
 func TestCreateUser(t *testing.T) {
 	user := createRandomUser(t)
 	require.NotEmpty(t, user)
-	require.NotZero(t, user.ID)
+	require.NotZero(t, user.Username)
 	require.NotZero(t, user.CreatedAt)	
 }
 
 func TestDeleteUser(t *testing.T) {
 	user := createRandomUser(t)
-	err := testStore.DeleteUser(context.Background(), user.ID)
+	err := testStore.DeleteUser(context.Background(), user.Username)
 	
 	require.NoError(t, err)
 }
@@ -47,11 +47,11 @@ func TestDeleteUser(t *testing.T) {
 
 func TestGetUser(t *testing.T) {
 	createdUser := createRandomUser(t)
-	gettedUser, err :=  testStore.GetUser(context.Background(), createdUser.ID)
+	gettedUser, err :=  testStore.GetUser(context.Background(), createdUser.Username)
 
 	require.NoError(t, err)
 	require.NotEmpty(t, gettedUser)
-	require.Equal(t, createdUser.ID, gettedUser.ID)
+	require.Equal(t, createdUser.Username, gettedUser.Username)
 	require.Equal(t, createdUser.Username, gettedUser.Username)
 	require.Equal(t, createdUser.Email, gettedUser.Email)
 	require.Equal(t, createdUser.Phone, gettedUser.Phone)
@@ -62,8 +62,7 @@ func TestUpdateUser(t *testing.T) {
 	user := createRandomUser(t)
 
 	// Define the input parameters for the UpdateUser method
-	params := UpdateUserParams{
-		ID:       user.ID,
+	params := UpdateUserParams{		
 		Username: utils.RandomString(6),
 		Password: "newpassword",
 		Phone:    pgtype.Text{String: "9876543210", Valid: true},
@@ -76,7 +75,7 @@ func TestUpdateUser(t *testing.T) {
 	require.NoError(t, err)
 
 	// Retrieve the updated user
-	updatedUser, err := testStore.GetUser(context.Background(), user.ID)
+	updatedUser, err := testStore.GetUser(context.Background(), user.Username)
 	require.NoError(t, err)
 	require.NotEmpty(t, updatedUser)
 

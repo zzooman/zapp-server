@@ -132,7 +132,7 @@ func sendMonny(
 
 
 type CreatePostTxParams struct {
-	UserID   int64 			`json:"user_id"`
+	Username string 		`json:"username"`
 	Title    string 		`json:"title"`
 	Content  string 		`json:"content"`
 	Media    []string 		`json:"media"`
@@ -151,7 +151,7 @@ func (store *SQLStore) CreatePostTx(ctx context.Context, arg CreatePostTxParams)
 	var err error
 	
 	err = store.execTx(ctx, func(queries *Queries) error {
-		result.User, err = queries.GetUser(ctx, arg.UserID)
+		result.User, err = queries.GetUser(ctx, arg.Username)
 		if arg.ProductID.Valid { 
 			result.Product, err = queries.GetProduct(ctx, arg.ProductID.Int64)			
 			if err != nil {
@@ -159,7 +159,7 @@ func (store *SQLStore) CreatePostTx(ctx context.Context, arg CreatePostTxParams)
 			}
 		} 
 		result.Post, err = queries.CreatePost(ctx, CreatePostParams{
-			UserID:    result.User.ID,			
+			Author:    result.User.Username,			
 			Title:     arg.Title,
 			Content:   arg.Content,
 			Media:     arg.Media,

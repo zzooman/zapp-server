@@ -53,7 +53,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 
 // Get User
 type getUserRequest struct {
-	ID int64 `uri:"id" binding:"required,min=1"`
+	Username string `uri:"username" binding:"required"`
 }
 func (server *Server) getUser(ctx *gin.Context) {
 	var req getUserRequest
@@ -62,7 +62,7 @@ func (server *Server) getUser(ctx *gin.Context) {
 		return
 	}
 
-	user, err := server.store.GetUser(ctx, req.ID)
+	user, err := server.store.GetUser(ctx, req.Username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -74,7 +74,7 @@ func (server *Server) getUser(ctx *gin.Context) {
 
 // Delete User
 type deleteUserRequest struct {
-	ID int64 `uri:"id" binding:"required,min=1"`
+	Username string `uri:"username" binding:"required"`
 }
 func (server *Server) deleteUser(ctx *gin.Context) {
 	var req deleteUserRequest
@@ -84,14 +84,14 @@ func (server *Server) deleteUser(ctx *gin.Context) {
 	}
 
 	// Find the user with the given ID
-	user, err := server.store.GetUser(ctx, req.ID)
+	user, err := server.store.GetUser(ctx, req.Username)
 	if err != nil {		
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
 	// Delete the user
-	err = server.store.DeleteUser(ctx, user.ID)
+	err = server.store.DeleteUser(ctx, user.Username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

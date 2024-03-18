@@ -10,22 +10,22 @@ import (
 )
 
 const createComment = `-- name: CreateComment :one
-INSERT INTO comments (post_id, commentor_id, content) VALUES ($1, $2, $3) RETURNING id, post_id, commentor_id, content, created_at
+INSERT INTO comments (post_id, commentor, content) VALUES ($1, $2, $3) RETURNING id, post_id, commentor, content, created_at
 `
 
 type CreateCommentParams struct {
-	PostID      int64  `json:"post_id"`
-	CommentorID int64  `json:"commentor_id"`
-	Content     string `json:"content"`
+	PostID    int64  `json:"post_id"`
+	Commentor string `json:"commentor"`
+	Content   string `json:"content"`
 }
 
 func (q *Queries) CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error) {
-	row := q.db.QueryRow(ctx, createComment, arg.PostID, arg.CommentorID, arg.Content)
+	row := q.db.QueryRow(ctx, createComment, arg.PostID, arg.Commentor, arg.Content)
 	var i Comment
 	err := row.Scan(
 		&i.ID,
 		&i.PostID,
-		&i.CommentorID,
+		&i.Commentor,
 		&i.Content,
 		&i.CreatedAt,
 	)
@@ -42,7 +42,7 @@ func (q *Queries) DeleteComment(ctx context.Context, id int64) error {
 }
 
 const getComment = `-- name: GetComment :one
-SELECT id, post_id, commentor_id, content, created_at FROM comments WHERE id = $1 LIMIT 1
+SELECT id, post_id, commentor, content, created_at FROM comments WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetComment(ctx context.Context, id int64) (Comment, error) {
@@ -51,7 +51,7 @@ func (q *Queries) GetComment(ctx context.Context, id int64) (Comment, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.PostID,
-		&i.CommentorID,
+		&i.Commentor,
 		&i.Content,
 		&i.CreatedAt,
 	)
@@ -59,7 +59,7 @@ func (q *Queries) GetComment(ctx context.Context, id int64) (Comment, error) {
 }
 
 const getComments = `-- name: GetComments :many
-SELECT id, post_id, commentor_id, content, created_at FROM comments ORDER BY id LIMIT $1 OFFSET $2
+SELECT id, post_id, commentor, content, created_at FROM comments ORDER BY id LIMIT $1 OFFSET $2
 `
 
 type GetCommentsParams struct {
@@ -79,7 +79,7 @@ func (q *Queries) GetComments(ctx context.Context, arg GetCommentsParams) ([]Com
 		if err := rows.Scan(
 			&i.ID,
 			&i.PostID,
-			&i.CommentorID,
+			&i.Commentor,
 			&i.Content,
 			&i.CreatedAt,
 		); err != nil {
@@ -94,21 +94,21 @@ func (q *Queries) GetComments(ctx context.Context, arg GetCommentsParams) ([]Com
 }
 
 const updateComment = `-- name: UpdateComment :exec
-UPDATE comments SET post_id = $2, commentor_id = $3, content = $4 WHERE id = $1
+UPDATE comments SET post_id = $2, commentor = $3, content = $4 WHERE id = $1
 `
 
 type UpdateCommentParams struct {
-	ID          int64  `json:"id"`
-	PostID      int64  `json:"post_id"`
-	CommentorID int64  `json:"commentor_id"`
-	Content     string `json:"content"`
+	ID        int64  `json:"id"`
+	PostID    int64  `json:"post_id"`
+	Commentor string `json:"commentor"`
+	Content   string `json:"content"`
 }
 
 func (q *Queries) UpdateComment(ctx context.Context, arg UpdateCommentParams) error {
 	_, err := q.db.Exec(ctx, updateComment,
 		arg.ID,
 		arg.PostID,
-		arg.CommentorID,
+		arg.Commentor,
 		arg.Content,
 	)
 	return err

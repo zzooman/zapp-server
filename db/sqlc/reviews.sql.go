@@ -12,20 +12,20 @@ import (
 )
 
 const createReview = `-- name: CreateReview :one
-INSERT INTO reviews (product_id, reviewer_id, rating, content) VALUES ($1, $2, $3, $4) RETURNING id, product_id, reviewer_id, rating, content, created_at
+INSERT INTO reviews (product_id, reviewer, rating, content) VALUES ($1, $2, $3, $4) RETURNING id, product_id, reviewer, rating, content, created_at
 `
 
 type CreateReviewParams struct {
-	ProductID  int64       `json:"product_id"`
-	ReviewerID int64       `json:"reviewer_id"`
-	Rating     int32       `json:"rating"`
-	Content    pgtype.Text `json:"content"`
+	ProductID int64       `json:"product_id"`
+	Reviewer  string      `json:"reviewer"`
+	Rating    int32       `json:"rating"`
+	Content   pgtype.Text `json:"content"`
 }
 
 func (q *Queries) CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error) {
 	row := q.db.QueryRow(ctx, createReview,
 		arg.ProductID,
-		arg.ReviewerID,
+		arg.Reviewer,
 		arg.Rating,
 		arg.Content,
 	)
@@ -33,7 +33,7 @@ func (q *Queries) CreateReview(ctx context.Context, arg CreateReviewParams) (Rev
 	err := row.Scan(
 		&i.ID,
 		&i.ProductID,
-		&i.ReviewerID,
+		&i.Reviewer,
 		&i.Rating,
 		&i.Content,
 		&i.CreatedAt,
@@ -51,7 +51,7 @@ func (q *Queries) DeleteReview(ctx context.Context, id int64) error {
 }
 
 const getReview = `-- name: GetReview :one
-SELECT id, product_id, reviewer_id, rating, content, created_at FROM reviews WHERE id = $1 LIMIT 1
+SELECT id, product_id, reviewer, rating, content, created_at FROM reviews WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetReview(ctx context.Context, id int64) (Review, error) {
@@ -60,7 +60,7 @@ func (q *Queries) GetReview(ctx context.Context, id int64) (Review, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.ProductID,
-		&i.ReviewerID,
+		&i.Reviewer,
 		&i.Rating,
 		&i.Content,
 		&i.CreatedAt,
@@ -69,7 +69,7 @@ func (q *Queries) GetReview(ctx context.Context, id int64) (Review, error) {
 }
 
 const getReviews = `-- name: GetReviews :many
-SELECT id, product_id, reviewer_id, rating, content, created_at FROM reviews ORDER BY id LIMIT $1 OFFSET $2
+SELECT id, product_id, reviewer, rating, content, created_at FROM reviews ORDER BY id LIMIT $1 OFFSET $2
 `
 
 type GetReviewsParams struct {
@@ -89,7 +89,7 @@ func (q *Queries) GetReviews(ctx context.Context, arg GetReviewsParams) ([]Revie
 		if err := rows.Scan(
 			&i.ID,
 			&i.ProductID,
-			&i.ReviewerID,
+			&i.Reviewer,
 			&i.Rating,
 			&i.Content,
 			&i.CreatedAt,
@@ -105,22 +105,22 @@ func (q *Queries) GetReviews(ctx context.Context, arg GetReviewsParams) ([]Revie
 }
 
 const updateReview = `-- name: UpdateReview :exec
-UPDATE reviews SET product_id = $2, reviewer_id = $3, rating = $4, content = $5 WHERE id = $1
+UPDATE reviews SET product_id = $2, reviewer = $3, rating = $4, content = $5 WHERE id = $1
 `
 
 type UpdateReviewParams struct {
-	ID         int64       `json:"id"`
-	ProductID  int64       `json:"product_id"`
-	ReviewerID int64       `json:"reviewer_id"`
-	Rating     int32       `json:"rating"`
-	Content    pgtype.Text `json:"content"`
+	ID        int64       `json:"id"`
+	ProductID int64       `json:"product_id"`
+	Reviewer  string      `json:"reviewer"`
+	Rating    int32       `json:"rating"`
+	Content   pgtype.Text `json:"content"`
 }
 
 func (q *Queries) UpdateReview(ctx context.Context, arg UpdateReviewParams) error {
 	_, err := q.db.Exec(ctx, updateReview,
 		arg.ID,
 		arg.ProductID,
-		arg.ReviewerID,
+		arg.Reviewer,
 		arg.Rating,
 		arg.Content,
 	)

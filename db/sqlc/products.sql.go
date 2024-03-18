@@ -12,11 +12,11 @@ import (
 )
 
 const createProduct = `-- name: CreateProduct :one
-INSERT INTO products (seller_id, name, description, price, stock, images) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, seller_id, name, description, price, stock, images
+INSERT INTO products (seller, name, description, price, stock, images) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, seller, name, description, price, stock, images
 `
 
 type CreateProductParams struct {
-	SellerID    int64       `json:"seller_id"`
+	Seller      string      `json:"seller"`
 	Name        string      `json:"name"`
 	Description pgtype.Text `json:"description"`
 	Price       int64       `json:"price"`
@@ -26,7 +26,7 @@ type CreateProductParams struct {
 
 func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
 	row := q.db.QueryRow(ctx, createProduct,
-		arg.SellerID,
+		arg.Seller,
 		arg.Name,
 		arg.Description,
 		arg.Price,
@@ -36,7 +36,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 	var i Product
 	err := row.Scan(
 		&i.ID,
-		&i.SellerID,
+		&i.Seller,
 		&i.Name,
 		&i.Description,
 		&i.Price,
@@ -56,7 +56,7 @@ func (q *Queries) DeleteProduct(ctx context.Context, id int64) error {
 }
 
 const getProduct = `-- name: GetProduct :one
-SELECT id, seller_id, name, description, price, stock, images FROM products WHERE id = $1 LIMIT 1
+SELECT id, seller, name, description, price, stock, images FROM products WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
@@ -64,7 +64,7 @@ func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
 	var i Product
 	err := row.Scan(
 		&i.ID,
-		&i.SellerID,
+		&i.Seller,
 		&i.Name,
 		&i.Description,
 		&i.Price,
@@ -75,7 +75,7 @@ func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
 }
 
 const getProducts = `-- name: GetProducts :many
-SELECT id, seller_id, name, description, price, stock, images FROM products ORDER BY id LIMIT $1 OFFSET $2
+SELECT id, seller, name, description, price, stock, images FROM products ORDER BY id LIMIT $1 OFFSET $2
 `
 
 type GetProductsParams struct {
@@ -94,7 +94,7 @@ func (q *Queries) GetProducts(ctx context.Context, arg GetProductsParams) ([]Pro
 		var i Product
 		if err := rows.Scan(
 			&i.ID,
-			&i.SellerID,
+			&i.Seller,
 			&i.Name,
 			&i.Description,
 			&i.Price,
@@ -112,12 +112,12 @@ func (q *Queries) GetProducts(ctx context.Context, arg GetProductsParams) ([]Pro
 }
 
 const updateProduct = `-- name: UpdateProduct :exec
-UPDATE products SET seller_id = $2, name = $3, description = $4, price = $5, stock = $6, images = $7 WHERE id = $1
+UPDATE products SET seller = $2, name = $3, description = $4, price = $5, stock = $6, images = $7 WHERE id = $1
 `
 
 type UpdateProductParams struct {
 	ID          int64       `json:"id"`
-	SellerID    int64       `json:"seller_id"`
+	Seller      string      `json:"seller"`
 	Name        string      `json:"name"`
 	Description pgtype.Text `json:"description"`
 	Price       int64       `json:"price"`
@@ -128,7 +128,7 @@ type UpdateProductParams struct {
 func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) error {
 	_, err := q.db.Exec(ctx, updateProduct,
 		arg.ID,
-		arg.SellerID,
+		arg.Seller,
 		arg.Name,
 		arg.Description,
 		arg.Price,

@@ -17,11 +17,11 @@ type Account struct {
 }
 
 type Comment struct {
-	ID          int64              `json:"id"`
-	PostID      int64              `json:"post_id"`
-	CommentorID int64              `json:"commentor_id"`
-	Content     string             `json:"content"`
-	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	ID        int64              `json:"id"`
+	PostID    int64              `json:"post_id"`
+	Commentor string             `json:"commentor"`
+	Content   string             `json:"content"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
 type Entry struct {
@@ -33,14 +33,14 @@ type Entry struct {
 }
 
 type LikeWithPost struct {
-	UserID int64 `json:"user_id"`
-	PostID int64 `json:"post_id"`
+	Username string `json:"username"`
+	PostID   int64  `json:"post_id"`
 }
 
 type Order struct {
 	ID           int64              `json:"id"`
 	ProductID    int64              `json:"product_id"`
-	BuyerID      int64              `json:"buyer_id"`
+	Buyer        string             `json:"buyer"`
 	Quantity     int64              `json:"quantity"`
 	PriceAtOrder int64              `json:"price_at_order"`
 	Status       pgtype.Text        `json:"status"`
@@ -49,7 +49,7 @@ type Order struct {
 
 type Post struct {
 	ID        int64              `json:"id"`
-	UserID    int64              `json:"user_id"`
+	Author    string             `json:"author"`
 	ProductID pgtype.Int8        `json:"product_id"`
 	Title     string             `json:"title"`
 	Content   string             `json:"content"`
@@ -60,7 +60,7 @@ type Post struct {
 
 type Product struct {
 	ID          int64       `json:"id"`
-	SellerID    int64       `json:"seller_id"`
+	Seller      string      `json:"seller"`
 	Name        string      `json:"name"`
 	Description pgtype.Text `json:"description"`
 	Price       int64       `json:"price"`
@@ -69,12 +69,12 @@ type Product struct {
 }
 
 type Review struct {
-	ID         int64              `json:"id"`
-	ProductID  int64              `json:"product_id"`
-	ReviewerID int64              `json:"reviewer_id"`
-	Rating     int32              `json:"rating"`
-	Content    pgtype.Text        `json:"content"`
-	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	ID        int64              `json:"id"`
+	ProductID int64              `json:"product_id"`
+	Reviewer  string             `json:"reviewer"`
+	Rating    int32              `json:"rating"`
+	Content   pgtype.Text        `json:"content"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
 type Transfer struct {
@@ -87,16 +87,16 @@ type Transfer struct {
 }
 
 type User struct {
-	ID        int64              `json:"id"`
-	Username  string             `json:"username"`
-	Password  string             `json:"password"`
-	Email     string             `json:"email"`
-	Phone     pgtype.Text        `json:"phone"`
-	Location  string             `json:"location"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	Username          string             `json:"username"`
+	Password          string             `json:"password"`
+	Email             string             `json:"email"`
+	Phone             pgtype.Text        `json:"phone"`
+	Location          string             `json:"location"`
+	PasswordChangedAt pgtype.Timestamptz `json:"password_changed_at"`
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`
 }
 
 type WishWithProduct struct {
-	UserID    int64 `json:"user_id"`
-	ProductID int64 `json:"product_id"`
+	Username  string `json:"username"`
+	ProductID int64  `json:"product_id"`
 }

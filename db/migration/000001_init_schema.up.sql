@@ -1,10 +1,10 @@
 CREATE TABLE "users" (
-  "id" bigserial PRIMARY KEY,
-  "username" varchar(255) UNIQUE NOT NULL,
+  "username" varchar(255) PRIMARY KEY,
   "password" varchar(255) NOT NULL,
   "email" varchar(255) UNIQUE NOT NULL,
   "phone" varchar(11),
   "location" varchar(255) NOT NULL,
+  "password_changed_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
   "created_at" timestamptz DEFAULT (now())
 );
 
@@ -33,7 +33,7 @@ CREATE TABLE "transfers" (
 
 CREATE TABLE "posts" (
   "id" bigserial PRIMARY KEY,
-  "user_id" bigint NOT NULL,
+  "author" varchar(255) NOT NULL,
   "product_id" bigint,
   "title" varchar(255) NOT NULL,
   "content" text NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE "posts" (
 
 CREATE TABLE "products" (
   "id" bigserial PRIMARY KEY,
-  "seller_id" bigint NOT NULL,
+  "seller" varchar(255) NOT NULL,
   "name" varchar(255) NOT NULL,
   "description" text,
   "price" bigint NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE "products" (
 CREATE TABLE "orders" (
   "id" bigserial PRIMARY KEY,
   "product_id" bigserial NOT NULL,
-  "buyer_id" bigserial NOT NULL,
+  "buyer" varchar(255) NOT NULL,
   "quantity" bigint NOT NULL,
   "price_at_order" bigint NOT NULL,
   "status" varchar(31),
@@ -63,19 +63,19 @@ CREATE TABLE "orders" (
 );
 
 CREATE TABLE "like_with_post" (
-  "user_id" bigint NOT NULL,
+  "username" varchar(255) NOT NULL,
   "post_id" bigint NOT NULL
 );
 
 CREATE TABLE "wish_with_product" (
-  "user_id" bigint NOT NULL,
+  "username" varchar(255) NOT NULL,
   "product_id" bigint NOT NULL
 );
 
 CREATE TABLE "reviews" (
   "id" bigserial PRIMARY KEY,
   "product_id" bigint NOT NULL,
-  "reviewer_id" bigint NOT NULL,
+  "reviewer" varchar(255) NOT NULL,
   "rating" int NOT NULL,
   "content" text,
   "created_at" timestamptz DEFAULT (now())
@@ -84,7 +84,7 @@ CREATE TABLE "reviews" (
 CREATE TABLE "comments" (
   "id" bigserial PRIMARY KEY,
   "post_id" bigint NOT NULL,
-  "commentor_id" bigint NOT NULL,
+  "commentor" varchar(255) NOT NULL,
   "content" text NOT NULL,
   "created_at" timestamptz DEFAULT (now())
 );
@@ -105,7 +105,7 @@ CREATE INDEX ON "transfers" ("to_account_id");
 
 CREATE INDEX ON "transfers" ("from_account_id", "to_account_id");
 
-CREATE INDEX ON "posts" ("user_id");
+CREATE INDEX ON "posts" ("author");
 
 CREATE INDEX ON "posts" ("product_id");
 
@@ -113,13 +113,13 @@ CREATE INDEX ON "posts" ("created_at");
 
 CREATE INDEX ON "posts" ("location");
 
-CREATE INDEX ON "products" ("seller_id");
+CREATE INDEX ON "products" ("seller");
 
 CREATE INDEX ON "products" ("name");
 
 CREATE INDEX ON "products" ("price");
 
-CREATE INDEX ON "orders" ("buyer_id");
+CREATE INDEX ON "orders" ("buyer");
 
 CREATE INDEX ON "orders" ("product_id");
 
@@ -127,25 +127,25 @@ CREATE INDEX ON "orders" ("created_at");
 
 CREATE INDEX ON "orders" ("status");
 
-CREATE INDEX ON "orders" ("buyer_id", "product_id");
+CREATE INDEX ON "orders" ("buyer", "product_id");
 
-CREATE INDEX ON "like_with_post" ("user_id");
+CREATE INDEX ON "like_with_post" ("username");
 
 CREATE INDEX ON "like_with_post" ("post_id");
 
-CREATE INDEX ON "wish_with_product" ("user_id");
+CREATE INDEX ON "wish_with_product" ("username");
 
 CREATE INDEX ON "wish_with_product" ("product_id");
 
 CREATE INDEX ON "reviews" ("product_id");
 
-CREATE INDEX ON "reviews" ("reviewer_id");
+CREATE INDEX ON "reviews" ("reviewer");
 
 CREATE INDEX ON "reviews" ("created_at");
 
 CREATE INDEX ON "comments" ("post_id");
 
-CREATE INDEX ON "comments" ("commentor_id");
+CREATE INDEX ON "comments" ("commentor");
 
 CREATE INDEX ON "comments" ("created_at");
 
@@ -161,28 +161,28 @@ ALTER TABLE "transfers" ADD FOREIGN KEY ("from_account_id") REFERENCES "accounts
 
 ALTER TABLE "transfers" ADD FOREIGN KEY ("to_account_id") REFERENCES "accounts" ("id");
 
-ALTER TABLE "posts" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE "posts" ADD FOREIGN KEY ("author") REFERENCES "users" ("username");
 
 ALTER TABLE "posts" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id");
 
-ALTER TABLE "products" ADD FOREIGN KEY ("seller_id") REFERENCES "users" ("id");
+ALTER TABLE "products" ADD FOREIGN KEY ("seller") REFERENCES "users" ("username");
 
 ALTER TABLE "orders" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id");
 
-ALTER TABLE "orders" ADD FOREIGN KEY ("buyer_id") REFERENCES "users" ("id");
+ALTER TABLE "orders" ADD FOREIGN KEY ("buyer") REFERENCES "users" ("username");
 
-ALTER TABLE "like_with_post" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE "like_with_post" ADD FOREIGN KEY ("username") REFERENCES "users" ("username");
 
 ALTER TABLE "like_with_post" ADD FOREIGN KEY ("post_id") REFERENCES "posts" ("id");
 
-ALTER TABLE "wish_with_product" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE "wish_with_product" ADD FOREIGN KEY ("username") REFERENCES "users" ("username");
 
 ALTER TABLE "wish_with_product" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id");
 
 ALTER TABLE "reviews" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id");
 
-ALTER TABLE "reviews" ADD FOREIGN KEY ("reviewer_id") REFERENCES "users" ("id");
+ALTER TABLE "reviews" ADD FOREIGN KEY ("reviewer") REFERENCES "users" ("username");
 
 ALTER TABLE "comments" ADD FOREIGN KEY ("post_id") REFERENCES "posts" ("id");
 
-ALTER TABLE "comments" ADD FOREIGN KEY ("commentor_id") REFERENCES "users" ("id");
+ALTER TABLE "comments" ADD FOREIGN KEY ("commentor") REFERENCES "users" ("username");

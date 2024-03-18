@@ -29,7 +29,7 @@ type Querier interface {
 	DeleteProduct(ctx context.Context, id int64) error
 	DeleteReview(ctx context.Context, id int64) error
 	DeleteTransfer(ctx context.Context, id int64) error
-	DeleteUser(ctx context.Context, id int64) error
+	DeleteUser(ctx context.Context, username string) error
 	DeleteWishWithProduct(ctx context.Context, arg DeleteWishWithProductParams) error
 	GetAccount(ctx context.Context, id int64) (Account, error)
 	GetAccountForUpdate(ctx context.Context, id int64) (Account, error)
@@ -49,7 +49,7 @@ type Querier interface {
 	GetReviews(ctx context.Context, arg GetReviewsParams) ([]Review, error)
 	GetTransfer(ctx context.Context, id int64) (Transfer, error)
 	GetTransfers(ctx context.Context, arg GetTransfersParams) ([]Transfer, error)
-	GetUser(ctx context.Context, id int64) (User, error)
+	GetUser(ctx context.Context, username string) (User, error)
 	GetWishWithProduct(ctx context.Context, arg GetWishWithProductParams) (WishWithProduct, error)
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateAccountBalance(ctx context.Context, arg UpdateAccountBalanceParams) (Account, error)

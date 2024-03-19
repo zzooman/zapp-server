@@ -31,6 +31,14 @@ type createUserRequest struct {
 	Phone    string   `json:"phone" binding:"omitempty,phone"`
 	Location Location `json:"location" binding:"required"`
 }
+type createUserResponse struct {
+	Username          string             `json:"username"`	
+	Email             string             `json:"email"`
+	Phone             pgtype.Text        `json:"phone"`
+	Location          string             `json:"location"`
+	PasswordChangedAt pgtype.Timestamptz `json:"password_changed_at"`
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`
+}
 func (server *Server) createUser(ctx *gin.Context) {
 	var req createUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -57,7 +65,15 @@ func (server *Server) createUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, user)
+	rsp := createUserResponse{
+		Username:          user.Username,
+		Email:             user.Email,
+		Phone:             user.Phone,
+		Location:          user.Location,
+		PasswordChangedAt: user.PasswordChangedAt,
+		CreatedAt:         user.CreatedAt,		
+	}
+	ctx.JSON(http.StatusOK, rsp)
 }
 
 // Get User

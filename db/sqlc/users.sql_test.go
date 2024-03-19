@@ -10,9 +10,13 @@ import (
 )
 
 func createRandomUser(t *testing.T) User {
+	password := utils.RandomString(6)
+	hashedPassword, err := utils.HashPassword(password)
+	require.NoError(t, err)
+
 	arg := CreateUserParams{
 		Username: utils.RandomString(6),
-		Password: "password",
+		Password: hashedPassword,
 		Email:    utils.RandomString(12),
 		Phone:    pgtype.Text{String: "1234567890", Valid: true},
 		Location: "Test Location",
@@ -63,7 +67,7 @@ func TestUpdateUser(t *testing.T) {
 
 	// Define the input parameters for the UpdateUser method
 	params := UpdateUserParams{		
-		Username: utils.RandomString(6),
+		Username: user.Username,
 		Password: "newpassword",
 		Phone:    pgtype.Text{String: "9876543210", Valid: true},
 		Email:    utils.RandomString(12),

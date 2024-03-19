@@ -73,7 +73,7 @@ func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 }
 
 const updateUser = `-- name: UpdateUser :exec
-UPDATE users SET username = $1, password = $2, phone = $3, email = $4, location = $5 WHERE username = $1
+UPDATE users SET password = $2, phone = $3, email = $4, location = $5 WHERE username = $1
 `
 
 type UpdateUserParams struct {

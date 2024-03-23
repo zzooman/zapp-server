@@ -6,11 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	db "github.com/zzooman/zapp-server/db/sqlc"
+	"github.com/zzooman/zapp-server/token"
 )
 
 // Create Account
-type createAccountRequest struct {
-	Owner    string `json:"owner" binding:"required"`
+type createAccountRequest struct {	
 	Currency string `json:"currency" binding:"required,currency"`
 }
 func (server *Server) createAccount(ctx *gin.Context) {
@@ -23,9 +23,10 @@ func (server *Server) createAccount(ctx *gin.Context) {
 	if req.Currency == "" {
 		req.Currency = "KRW"
 	}	
-
+	
+	auth_payload := ctx.MustGet(AUTH_PAYLOAD_KEY).(*token.Payload)
 	account, err := server.store.CreateAccount(ctx, db.CreateAccountParams{
-		Owner:    req.Owner,
+		Owner:    auth_payload.Username,
 		Balance:  0,
 		Currency: req.Currency,
 	})
@@ -52,7 +53,37 @@ func (server *Server) getAccount(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	if account.Owner != ctx.MustGet(AUTH_PAYLOAD_KEY).(*token.Payload).Username {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	
+	}
 	ctx.JSON(http.StatusOK, account)
+}
+
+// Get Accounts (list)
+type listAccountsRequest struct {
+	Limit  int32 `uri:"limit"`
+	Offset int32 `uri:"offset"`
+}
+func (server *Server) listAccounts(ctx *gin.Context) {	
+	var req listAccountsRequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return	
+	}
+	username := ctx.MustGet(AUTH_PAYLOAD_KEY).(*token.Payload).Username
+	accounts, err := server.store.GetAccounts(ctx, db.GetAccountsParams{
+		Owner: username,
+		Limit: req.Limit,
+		Offset: req.Offset,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, accounts)
 }
 
 // Delete Account
@@ -66,7 +97,18 @@ func (server *Server) deleteAccount(ctx *gin.Context) {
 		return
 	}
 
-	err := server.store.DeleteAccount(ctx, req.ID)
+	username := ctx.MustGet(AUTH_PAYLOAD_KEY).(*token.Payload).Username
+	account, err := server.store.GetAccount(ctx, req.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return	
+	}
+	if username != account.Owner {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	err = server.store.DeleteAccount(ctx, req.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

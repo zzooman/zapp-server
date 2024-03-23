@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	db "github.com/zzooman/zapp-server/db/sqlc"
+	"github.com/zzooman/zapp-server/token"
 )
 
 // Create Transfer
@@ -22,6 +23,13 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 	}
 
 	fromAccount, err := server.validAccount(ctx, req.FromAccountID)
+	username := ctx.MustGet(AUTH_PAYLOAD_KEY).(*token.Payload).Username
+	if fromAccount.Owner != username {
+		err := fmt.Errorf("account does not belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	
+	}
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return

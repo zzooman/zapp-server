@@ -29,18 +29,20 @@ func NewServer(store db.Store) *Server {
 }
 
 func (server *Server) setUpRouter(router *gin.Engine) {
-	router.POST("/login", server.loginUser)
-	
+	router.POST("/login", server.loginUser)	
 	router.POST("/user", server.createUser)
-	router.GET("/user/:id", server.getUser)
-	router.DELETE("/user/:id", server.deleteUser)	
 
-	router.POST("/account", server.createAccount)
-	router.GET("/account/:id", server.getAccount)
-	router.DELETE("/account/:id", server.deleteAccount)
+	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 
-	router.POST("/transfer", server.createTransfer)
-	router.GET("/transfer/:id", server.getTransfer)
+	authRoutes.GET("/user/:id", server.getUser)
+	authRoutes.DELETE("/user/:id", server.deleteUser)	
+
+	authRoutes.POST("/account", server.createAccount)
+	authRoutes.GET("/account/:id", server.getAccount)
+	authRoutes.DELETE("/account/:id", server.deleteAccount)
+
+	authRoutes.POST("/transfer", server.createTransfer)
+	authRoutes.GET("/transfer/:id", server.getTransfer)
 }
 
 func (server *Server) Start(address string) error {

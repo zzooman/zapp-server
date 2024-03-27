@@ -91,7 +91,7 @@ type User struct {
 	Password          string             `json:"password"`
 	Email             string             `json:"email"`
 	Phone             pgtype.Text        `json:"phone"`
-	Location          string             `json:"location"`
+	Location          pgtype.Text        `json:"location"`
 	PasswordChangedAt pgtype.Timestamptz `json:"password_changed_at"`
 	CreatedAt         pgtype.Timestamptz `json:"created_at"`
 }

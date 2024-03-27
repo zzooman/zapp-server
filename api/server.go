@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -23,14 +24,16 @@ func NewServer(store db.Store) *Server {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("currency", validCurrency)
 	}
-
+	
 	server.setUpRouter(server.router)
 	return server
 }
 
 func (server *Server) setUpRouter(router *gin.Engine) {
+	router.Use(cors.Default())
+
 	router.POST("/login", server.loginUser)	
-	router.POST("/user", server.createUser)
+	router.POST("/user", server.createUser)	
 
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 

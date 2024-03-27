@@ -19,7 +19,7 @@ func createRandomUser(t *testing.T) User {
 		Password: hashedPassword,
 		Email:    utils.RandomString(12),
 		Phone:    pgtype.Text{String: "1234567890", Valid: true},
-		Location: "Test Location",
+		Location: pgtype.Text{String: "Seoul", Valid: true},
 	}
 
 	user, err := testStore.CreateUser(context.Background(), arg)
@@ -71,7 +71,7 @@ func TestUpdateUser(t *testing.T) {
 		Password: "newpassword",
 		Phone:    pgtype.Text{String: "9876543210", Valid: true},
 		Email:    utils.RandomString(12),
-		Location: "New Location",
+		Location: pgtype.Text{String: "Seoul", Valid: true},
 	}
 
 	// Call the UpdateUser method

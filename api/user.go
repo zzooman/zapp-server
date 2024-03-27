@@ -40,14 +40,14 @@ type createUserRequest struct {
 	Username string   `json:"username" binding:"required,alphanum,min=4,max=32"`
 	Password string   `json:"password" binding:"required,min=6,max=32"`
 	Email    string   `json:"email" binding:"required,email,max=64"`
-	Phone    string   `json:"phone" binding:"omitempty,phone"`
+	Phone    string   `json:"phone" binding:"omitempty"`
 	Location Location `json:"location" binding:"required"`
 }
 type userResponse struct {
 	Username          string             `json:"username"`	
 	Email             string             `json:"email"`
 	Phone             pgtype.Text        `json:"phone"`
-	Location          string             `json:"location"`
+	Location          pgtype.Text        `json:"location"`
 	PasswordChangedAt pgtype.Timestamptz `json:"password_changed_at"`
 	CreatedAt         pgtype.Timestamptz `json:"created_at"`
 }
@@ -66,9 +66,9 @@ func (server *Server) createUser(ctx *gin.Context) {
 	payload := db.CreateUserParams{
 		Username: req.Username,
 		Password: hashedPassword,
-		Email:    req.Email,		
-		Location: string(req.Location),		
+		Email:    req.Email,					
 	}
+	if req.Location != "" {payload.Location = pgtype.Text{String: string(req.Location), Valid: true}}
 	if req.Phone != "" {payload.Phone = pgtype.Text{String: req.Phone, Valid: true}}
 
 	user, err := server.store.CreateUser(ctx, payload)

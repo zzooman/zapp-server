@@ -3,7 +3,7 @@ CREATE TABLE "users" (
   "password" varchar(255) NOT NULL,
   "email" varchar(255) UNIQUE NOT NULL,
   "phone" varchar(11),
-  "location" varchar(255) NOT NULL,
+  "location" varchar(255),
   "password_changed_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
   "created_at" timestamptz DEFAULT (now())
 );

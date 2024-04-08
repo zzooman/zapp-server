@@ -41,7 +41,7 @@ type createUserRequest struct {
 	Password string   `json:"password" binding:"required,min=6,max=32"`
 	Email    string   `json:"email" binding:"required,email,max=64"`
 	Phone    string   `json:"phone" binding:"omitempty"`
-	Location Location `json:"location" binding:"required"`
+	Location Location `json:"location" binding:"omitempty"`
 }
 type userResponse struct {
 	Username          string             `json:"username"`	
@@ -140,6 +140,8 @@ type loginUserResponse struct {
 	AccessToken string 		  `json:"access_token"`
 	User 	   	userResponse  `json:"user"`
 }
+
+
 func (server *Server) loginUser(ctx *gin.Context) {
 	var req loginUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -164,6 +166,8 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	rsp := loginUserResponse{
 		AccessToken: accessToken,
 		User: newUserResponse(user),
-	}
-	ctx.JSON(http.StatusOK, rsp)
+	}	
+	// Set the cookie with the access token	
+	ctx.SetCookie("auth_token", accessToken, int(time.Hour.Seconds()), "/", "", false, true)		
+	ctx.JSON(http.StatusOK, rsp)	
 }

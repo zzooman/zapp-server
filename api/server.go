@@ -29,8 +29,11 @@ func NewServer(store db.Store) *Server {
 	return server
 }
 
-func (server *Server) setUpRouter(router *gin.Engine) {
-	router.Use(cors.Default())
+func (server *Server) setUpRouter(router *gin.Engine) {	
+	config := cors.DefaultConfig()
+	config.AllowCredentials = true
+	config.AllowOrigins = []string{"http://localhost:3000"}
+	router.Use(cors.New(config))
 
 	router.POST("/login", server.loginUser)	
 	router.POST("/user", server.createUser)	

@@ -24,7 +24,7 @@ func (server *Server) createAccount(ctx *gin.Context) {
 		req.Currency = "KRW"
 	}	
 	
-	auth_payload := ctx.MustGet(AUTH_PAYLOAD_KEY).(*token.Payload)
+	auth_payload := ctx.MustGet(AUTH_TOKEN).(*token.Payload)
 	account, err := server.store.CreateAccount(ctx, db.CreateAccountParams{
 		Owner:    auth_payload.Username,
 		Balance:  0,
@@ -54,7 +54,7 @@ func (server *Server) getAccount(ctx *gin.Context) {
 		return
 	}
 
-	if account.Owner != ctx.MustGet(AUTH_PAYLOAD_KEY).(*token.Payload).Username {
+	if account.Owner != ctx.MustGet(AUTH_TOKEN).(*token.Payload).Username {
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	
@@ -73,7 +73,7 @@ func (server *Server) listAccounts(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return	
 	}
-	username := ctx.MustGet(AUTH_PAYLOAD_KEY).(*token.Payload).Username
+	username := ctx.MustGet(AUTH_TOKEN).(*token.Payload).Username
 	accounts, err := server.store.GetAccounts(ctx, db.GetAccountsParams{
 		Owner: username,
 		Limit: req.Limit,
@@ -97,7 +97,7 @@ func (server *Server) deleteAccount(ctx *gin.Context) {
 		return
 	}
 
-	username := ctx.MustGet(AUTH_PAYLOAD_KEY).(*token.Payload).Username
+	username := ctx.MustGet(AUTH_TOKEN).(*token.Payload).Username
 	account, err := server.store.GetAccount(ctx, req.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

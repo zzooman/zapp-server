@@ -137,7 +137,7 @@ type loginUserRequest struct {
 	Password string   `json:"password" binding:"required,min=6,max=32"`
 }
 type loginUserResponse struct {
-	AccessToken string 		  `json:"access_token"`
+	AuthToken string 		  `json:"auth_token"`
 	User 	   	userResponse  `json:"user"`
 }
 
@@ -158,16 +158,16 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, err := server.tokenMaker.CreateToken(user.Username, time.Duration(time.Duration.Minutes(720)))
+	authToken, err := server.tokenMaker.CreateToken(user.Username, time.Duration(time.Duration.Minutes(720)))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 	rsp := loginUserResponse{
-		AccessToken: accessToken,
+		AuthToken: authToken,
 		User: newUserResponse(user),
 	}	
 	// Set the cookie with the access token	
-	ctx.SetCookie("auth_token", accessToken, int(time.Hour.Seconds()), "/", "", false, true)		
+	ctx.SetCookie("auth_token", authToken, int(time.Hour.Seconds()), "/", "localhost:3000", false, true)		
 	ctx.JSON(http.StatusOK, rsp)	
 }

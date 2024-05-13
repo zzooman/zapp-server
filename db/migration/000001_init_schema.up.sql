@@ -9,7 +9,7 @@ CREATE TABLE "users" (
 );
 
 CREATE TABLE "accounts" (
-  "id" bigserial PRIMARY KEY,
+  "id" BIGSERIAL PRIMARY KEY,
   "owner" varchar NOT NULL,
   "balance" bigint NOT NULL,
   "currency" varchar NOT NULL,
@@ -17,14 +17,14 @@ CREATE TABLE "accounts" (
 );
 
 CREATE TABLE "entries" (
-  "id" bigserial PRIMARY KEY,
+  "id" BIGSERIAL PRIMARY KEY,
   "account_id" bigint NOT NULL,
   "amount" bigint NOT NULL,
   "created_at" timestamptz DEFAULT (now())
 );
 
 CREATE TABLE "transfers" (
-  "id" bigserial PRIMARY KEY,
+  "id" BIGSERIAL PRIMARY KEY,
   "from_account_id" bigint NOT NULL,
   "to_account_id" bigint NOT NULL,
   "amount" bigint NOT NULL,
@@ -32,29 +32,30 @@ CREATE TABLE "transfers" (
 );
 
 CREATE TABLE "posts" (
-  "id" bigserial PRIMARY KEY,
+  "id" BIGSERIAL PRIMARY KEY,
   "author" varchar(255) NOT NULL,
   "product_id" bigint,
   "title" varchar(255) NOT NULL,
   "content" text NOT NULL,
   "media" varchar[],
   "location" varchar(255),
-  "created_at" timestamptz DEFAULT (now())
+  "created_at" timestamptz DEFAULT (now()),
+  "views" bigint DEFAULT 0
 );
 
 CREATE TABLE "products" (
-  "id" bigserial PRIMARY KEY,
+  "id" BIGSERIAL PRIMARY KEY,
   "seller" varchar(255) NOT NULL,
   "name" varchar(255) NOT NULL,
   "description" text,
   "price" bigint NOT NULL,
   "stock" bigint NOT NULL,
-  "images" varchar[]
+  "medias" varchar[]
 );
 
 CREATE TABLE "orders" (
-  "id" bigserial PRIMARY KEY,
-  "product_id" bigserial NOT NULL,
+  "id" BIGSERIAL PRIMARY KEY,
+  "product_id" BIGSERIAL NOT NULL,
   "buyer" varchar(255) NOT NULL,
   "quantity" bigint NOT NULL,
   "price_at_order" bigint NOT NULL,
@@ -73,16 +74,17 @@ CREATE TABLE "wish_with_product" (
 );
 
 CREATE TABLE "reviews" (
-  "id" bigserial PRIMARY KEY,
+  "id" BIGSERIAL PRIMARY KEY,
   "product_id" bigint NOT NULL,
   "reviewer" varchar(255) NOT NULL,
   "rating" int NOT NULL,
+  "medias" varchar[],
   "content" text,
   "created_at" timestamptz DEFAULT (now())
 );
 
 CREATE TABLE "comments" (
-  "id" bigserial PRIMARY KEY,
+  "id" BIGSERIAL PRIMARY KEY,
   "post_id" bigint NOT NULL,
   "commentor" varchar(255) NOT NULL,
   "content" text NOT NULL,

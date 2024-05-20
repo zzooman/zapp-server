@@ -3,7 +3,6 @@ CREATE TABLE "users" (
   "password" varchar(255) NOT NULL,
   "email" varchar(255) UNIQUE NOT NULL,
   "phone" varchar(11),
-  "location" varchar(255),
   "password_changed_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
   "created_at" timestamptz DEFAULT (now())
 );
@@ -38,7 +37,6 @@ CREATE TABLE "posts" (
   "title" varchar(255) NOT NULL,
   "content" text NOT NULL,
   "media" varchar[],
-  "location" varchar(255),
   "created_at" timestamptz DEFAULT (now()),
   "views" bigint DEFAULT 0
 );
@@ -93,8 +91,6 @@ CREATE TABLE "comments" (
 
 CREATE INDEX ON "users" ("username");
 
-CREATE INDEX ON "users" ("location");
-
 CREATE INDEX ON "accounts" ("owner");
 
 CREATE UNIQUE INDEX ON "accounts" ("owner", "currency");
@@ -112,8 +108,6 @@ CREATE INDEX ON "posts" ("author");
 CREATE INDEX ON "posts" ("product_id");
 
 CREATE INDEX ON "posts" ("created_at");
-
-CREATE INDEX ON "posts" ("location");
 
 CREATE INDEX ON "products" ("seller");
 

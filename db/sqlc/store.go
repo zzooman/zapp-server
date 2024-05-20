@@ -135,8 +135,7 @@ type CreatePostTxParams struct {
 	Username string 		`json:"username"`
 	Title    string 		`json:"title"`
 	Content  string 		`json:"content"`
-	Media    []string 		`json:"media"`
-	Location string 		`json:"location"`
+	Media    []string 		`json:"media"`	
 	ProductID pgtype.Int8   `json:"product_id"` // nullable ProductID field 
 }
 
@@ -162,8 +161,7 @@ func (store *SQLStore) CreatePostTx(ctx context.Context, arg CreatePostTxParams)
 			Author:    result.User.Username,			
 			Title:     arg.Title,
 			Content:   arg.Content,
-			Media:     arg.Media,
-			Location:  pgtype.Text{String: arg.Location, Valid: true},		
+			Media:     arg.Media,			
 			ProductID: arg.ProductID, // nullable ProductID field	
 		})
 		if err != nil {

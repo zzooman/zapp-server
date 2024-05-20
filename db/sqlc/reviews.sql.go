@@ -12,7 +12,7 @@ import (
 )
 
 const createReview = `-- name: CreateReview :one
-INSERT INTO reviews (product_id, reviewer, rating, content) VALUES ($1, $2, $3, $4) RETURNING id, product_id, reviewer, rating, content, created_at
+INSERT INTO reviews (product_id, reviewer, rating, content) VALUES ($1, $2, $3, $4) RETURNING id, product_id, reviewer, rating, medias, content, created_at
 `
 
 type CreateReviewParams struct {
@@ -35,6 +35,7 @@ func (q *Queries) CreateReview(ctx context.Context, arg CreateReviewParams) (Rev
 		&i.ProductID,
 		&i.Reviewer,
 		&i.Rating,
+		&i.Medias,
 		&i.Content,
 		&i.CreatedAt,
 	)
@@ -51,7 +52,7 @@ func (q *Queries) DeleteReview(ctx context.Context, id int64) error {
 }
 
 const getReview = `-- name: GetReview :one
-SELECT id, product_id, reviewer, rating, content, created_at FROM reviews WHERE id = $1 LIMIT 1
+SELECT id, product_id, reviewer, rating, medias, content, created_at FROM reviews WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetReview(ctx context.Context, id int64) (Review, error) {
@@ -62,6 +63,7 @@ func (q *Queries) GetReview(ctx context.Context, id int64) (Review, error) {
 		&i.ProductID,
 		&i.Reviewer,
 		&i.Rating,
+		&i.Medias,
 		&i.Content,
 		&i.CreatedAt,
 	)
@@ -69,7 +71,7 @@ func (q *Queries) GetReview(ctx context.Context, id int64) (Review, error) {
 }
 
 const getReviews = `-- name: GetReviews :many
-SELECT id, product_id, reviewer, rating, content, created_at FROM reviews ORDER BY id LIMIT $1 OFFSET $2
+SELECT id, product_id, reviewer, rating, medias, content, created_at FROM reviews ORDER BY id LIMIT $1 OFFSET $2
 `
 
 type GetReviewsParams struct {
@@ -91,6 +93,7 @@ func (q *Queries) GetReviews(ctx context.Context, arg GetReviewsParams) ([]Revie
 			&i.ProductID,
 			&i.Reviewer,
 			&i.Rating,
+			&i.Medias,
 			&i.Content,
 			&i.CreatedAt,
 		); err != nil {

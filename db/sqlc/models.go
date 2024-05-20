@@ -54,8 +54,8 @@ type Post struct {
 	Title     string             `json:"title"`
 	Content   string             `json:"content"`
 	Media     []string           `json:"media"`
-	Location  pgtype.Text        `json:"location"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	Views     pgtype.Int8        `json:"views"`
 }
 
 type Product struct {
@@ -65,7 +65,7 @@ type Product struct {
 	Description pgtype.Text `json:"description"`
 	Price       int64       `json:"price"`
 	Stock       int64       `json:"stock"`
-	Images      []string    `json:"images"`
+	Medias      []string    `json:"medias"`
 }
 
 type Review struct {
@@ -73,6 +73,7 @@ type Review struct {
 	ProductID int64              `json:"product_id"`
 	Reviewer  string             `json:"reviewer"`
 	Rating    int32              `json:"rating"`
+	Medias    []string           `json:"medias"`
 	Content   pgtype.Text        `json:"content"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
@@ -91,7 +92,6 @@ type User struct {
 	Password          string             `json:"password"`
 	Email             string             `json:"email"`
 	Phone             pgtype.Text        `json:"phone"`
-	Location          pgtype.Text        `json:"location"`
 	PasswordChangedAt pgtype.Timestamptz `json:"password_changed_at"`
 	CreatedAt         pgtype.Timestamptz `json:"created_at"`
 }

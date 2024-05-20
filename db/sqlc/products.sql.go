@@ -12,7 +12,7 @@ import (
 )
 
 const createProduct = `-- name: CreateProduct :one
-INSERT INTO products (seller, name, description, price, stock, images) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, seller, name, description, price, stock, images
+INSERT INTO products (seller, name, description, price, stock, medias) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, seller, name, description, price, stock, medias
 `
 
 type CreateProductParams struct {
@@ -21,7 +21,7 @@ type CreateProductParams struct {
 	Description pgtype.Text `json:"description"`
 	Price       int64       `json:"price"`
 	Stock       int64       `json:"stock"`
-	Images      []string    `json:"images"`
+	Medias      []string    `json:"medias"`
 }
 
 func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
@@ -31,7 +31,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		arg.Description,
 		arg.Price,
 		arg.Stock,
-		arg.Images,
+		arg.Medias,
 	)
 	var i Product
 	err := row.Scan(
@@ -41,7 +41,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		&i.Description,
 		&i.Price,
 		&i.Stock,
-		&i.Images,
+		&i.Medias,
 	)
 	return i, err
 }
@@ -56,7 +56,7 @@ func (q *Queries) DeleteProduct(ctx context.Context, id int64) error {
 }
 
 const getProduct = `-- name: GetProduct :one
-SELECT id, seller, name, description, price, stock, images FROM products WHERE id = $1 LIMIT 1
+SELECT id, seller, name, description, price, stock, medias FROM products WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
@@ -69,13 +69,13 @@ func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
 		&i.Description,
 		&i.Price,
 		&i.Stock,
-		&i.Images,
+		&i.Medias,
 	)
 	return i, err
 }
 
 const getProducts = `-- name: GetProducts :many
-SELECT id, seller, name, description, price, stock, images FROM products ORDER BY id LIMIT $1 OFFSET $2
+SELECT id, seller, name, description, price, stock, medias FROM products ORDER BY id LIMIT $1 OFFSET $2
 `
 
 type GetProductsParams struct {
@@ -99,7 +99,7 @@ func (q *Queries) GetProducts(ctx context.Context, arg GetProductsParams) ([]Pro
 			&i.Description,
 			&i.Price,
 			&i.Stock,
-			&i.Images,
+			&i.Medias,
 		); err != nil {
 			return nil, err
 		}
@@ -112,7 +112,7 @@ func (q *Queries) GetProducts(ctx context.Context, arg GetProductsParams) ([]Pro
 }
 
 const updateProduct = `-- name: UpdateProduct :exec
-UPDATE products SET seller = $2, name = $3, description = $4, price = $5, stock = $6, images = $7 WHERE id = $1
+UPDATE products SET seller = $2, name = $3, description = $4, price = $5, stock = $6, medias = $7 WHERE id = $1
 `
 
 type UpdateProductParams struct {
@@ -122,7 +122,7 @@ type UpdateProductParams struct {
 	Description pgtype.Text `json:"description"`
 	Price       int64       `json:"price"`
 	Stock       int64       `json:"stock"`
-	Images      []string    `json:"images"`
+	Medias      []string    `json:"medias"`
 }
 
 func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) error {
@@ -133,7 +133,7 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) er
 		arg.Description,
 		arg.Price,
 		arg.Stock,
-		arg.Images,
+		arg.Medias,
 	)
 	return err
 }

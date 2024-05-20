@@ -12,25 +12,11 @@ import (
 )
 
 // Create User
-type Location string
-const (
-	LocationSeoul    Location = "Seoul"
-	LocationBusan    Location = "Busan"
-	LocationIncheon  Location = "Incheon"
-	LocationDaegu    Location = "Daegu"
-	LocationDaejeon  Location = "Daejeon"
-	LocationGwangju  Location = "Gwangju"
-	LocationUlsan    Location = "Ulsan"
-	LocationSejong   Location = "Sejong"
-	LocationGyeonggi Location = "Gyeonggi"
-	// Add more location options as needed
-)
 func newUserResponse(user db.User) userResponse {
 	return userResponse{
 		Username:          user.Username,
 		Email:             user.Email,
-		Phone:             user.Phone,
-		Location:          user.Location,
+		Phone:             user.Phone,		
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
 	}
@@ -40,14 +26,12 @@ type createUserRequest struct {
 	Username string   `json:"username" binding:"required,alphanum,min=4,max=32"`
 	Password string   `json:"password" binding:"required,min=6,max=32"`
 	Email    string   `json:"email" binding:"required,email,max=64"`
-	Phone    string   `json:"phone" binding:"omitempty"`
-	Location Location `json:"location" binding:"omitempty"`
+	Phone    string   `json:"phone" binding:"omitempty"`	
 }
 type userResponse struct {
 	Username          string             `json:"username"`	
 	Email             string             `json:"email"`
-	Phone             pgtype.Text        `json:"phone"`
-	Location          pgtype.Text        `json:"location"`
+	Phone             pgtype.Text        `json:"phone"`	
 	PasswordChangedAt pgtype.Timestamptz `json:"password_changed_at"`
 	CreatedAt         pgtype.Timestamptz `json:"created_at"`
 }
@@ -67,8 +51,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 		Username: req.Username,
 		Password: hashedPassword,
 		Email:    req.Email,					
-	}
-	if req.Location != "" {payload.Location = pgtype.Text{String: string(req.Location), Valid: true}}
+	}	
 	if req.Phone != "" {payload.Phone = pgtype.Text{String: req.Phone, Valid: true}}
 
 	user, err := server.store.CreateUser(ctx, payload)

@@ -12,7 +12,7 @@ import (
 )
 
 const createPost = `-- name: CreatePost :one
-INSERT INTO posts (author, product_id, title, content, media, location, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, author, product_id, title, content, media, location, created_at
+INSERT INTO posts (author, product_id, title, content, media, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, author, product_id, title, content, media, created_at, views
 `
 
 type CreatePostParams struct {
@@ -21,7 +21,6 @@ type CreatePostParams struct {
 	Title     string             `json:"title"`
 	Content   string             `json:"content"`
 	Media     []string           `json:"media"`
-	Location  pgtype.Text        `json:"location"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
@@ -32,7 +31,6 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 		arg.Title,
 		arg.Content,
 		arg.Media,
-		arg.Location,
 		arg.CreatedAt,
 	)
 	var i Post
@@ -43,8 +41,8 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 		&i.Title,
 		&i.Content,
 		&i.Media,
-		&i.Location,
 		&i.CreatedAt,
+		&i.Views,
 	)
 	return i, err
 }
@@ -59,7 +57,7 @@ func (q *Queries) DeletePost(ctx context.Context, id int64) error {
 }
 
 const getPost = `-- name: GetPost :one
-SELECT id, author, product_id, title, content, media, location, created_at FROM posts WHERE id = $1 LIMIT 1
+SELECT id, author, product_id, title, content, media, created_at, views FROM posts WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
@@ -72,14 +70,14 @@ func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
 		&i.Title,
 		&i.Content,
 		&i.Media,
-		&i.Location,
 		&i.CreatedAt,
+		&i.Views,
 	)
 	return i, err
 }
 
 const getPosts = `-- name: GetPosts :many
-SELECT id, author, product_id, title, content, media, location, created_at FROM posts ORDER BY id LIMIT $1 OFFSET $2
+SELECT id, author, product_id, title, content, media, created_at, views FROM posts ORDER BY id LIMIT $1 OFFSET $2
 `
 
 type GetPostsParams struct {
@@ -103,8 +101,8 @@ func (q *Queries) GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, err
 			&i.Title,
 			&i.Content,
 			&i.Media,
-			&i.Location,
 			&i.CreatedAt,
+			&i.Views,
 		); err != nil {
 			return nil, err
 		}
@@ -117,7 +115,7 @@ func (q *Queries) GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, err
 }
 
 const updatePost = `-- name: UpdatePost :exec
-UPDATE posts SET author = $2, product_id = $3, title = $4, content = $5, media = $6, location = $7 WHERE id = $1
+UPDATE posts SET author = $2, product_id = $3, title = $4, content = $5, media = $6 WHERE id = $1
 `
 
 type UpdatePostParams struct {
@@ -127,7 +125,6 @@ type UpdatePostParams struct {
 	Title     string      `json:"title"`
 	Content   string      `json:"content"`
 	Media     []string    `json:"media"`
-	Location  pgtype.Text `json:"location"`
 }
 
 func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
@@ -138,7 +135,6 @@ func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
 		arg.Title,
 		arg.Content,
 		arg.Media,
-		arg.Location,
 	)
 	return err
 }

@@ -18,8 +18,7 @@ func createRandomUser(t *testing.T) User {
 		Username: utils.RandomString(6),
 		Password: hashedPassword,
 		Email:    utils.RandomString(12),
-		Phone:    pgtype.Text{String: "1234567890", Valid: true},
-		Location: pgtype.Text{String: "Seoul", Valid: true},
+		Phone:    pgtype.Text{String: "1234567890", Valid: true},		
 	}
 
 	user, err := testStore.CreateUser(context.Background(), arg)
@@ -28,8 +27,7 @@ func createRandomUser(t *testing.T) User {
 
 	require.Equal(t, arg.Username, user.Username)
 	require.Equal(t, arg.Email, user.Email)
-	require.Equal(t, arg.Phone, user.Phone)
-	require.Equal(t, arg.Location, user.Location)
+	require.Equal(t, arg.Phone, user.Phone)	
 
 	return user
 }
@@ -58,8 +56,7 @@ func TestGetUser(t *testing.T) {
 	require.Equal(t, createdUser.Username, gettedUser.Username)
 	require.Equal(t, createdUser.Username, gettedUser.Username)
 	require.Equal(t, createdUser.Email, gettedUser.Email)
-	require.Equal(t, createdUser.Phone, gettedUser.Phone)
-	require.Equal(t, createdUser.Location, gettedUser.Location)
+	require.Equal(t, createdUser.Phone, gettedUser.Phone)	
 	require.Equal(t, createdUser.CreatedAt, gettedUser.CreatedAt)
 }
 func TestUpdateUser(t *testing.T) {
@@ -70,8 +67,7 @@ func TestUpdateUser(t *testing.T) {
 		Username: user.Username,
 		Password: "newpassword",
 		Phone:    pgtype.Text{String: "9876543210", Valid: true},
-		Email:    utils.RandomString(12),
-		Location: pgtype.Text{String: "Seoul", Valid: true},
+		Email:    utils.RandomString(12),		
 	}
 
 	// Call the UpdateUser method
@@ -86,7 +82,6 @@ func TestUpdateUser(t *testing.T) {
 	// Verify the updated user's fields
 	require.Equal(t, params.Username, updatedUser.Username)
 	require.Equal(t, params.Email, updatedUser.Email)
-	require.Equal(t, params.Phone, updatedUser.Phone)
-	require.Equal(t, params.Location, updatedUser.Location)
+	require.Equal(t, params.Phone, updatedUser.Phone)	
 	require.Equal(t, user.CreatedAt, updatedUser.CreatedAt)
 }

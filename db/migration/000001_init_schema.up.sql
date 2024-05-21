@@ -1,184 +1,122 @@
-CREATE TABLE "users" (
-  "username" varchar(255) PRIMARY KEY,
-  "password" varchar(255) NOT NULL,
-  "email" varchar(255) UNIQUE NOT NULL,
-  "phone" varchar(11),
-  "password_changed_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
-  "created_at" timestamptz DEFAULT (now())
+CREATE TABLE users (
+  username VARCHAR(255) PRIMARY KEY,
+  password VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  phone VARCHAR(11),
+  password_changed_at TIMESTAMPTZ NOT NULL DEFAULT '0001-01-01 00:00:00Z',
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "accounts" (
-  "id" BIGSERIAL PRIMARY KEY,
-  "owner" varchar NOT NULL,
-  "balance" bigint NOT NULL,
-  "currency" varchar NOT NULL,
-  "created_at" timestamptz DEFAULT (now())
+CREATE TABLE bank_accounts (
+  id BIGSERIAL PRIMARY KEY,
+  owner VARCHAR(255) NOT NULL,
+  account_number VARCHAR(20) NOT NULL,
+  bank_name VARCHAR(100) NOT NULL,
+  account_holder_name VARCHAR(100) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (owner) REFERENCES users(username)
 );
 
-CREATE TABLE "entries" (
-  "id" BIGSERIAL PRIMARY KEY,
-  "account_id" bigint NOT NULL,
-  "amount" bigint NOT NULL,
-  "created_at" timestamptz DEFAULT (now())
+CREATE TABLE products (
+  id BIGSERIAL PRIMARY KEY,
+  seller VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  price BIGINT NOT NULL,
+  stock BIGINT NOT NULL,
+  medias VARCHAR[],
+  FOREIGN KEY (seller) REFERENCES users(username)
 );
 
-CREATE TABLE "transfers" (
-  "id" BIGSERIAL PRIMARY KEY,
-  "from_account_id" bigint NOT NULL,
-  "to_account_id" bigint NOT NULL,
-  "amount" bigint NOT NULL,
-  "created_at" timestamptz DEFAULT (now())
+CREATE TABLE posts (
+  id BIGSERIAL PRIMARY KEY,
+  author VARCHAR(255) NOT NULL,
+  product_id BIGINT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  content TEXT NOT NULL,
+  media VARCHAR[],
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  views BIGINT DEFAULT 0,
+  FOREIGN KEY (author) REFERENCES users(username),
+  FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
-CREATE TABLE "posts" (
-  "id" BIGSERIAL PRIMARY KEY,
-  "author" varchar(255) NOT NULL,
-  "product_id" bigint,
-  "title" varchar(255) NOT NULL,
-  "content" text NOT NULL,
-  "media" varchar[],
-  "created_at" timestamptz DEFAULT (now()),
-  "views" bigint DEFAULT 0
+CREATE TABLE transactions (
+  transaction_id BIGSERIAL PRIMARY KEY,
+  product_id BIGINT NOT NULL,
+  buyer VARCHAR(255) NOT NULL,
+  seller VARCHAR(255) NOT NULL,
+  status VARCHAR(20) DEFAULT 'pending',
+  total_amount DECIMAL(10, 2) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (product_id) REFERENCES products(id),
+  FOREIGN KEY (buyer) REFERENCES users(username),
+  FOREIGN KEY (seller) REFERENCES users(username)
 );
 
-CREATE TABLE "products" (
-  "id" BIGSERIAL PRIMARY KEY,
-  "seller" varchar(255) NOT NULL,
-  "name" varchar(255) NOT NULL,
-  "description" text,
-  "price" bigint NOT NULL,
-  "stock" bigint NOT NULL,
-  "medias" varchar[]
+CREATE TABLE payments (
+  payment_id BIGSERIAL PRIMARY KEY,
+  transaction_id BIGINT NOT NULL,
+  payment_status VARCHAR(20) DEFAULT 'Pending',
+  payment_method VARCHAR(50) NOT NULL,
+  payment_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  payment_amount DECIMAL(10, 2) NOT NULL,
+  FOREIGN KEY (transaction_id) REFERENCES transactions(transaction_id)
 );
 
-CREATE TABLE "orders" (
-  "id" BIGSERIAL PRIMARY KEY,
-  "product_id" BIGSERIAL NOT NULL,
-  "buyer" varchar(255) NOT NULL,
-  "quantity" bigint NOT NULL,
-  "price_at_order" bigint NOT NULL,
-  "status" varchar(31),
-  "created_at" timestamptz DEFAULT (now())
+CREATE TABLE like_with_post (
+  username VARCHAR(255) NOT NULL,
+  post_id BIGINT NOT NULL,
+  FOREIGN KEY (username) REFERENCES users(username),
+  FOREIGN KEY (post_id) REFERENCES posts(id)
 );
 
-CREATE TABLE "like_with_post" (
-  "username" varchar(255) NOT NULL,
-  "post_id" bigint NOT NULL
+CREATE TABLE wish_with_product (
+  username VARCHAR(255) NOT NULL,
+  product_id BIGINT NOT NULL,
+  FOREIGN KEY (username) REFERENCES users(username),
+  FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
-CREATE TABLE "wish_with_product" (
-  "username" varchar(255) NOT NULL,
-  "product_id" bigint NOT NULL
+CREATE TABLE reviews (
+  id BIGSERIAL PRIMARY KEY,
+  product_id BIGINT NOT NULL,
+  reviewer VARCHAR(255) NOT NULL,
+  rating INT NOT NULL,
+  medias VARCHAR[],
+  content TEXT,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (product_id) REFERENCES products(id),
+  FOREIGN KEY (reviewer) REFERENCES users(username)
 );
 
-CREATE TABLE "reviews" (
-  "id" BIGSERIAL PRIMARY KEY,
-  "product_id" bigint NOT NULL,
-  "reviewer" varchar(255) NOT NULL,
-  "rating" int NOT NULL,
-  "medias" varchar[],
-  "content" text,
-  "created_at" timestamptz DEFAULT (now())
+CREATE TABLE comments (
+  id BIGSERIAL PRIMARY KEY,
+  post_id BIGINT NOT NULL,
+  parent_comment_id BIGINT NULL,
+  commentor VARCHAR(255) NOT NULL,
+  comment_text TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (post_id) REFERENCES posts(id),
+  FOREIGN KEY (commentor) REFERENCES users(username),
+  FOREIGN KEY (parent_comment_id) REFERENCES comments(id)
 );
 
-CREATE TABLE "comments" (
-  "id" BIGSERIAL PRIMARY KEY,
-  "post_id" bigint NOT NULL,
-  "commentor" varchar(255) NOT NULL,
-  "content" text NOT NULL,
-  "created_at" timestamptz DEFAULT (now())
-);
-
-CREATE INDEX ON "users" ("username");
-
-CREATE INDEX ON "accounts" ("owner");
-
-CREATE UNIQUE INDEX ON "accounts" ("owner", "currency");
-
-CREATE INDEX ON "entries" ("account_id");
-
-CREATE INDEX ON "transfers" ("from_account_id");
-
-CREATE INDEX ON "transfers" ("to_account_id");
-
-CREATE INDEX ON "transfers" ("from_account_id", "to_account_id");
-
-CREATE INDEX ON "posts" ("author");
-
-CREATE INDEX ON "posts" ("product_id");
-
-CREATE INDEX ON "posts" ("created_at");
-
-CREATE INDEX ON "products" ("seller");
-
-CREATE INDEX ON "products" ("name");
-
-CREATE INDEX ON "products" ("price");
-
-CREATE INDEX ON "orders" ("buyer");
-
-CREATE INDEX ON "orders" ("product_id");
-
-CREATE INDEX ON "orders" ("created_at");
-
-CREATE INDEX ON "orders" ("status");
-
-CREATE INDEX ON "orders" ("buyer", "product_id");
-
-CREATE INDEX ON "like_with_post" ("username");
-
-CREATE INDEX ON "like_with_post" ("post_id");
-
-CREATE INDEX ON "wish_with_product" ("username");
-
-CREATE INDEX ON "wish_with_product" ("product_id");
-
-CREATE INDEX ON "reviews" ("product_id");
-
-CREATE INDEX ON "reviews" ("reviewer");
-
-CREATE INDEX ON "reviews" ("created_at");
-
-CREATE INDEX ON "comments" ("post_id");
-
-CREATE INDEX ON "comments" ("commentor");
-
-CREATE INDEX ON "comments" ("created_at");
-
-COMMENT ON COLUMN "entries"."amount" IS 'cab be negative or positive';
-
-COMMENT ON COLUMN "transfers"."amount" IS 'must be positive';
-
-ALTER TABLE "accounts" ADD FOREIGN KEY ("owner") REFERENCES "users" ("username");
-
-ALTER TABLE "entries" ADD FOREIGN KEY ("account_id") REFERENCES "accounts" ("id");
-
-ALTER TABLE "transfers" ADD FOREIGN KEY ("from_account_id") REFERENCES "accounts" ("id");
-
-ALTER TABLE "transfers" ADD FOREIGN KEY ("to_account_id") REFERENCES "accounts" ("id");
-
-ALTER TABLE "posts" ADD FOREIGN KEY ("author") REFERENCES "users" ("username");
-
-ALTER TABLE "posts" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id");
-
-ALTER TABLE "products" ADD FOREIGN KEY ("seller") REFERENCES "users" ("username");
-
-ALTER TABLE "orders" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id");
-
-ALTER TABLE "orders" ADD FOREIGN KEY ("buyer") REFERENCES "users" ("username");
-
-ALTER TABLE "like_with_post" ADD FOREIGN KEY ("username") REFERENCES "users" ("username");
-
-ALTER TABLE "like_with_post" ADD FOREIGN KEY ("post_id") REFERENCES "posts" ("id");
-
-ALTER TABLE "wish_with_product" ADD FOREIGN KEY ("username") REFERENCES "users" ("username");
-
-ALTER TABLE "wish_with_product" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id");
-
-ALTER TABLE "reviews" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id");
-
-ALTER TABLE "reviews" ADD FOREIGN KEY ("reviewer") REFERENCES "users" ("username");
-
-ALTER TABLE "comments" ADD FOREIGN KEY ("post_id") REFERENCES "posts" ("id");
-
-ALTER TABLE "comments" ADD FOREIGN KEY ("commentor") REFERENCES "users" ("username");
+-- Create indexes after table creation
+CREATE INDEX ON users (username);
+CREATE INDEX ON bank_accounts (owner);
+CREATE INDEX ON products (seller);
+CREATE INDEX ON posts (author);
+CREATE INDEX ON posts (product_id);
+CREATE INDEX ON transactions (product_id);
+CREATE INDEX ON transactions (buyer);
+CREATE INDEX ON transactions (seller);
+CREATE INDEX ON payments (transaction_id);
+CREATE INDEX ON like_with_post (username);
+CREATE INDEX ON like_with_post (post_id);
+CREATE INDEX ON wish_with_product (username);
+CREATE INDEX ON wish_with_product (product_id);
+CREATE INDEX ON reviews (product_id);
+CREATE INDEX ON reviews (reviewer);
+CREATE INDEX ON comments (post_id);
+CREATE INDEX ON comments (commentor);

@@ -7,7 +7,7 @@ CREATE TABLE users (
   "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE bank_accounts (
+CREATE TABLE accounts (
   "id" BIGSERIAL PRIMARY KEY,
   "owner" VARCHAR(255) NOT NULL,
   "account_number" VARCHAR(20) NOT NULL,

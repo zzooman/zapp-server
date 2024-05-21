@@ -1,5 +1,5 @@
 -- name: CreateReview :one
-INSERT INTO reviews (product_id, reviewer, rating, content) VALUES ($1, $2, $3, $4) RETURNING *;
+INSERT INTO reviews (product_id, reviewer, rating, content, medias) VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
 -- name: GetReview :one
 SELECT * FROM reviews WHERE id = $1 LIMIT 1;
@@ -8,7 +8,7 @@ SELECT * FROM reviews WHERE id = $1 LIMIT 1;
 SELECT * FROM reviews ORDER BY id LIMIT $1 OFFSET $2;
 
 -- name: UpdateReview :exec
-UPDATE reviews SET product_id = $2, reviewer = $3, rating = $4, content = $5 WHERE id = $1;
+UPDATE reviews SET product_id = $2, reviewer = $3, rating = $4, content = $5, medias = $6 WHERE id = $1;
 
 -- name: DeleteReview :exec
 DELETE FROM reviews WHERE id = $1;

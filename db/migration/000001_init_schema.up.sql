@@ -4,7 +4,8 @@ CREATE TABLE users (
   "email" VARCHAR(255) UNIQUE NOT NULL,
   "phone" VARCHAR(11),
   "password_changed_at" TIMESTAMPTZ NOT NULL DEFAULT '0001-01-01 00:00:00Z',
-  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE bank_accounts (
@@ -14,6 +15,7 @@ CREATE TABLE bank_accounts (
   "bank_name" VARCHAR(100) NOT NULL,
   "account_holder_name" VARCHAR(100) NOT NULL,
   "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY ("owner") REFERENCES users("username")
 );
 
@@ -34,9 +36,10 @@ CREATE TABLE posts (
   "product_id" BIGINT NOT NULL,
   "title" VARCHAR(255) NOT NULL,
   "content" TEXT NOT NULL,
-  "media" VARCHAR[],
-  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  "media" VARCHAR[],  
   "views" BIGINT DEFAULT 0,
+  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY ("author") REFERENCES users("username"),
   FOREIGN KEY ("product_id") REFERENCES products("id")
 );
@@ -49,6 +52,7 @@ CREATE TABLE transactions (
   "status" VARCHAR(20) DEFAULT 'pending',
   "total_amount" DECIMAL(10, 2) NOT NULL,
   "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY ("product_id") REFERENCES products("id"),
   FOREIGN KEY ("buyer") REFERENCES users("username"),
   FOREIGN KEY ("seller") REFERENCES users("username")
@@ -86,6 +90,7 @@ CREATE TABLE reviews (
   "medias" VARCHAR[],
   "content" TEXT,
   "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY ("product_id") REFERENCES products("id"),
   FOREIGN KEY ("reviewer") REFERENCES users("username")
 );
@@ -97,6 +102,7 @@ CREATE TABLE comments (
   "commentor" VARCHAR(255) NOT NULL,
   "comment_text" TEXT NOT NULL,
   "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY ("post_id") REFERENCES posts("id"),
   FOREIGN KEY ("commentor") REFERENCES users("username"),
   FOREIGN KEY ("parent_comment_id") REFERENCES comments("id")

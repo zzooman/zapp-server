@@ -4,8 +4,7 @@ CREATE TABLE users (
   "email" VARCHAR(255) UNIQUE NOT NULL,
   "phone" VARCHAR(11),
   "password_changed_at" TIMESTAMPTZ NOT NULL DEFAULT '0001-01-01 00:00:00Z',
-  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  "updated_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE bank_accounts (
@@ -14,8 +13,7 @@ CREATE TABLE bank_accounts (
   "account_number" VARCHAR(20) NOT NULL,
   "bank_name" VARCHAR(100) NOT NULL,
   "account_holder_name" VARCHAR(100) NOT NULL,
-  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  "updated_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,  
   FOREIGN KEY ("owner") REFERENCES users("username")
 );
 
@@ -38,8 +36,7 @@ CREATE TABLE posts (
   "content" TEXT NOT NULL,
   "media" VARCHAR[],  
   "views" BIGINT DEFAULT 0,
-  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  "updated_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,  
   FOREIGN KEY ("author") REFERENCES users("username"),
   FOREIGN KEY ("product_id") REFERENCES products("id")
 );
@@ -51,8 +48,7 @@ CREATE TABLE transactions (
   "seller" VARCHAR(255) NOT NULL,
   "status" VARCHAR(20) DEFAULT 'pending',
   "total_amount" DECIMAL(10, 2) NOT NULL,
-  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  "updated_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,  
   FOREIGN KEY ("product_id") REFERENCES products("id"),
   FOREIGN KEY ("buyer") REFERENCES users("username"),
   FOREIGN KEY ("seller") REFERENCES users("username")
@@ -89,8 +85,7 @@ CREATE TABLE reviews (
   "rating" INT NOT NULL,
   "medias" VARCHAR[],
   "content" TEXT,
-  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  "updated_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,  
   FOREIGN KEY ("product_id") REFERENCES products("id"),
   FOREIGN KEY ("reviewer") REFERENCES users("username")
 );
@@ -101,12 +96,13 @@ CREATE TABLE comments (
   "parent_comment_id" BIGINT NULL,
   "commentor" VARCHAR(255) NOT NULL,
   "comment_text" TEXT NOT NULL,
-  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  "updated_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,  
   FOREIGN KEY ("post_id") REFERENCES posts("id"),
   FOREIGN KEY ("commentor") REFERENCES users("username"),
   FOREIGN KEY ("parent_comment_id") REFERENCES comments("id")
 );
+
+
 
 -- Create indexes after table creation
 CREATE INDEX ON users ("username");

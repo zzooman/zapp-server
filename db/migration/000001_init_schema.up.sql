@@ -106,7 +106,7 @@ CREATE TABLE comments (
 
 -- Create indexes after table creation
 CREATE INDEX ON users ("username");
-CREATE INDEX ON bank_accounts ("owner");
+CREATE INDEX ON accounts ("owner");
 CREATE INDEX ON products ("seller");
 CREATE INDEX ON posts ("author");
 CREATE INDEX ON posts ("product_id");

@@ -12,7 +12,7 @@ import (
 )
 
 const createReview = `-- name: CreateReview :one
-INSERT INTO reviews (product_id, reviewer, rating, content) VALUES ($1, $2, $3, $4) RETURNING id, product_id, reviewer, rating, medias, content, created_at
+INSERT INTO reviews (product_id, reviewer, rating, content, medias) VALUES ($1, $2, $3, $4, $5) RETURNING id, product_id, reviewer, rating, medias, content, created_at
 `
 
 type CreateReviewParams struct {
@@ -20,6 +20,7 @@ type CreateReviewParams struct {
 	Reviewer  string      `json:"reviewer"`
 	Rating    int32       `json:"rating"`
 	Content   pgtype.Text `json:"content"`
+	Medias    []string    `json:"medias"`
 }
 
 func (q *Queries) CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error) {
@@ -28,6 +29,7 @@ func (q *Queries) CreateReview(ctx context.Context, arg CreateReviewParams) (Rev
 		arg.Reviewer,
 		arg.Rating,
 		arg.Content,
+		arg.Medias,
 	)
 	var i Review
 	err := row.Scan(
@@ -108,7 +110,7 @@ func (q *Queries) GetReviews(ctx context.Context, arg GetReviewsParams) ([]Revie
 }
 
 const updateReview = `-- name: UpdateReview :exec
-UPDATE reviews SET product_id = $2, reviewer = $3, rating = $4, content = $5 WHERE id = $1
+UPDATE reviews SET product_id = $2, reviewer = $3, rating = $4, content = $5, medias = $6 WHERE id = $1
 `
 
 type UpdateReviewParams struct {
@@ -117,6 +119,7 @@ type UpdateReviewParams struct {
 	Reviewer  string      `json:"reviewer"`
 	Rating    int32       `json:"rating"`
 	Content   pgtype.Text `json:"content"`
+	Medias    []string    `json:"medias"`
 }
 
 func (q *Queries) UpdateReview(ctx context.Context, arg UpdateReviewParams) error {
@@ -126,6 +129,7 @@ func (q *Queries) UpdateReview(ctx context.Context, arg UpdateReviewParams) erro
 		arg.Reviewer,
 		arg.Rating,
 		arg.Content,
+		arg.Medias,
 	)
 	return err
 }

@@ -12,12 +12,12 @@ import (
 )
 
 const createPost = `-- name: CreatePost :one
-INSERT INTO posts (author, product_id, title, content, media, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, author, product_id, title, content, media, created_at, views
+INSERT INTO posts (author, product_id, title, content, media, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, author, product_id, title, content, media, views, created_at
 `
 
 type CreatePostParams struct {
 	Author    string             `json:"author"`
-	ProductID pgtype.Int8        `json:"product_id"`
+	ProductID int64              `json:"product_id"`
 	Title     string             `json:"title"`
 	Content   string             `json:"content"`
 	Media     []string           `json:"media"`
@@ -41,8 +41,8 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 		&i.Title,
 		&i.Content,
 		&i.Media,
-		&i.CreatedAt,
 		&i.Views,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -57,7 +57,7 @@ func (q *Queries) DeletePost(ctx context.Context, id int64) error {
 }
 
 const getPost = `-- name: GetPost :one
-SELECT id, author, product_id, title, content, media, created_at, views FROM posts WHERE id = $1 LIMIT 1
+SELECT id, author, product_id, title, content, media, views, created_at FROM posts WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
@@ -70,14 +70,14 @@ func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
 		&i.Title,
 		&i.Content,
 		&i.Media,
-		&i.CreatedAt,
 		&i.Views,
+		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getPosts = `-- name: GetPosts :many
-SELECT id, author, product_id, title, content, media, created_at, views FROM posts ORDER BY id LIMIT $1 OFFSET $2
+SELECT id, author, product_id, title, content, media, views, created_at FROM posts ORDER BY id LIMIT $1 OFFSET $2
 `
 
 type GetPostsParams struct {
@@ -101,8 +101,8 @@ func (q *Queries) GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, err
 			&i.Title,
 			&i.Content,
 			&i.Media,
-			&i.CreatedAt,
 			&i.Views,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -119,12 +119,12 @@ UPDATE posts SET author = $2, product_id = $3, title = $4, content = $5, media =
 `
 
 type UpdatePostParams struct {
-	ID        int64       `json:"id"`
-	Author    string      `json:"author"`
-	ProductID pgtype.Int8 `json:"product_id"`
-	Title     string      `json:"title"`
-	Content   string      `json:"content"`
-	Media     []string    `json:"media"`
+	ID        int64    `json:"id"`
+	Author    string   `json:"author"`
+	ProductID int64    `json:"product_id"`
+	Title     string   `json:"title"`
+	Content   string   `json:"content"`
+	Media     []string `json:"media"`
 }
 
 func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {

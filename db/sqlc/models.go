@@ -9,27 +9,21 @@ import (
 )
 
 type Account struct {
-	ID        int64              `json:"id"`
-	Owner     string             `json:"owner"`
-	Balance   int64              `json:"balance"`
-	Currency  string             `json:"currency"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	ID                int64              `json:"id"`
+	Owner             string             `json:"owner"`
+	AccountNumber     string             `json:"account_number"`
+	BankName          string             `json:"bank_name"`
+	AccountHolderName string             `json:"account_holder_name"`
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`
 }
 
 type Comment struct {
-	ID        int64              `json:"id"`
-	PostID    int64              `json:"post_id"`
-	Commentor string             `json:"commentor"`
-	Content   string             `json:"content"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-}
-
-type Entry struct {
-	ID        int64 `json:"id"`
-	AccountID int64 `json:"account_id"`
-	// cab be negative or positive
-	Amount    int64              `json:"amount"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	ID              int64              `json:"id"`
+	PostID          int64              `json:"post_id"`
+	ParentCommentID pgtype.Int8        `json:"parent_comment_id"`
+	Commentor       string             `json:"commentor"`
+	CommentText     string             `json:"comment_text"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
 }
 
 type LikeWithPost struct {
@@ -37,25 +31,24 @@ type LikeWithPost struct {
 	PostID   int64  `json:"post_id"`
 }
 
-type Order struct {
-	ID           int64              `json:"id"`
-	ProductID    int64              `json:"product_id"`
-	Buyer        string             `json:"buyer"`
-	Quantity     int64              `json:"quantity"`
-	PriceAtOrder int64              `json:"price_at_order"`
-	Status       pgtype.Text        `json:"status"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+type Payment struct {
+	PaymentID     int64              `json:"payment_id"`
+	TransactionID int64              `json:"transaction_id"`
+	PaymentStatus pgtype.Text        `json:"payment_status"`
+	PaymentMethod string             `json:"payment_method"`
+	PaymentDate   pgtype.Timestamptz `json:"payment_date"`
+	PaymentAmount pgtype.Numeric     `json:"payment_amount"`
 }
 
 type Post struct {
 	ID        int64              `json:"id"`
 	Author    string             `json:"author"`
-	ProductID pgtype.Int8        `json:"product_id"`
+	ProductID int64              `json:"product_id"`
 	Title     string             `json:"title"`
 	Content   string             `json:"content"`
 	Media     []string           `json:"media"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	Views     pgtype.Int8        `json:"views"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
 type Product struct {
@@ -78,13 +71,14 @@ type Review struct {
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
-type Transfer struct {
-	ID            int64 `json:"id"`
-	FromAccountID int64 `json:"from_account_id"`
-	ToAccountID   int64 `json:"to_account_id"`
-	// must be positive
-	Amount    int64              `json:"amount"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
+type Transaction struct {
+	TransactionID int64              `json:"transaction_id"`
+	ProductID     int64              `json:"product_id"`
+	Buyer         string             `json:"buyer"`
+	Seller        string             `json:"seller"`
+	Status        pgtype.Text        `json:"status"`
+	TotalAmount   pgtype.Numeric     `json:"total_amount"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
 }
 
 type User struct {

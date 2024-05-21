@@ -10,56 +10,62 @@ import (
 
 type Querier interface {
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
+	// CREATE TABLE comments (
+	//   "id" BIGSERIAL PRIMARY KEY,
+	//   "post_id" BIGINT NOT NULL,
+	//   "parent_comment_id" BIGINT NULL,
+	//   "commentor" VARCHAR(255) NOT NULL,
+	//   "comment_text" TEXT NOT NULL,
+	//   "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+	//   FOREIGN KEY ("post_id") REFERENCES posts("id"),
+	//   FOREIGN KEY ("commentor") REFERENCES users("username"),
+	//   FOREIGN KEY ("parent_comment_id") REFERENCES comments("id")
+	// );
 	CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error)
-	CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry, error)
 	CreateLikeWithPost(ctx context.Context, arg CreateLikeWithPostParams) (LikeWithPost, error)
-	CreateOrder(ctx context.Context, arg CreateOrderParams) (Order, error)
+	CreatePayment(ctx context.Context, arg CreatePaymentParams) (Payment, error)
 	CreatePost(ctx context.Context, arg CreatePostParams) (Post, error)
 	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
 	CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error)
-	CreateTransfer(ctx context.Context, arg CreateTransferParams) (Transfer, error)
+	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateWishWithProduct(ctx context.Context, arg CreateWishWithProductParams) (WishWithProduct, error)
 	DeleteAccount(ctx context.Context, id int64) error
 	DeleteComment(ctx context.Context, id int64) error
-	DeleteEntry(ctx context.Context, id int64) error
 	DeleteLikeWithPost(ctx context.Context, arg DeleteLikeWithPostParams) error
-	DeleteOrder(ctx context.Context, id int64) error
+	DeletePayment(ctx context.Context, paymentID int64) error
 	DeletePost(ctx context.Context, id int64) error
 	DeleteProduct(ctx context.Context, id int64) error
 	DeleteReview(ctx context.Context, id int64) error
-	DeleteTransfer(ctx context.Context, id int64) error
+	DeleteTransaction(ctx context.Context, transactionID int64) error
 	DeleteUser(ctx context.Context, username string) error
 	DeleteWishWithProduct(ctx context.Context, arg DeleteWishWithProductParams) error
 	GetAccount(ctx context.Context, id int64) (Account, error)
-	GetAccountForUpdate(ctx context.Context, id int64) (Account, error)
-	GetAccounts(ctx context.Context, arg GetAccountsParams) ([]Account, error)
+	// SELECT * FROM accounts WHERE id = $1 LIMIT 1 FOR NO KEY UPDATE;
+	GetAccountForUpdate(ctx context.Context, arg GetAccountForUpdateParams) (Account, error)
+	GetBuyerTransactions(ctx context.Context, arg GetBuyerTransactionsParams) ([]Transaction, error)
 	GetComment(ctx context.Context, id int64) (Comment, error)
 	GetComments(ctx context.Context, arg GetCommentsParams) ([]Comment, error)
-	GetEntries(ctx context.Context, arg GetEntriesParams) ([]Entry, error)
-	GetEntry(ctx context.Context, id int64) (Entry, error)
 	GetLikeWithPost(ctx context.Context, arg GetLikeWithPostParams) (LikeWithPost, error)
-	GetOrder(ctx context.Context, id int64) (Order, error)
-	GetOrders(ctx context.Context, arg GetOrdersParams) ([]Order, error)
+	GetPayment(ctx context.Context, paymentID int64) (Payment, error)
+	GetPayments(ctx context.Context, arg GetPaymentsParams) ([]Payment, error)
 	GetPost(ctx context.Context, id int64) (Post, error)
 	GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, error)
 	GetProduct(ctx context.Context, id int64) (Product, error)
 	GetProducts(ctx context.Context, arg GetProductsParams) ([]Product, error)
 	GetReview(ctx context.Context, id int64) (Review, error)
 	GetReviews(ctx context.Context, arg GetReviewsParams) ([]Review, error)
-	GetTransfer(ctx context.Context, id int64) (Transfer, error)
-	GetTransfers(ctx context.Context, arg GetTransfersParams) ([]Transfer, error)
+	GetSellerTransactions(ctx context.Context, arg GetSellerTransactionsParams) ([]Transaction, error)
+	GetTransaction(ctx context.Context, transactionID int64) (Transaction, error)
 	GetUser(ctx context.Context, username string) (User, error)
 	GetWishWithProduct(ctx context.Context, arg GetWishWithProductParams) (WishWithProduct, error)
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
-	UpdateAccountBalance(ctx context.Context, arg UpdateAccountBalanceParams) (Account, error)
 	UpdateComment(ctx context.Context, arg UpdateCommentParams) error
-	UpdateEntry(ctx context.Context, arg UpdateEntryParams) error
-	UpdateOrder(ctx context.Context, arg UpdateOrderParams) error
+	UpdatePaymentStatus(ctx context.Context, arg UpdatePaymentStatusParams) (Payment, error)
 	UpdatePost(ctx context.Context, arg UpdatePostParams) error
 	UpdateProduct(ctx context.Context, arg UpdateProductParams) error
 	UpdateReview(ctx context.Context, arg UpdateReviewParams) error
-	UpdateTransfer(ctx context.Context, arg UpdateTransferParams) error
+	UpdateTransactionStatus(ctx context.Context, arg UpdateTransactionStatusParams) (Transaction, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 }
 

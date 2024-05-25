@@ -12,14 +12,15 @@ import (
 )
 
 const createPost = `-- name: CreatePost :one
-INSERT INTO posts (author, product_id, title, content, media, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, author, product_id, title, content, media, views, created_at
+INSERT INTO posts (author, title, content, price, stock, media, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, author, title, content, media, price, stock, views, created_at
 `
 
 type CreatePostParams struct {
 	Author    string             `json:"author"`
-	ProductID int64              `json:"product_id"`
 	Title     string             `json:"title"`
 	Content   string             `json:"content"`
+	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
 	Media     []string           `json:"media"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
@@ -27,9 +28,10 @@ type CreatePostParams struct {
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
 	row := q.db.QueryRow(ctx, createPost,
 		arg.Author,
-		arg.ProductID,
 		arg.Title,
 		arg.Content,
+		arg.Price,
+		arg.Stock,
 		arg.Media,
 		arg.CreatedAt,
 	)
@@ -37,10 +39,11 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 	err := row.Scan(
 		&i.ID,
 		&i.Author,
-		&i.ProductID,
 		&i.Title,
 		&i.Content,
 		&i.Media,
+		&i.Price,
+		&i.Stock,
 		&i.Views,
 		&i.CreatedAt,
 	)
@@ -57,7 +60,7 @@ func (q *Queries) DeletePost(ctx context.Context, id int64) error {
 }
 
 const getPost = `-- name: GetPost :one
-SELECT id, author, product_id, title, content, media, views, created_at FROM posts WHERE id = $1 LIMIT 1
+SELECT id, author, title, content, media, price, stock, views, created_at FROM posts WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
@@ -66,10 +69,11 @@ func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Author,
-		&i.ProductID,
 		&i.Title,
 		&i.Content,
 		&i.Media,
+		&i.Price,
+		&i.Stock,
 		&i.Views,
 		&i.CreatedAt,
 	)
@@ -77,7 +81,7 @@ func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
 }
 
 const getPosts = `-- name: GetPosts :many
-SELECT id, author, product_id, title, content, media, views, created_at FROM posts ORDER BY id LIMIT $1 OFFSET $2
+SELECT id, author, title, content, media, price, stock, views, created_at FROM posts ORDER BY id LIMIT $1 OFFSET $2
 `
 
 type GetPostsParams struct {
@@ -97,10 +101,11 @@ func (q *Queries) GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, err
 		if err := rows.Scan(
 			&i.ID,
 			&i.Author,
-			&i.ProductID,
 			&i.Title,
 			&i.Content,
 			&i.Media,
+			&i.Price,
+			&i.Stock,
 			&i.Views,
 			&i.CreatedAt,
 		); err != nil {
@@ -115,25 +120,25 @@ func (q *Queries) GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, err
 }
 
 const updatePost = `-- name: UpdatePost :exec
-UPDATE posts SET author = $2, product_id = $3, title = $4, content = $5, media = $6 WHERE id = $1
+UPDATE posts SET title = $2, content = $3, price = $4, stock = $5, media = $6 WHERE id = $1
 `
 
 type UpdatePostParams struct {
-	ID        int64    `json:"id"`
-	Author    string   `json:"author"`
-	ProductID int64    `json:"product_id"`
-	Title     string   `json:"title"`
-	Content   string   `json:"content"`
-	Media     []string `json:"media"`
+	ID      int64    `json:"id"`
+	Title   string   `json:"title"`
+	Content string   `json:"content"`
+	Price   int64    `json:"price"`
+	Stock   int64    `json:"stock"`
+	Media   []string `json:"media"`
 }
 
 func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
 	_, err := q.db.Exec(ctx, updatePost,
 		arg.ID,
-		arg.Author,
-		arg.ProductID,
 		arg.Title,
 		arg.Content,
+		arg.Price,
+		arg.Stock,
 		arg.Media,
 	)
 	return err

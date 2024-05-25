@@ -25,7 +25,6 @@ type Querier interface {
 	CreateLikeWithPost(ctx context.Context, arg CreateLikeWithPostParams) (LikeWithPost, error)
 	CreatePayment(ctx context.Context, arg CreatePaymentParams) (Payment, error)
 	CreatePost(ctx context.Context, arg CreatePostParams) (Post, error)
-	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
 	CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error)
 	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
@@ -35,7 +34,6 @@ type Querier interface {
 	DeleteLikeWithPost(ctx context.Context, arg DeleteLikeWithPostParams) error
 	DeletePayment(ctx context.Context, paymentID int64) error
 	DeletePost(ctx context.Context, id int64) error
-	DeleteProduct(ctx context.Context, id int64) error
 	DeleteReview(ctx context.Context, id int64) error
 	DeleteTransaction(ctx context.Context, transactionID int64) error
 	DeleteUser(ctx context.Context, username string) error
@@ -51,8 +49,6 @@ type Querier interface {
 	GetPayments(ctx context.Context, arg GetPaymentsParams) ([]Payment, error)
 	GetPost(ctx context.Context, id int64) (Post, error)
 	GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, error)
-	GetProduct(ctx context.Context, id int64) (Product, error)
-	GetProducts(ctx context.Context, arg GetProductsParams) ([]Product, error)
 	GetReview(ctx context.Context, id int64) (Review, error)
 	GetReviews(ctx context.Context, arg GetReviewsParams) ([]Review, error)
 	GetSellerTransactions(ctx context.Context, arg GetSellerTransactionsParams) ([]Transaction, error)
@@ -63,7 +59,6 @@ type Querier interface {
 	UpdateComment(ctx context.Context, arg UpdateCommentParams) error
 	UpdatePaymentStatus(ctx context.Context, arg UpdatePaymentStatusParams) (Payment, error)
 	UpdatePost(ctx context.Context, arg UpdatePostParams) error
-	UpdateProduct(ctx context.Context, arg UpdateProductParams) error
 	UpdateReview(ctx context.Context, arg UpdateReviewParams) error
 	UpdateTransactionStatus(ctx context.Context, arg UpdateTransactionStatusParams) (Transaction, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error

@@ -12,11 +12,11 @@ import (
 )
 
 const createTransaction = `-- name: CreateTransaction :one
-INSERT INTO transactions (product_id, buyer, seller, total_amount) VALUES ($1, $2, $3, $4) RETURNING transaction_id, product_id, buyer, seller, status, total_amount, created_at
+INSERT INTO transactions (post_id, buyer, seller, total_amount) VALUES ($1, $2, $3, $4) RETURNING transaction_id, post_id, buyer, seller, status, total_amount, created_at
 `
 
 type CreateTransactionParams struct {
-	ProductID   int64          `json:"product_id"`
+	PostID      int64          `json:"post_id"`
 	Buyer       string         `json:"buyer"`
 	Seller      string         `json:"seller"`
 	TotalAmount pgtype.Numeric `json:"total_amount"`
@@ -24,7 +24,7 @@ type CreateTransactionParams struct {
 
 func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error) {
 	row := q.db.QueryRow(ctx, createTransaction,
-		arg.ProductID,
+		arg.PostID,
 		arg.Buyer,
 		arg.Seller,
 		arg.TotalAmount,
@@ -32,7 +32,7 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 	var i Transaction
 	err := row.Scan(
 		&i.TransactionID,
-		&i.ProductID,
+		&i.PostID,
 		&i.Buyer,
 		&i.Seller,
 		&i.Status,
@@ -52,7 +52,7 @@ func (q *Queries) DeleteTransaction(ctx context.Context, transactionID int64) er
 }
 
 const getBuyerTransactions = `-- name: GetBuyerTransactions :many
-SELECT transaction_id, product_id, buyer, seller, status, total_amount, created_at FROM transactions WHERE buyer = $1 ORDER BY transaction_id LIMIT $2 OFFSET $3
+SELECT transaction_id, post_id, buyer, seller, status, total_amount, created_at FROM transactions WHERE buyer = $1 ORDER BY transaction_id LIMIT $2 OFFSET $3
 `
 
 type GetBuyerTransactionsParams struct {
@@ -72,7 +72,7 @@ func (q *Queries) GetBuyerTransactions(ctx context.Context, arg GetBuyerTransact
 		var i Transaction
 		if err := rows.Scan(
 			&i.TransactionID,
-			&i.ProductID,
+			&i.PostID,
 			&i.Buyer,
 			&i.Seller,
 			&i.Status,
@@ -90,7 +90,7 @@ func (q *Queries) GetBuyerTransactions(ctx context.Context, arg GetBuyerTransact
 }
 
 const getSellerTransactions = `-- name: GetSellerTransactions :many
-SELECT transaction_id, product_id, buyer, seller, status, total_amount, created_at FROM transactions WHERE seller = $1 ORDER BY transaction_id LIMIT $2 OFFSET $3
+SELECT transaction_id, post_id, buyer, seller, status, total_amount, created_at FROM transactions WHERE seller = $1 ORDER BY transaction_id LIMIT $2 OFFSET $3
 `
 
 type GetSellerTransactionsParams struct {
@@ -110,7 +110,7 @@ func (q *Queries) GetSellerTransactions(ctx context.Context, arg GetSellerTransa
 		var i Transaction
 		if err := rows.Scan(
 			&i.TransactionID,
-			&i.ProductID,
+			&i.PostID,
 			&i.Buyer,
 			&i.Seller,
 			&i.Status,
@@ -128,7 +128,7 @@ func (q *Queries) GetSellerTransactions(ctx context.Context, arg GetSellerTransa
 }
 
 const getTransaction = `-- name: GetTransaction :one
-SELECT transaction_id, product_id, buyer, seller, status, total_amount, created_at FROM transactions WHERE transaction_id = $1 LIMIT 1
+SELECT transaction_id, post_id, buyer, seller, status, total_amount, created_at FROM transactions WHERE transaction_id = $1 LIMIT 1
 `
 
 func (q *Queries) GetTransaction(ctx context.Context, transactionID int64) (Transaction, error) {
@@ -136,7 +136,7 @@ func (q *Queries) GetTransaction(ctx context.Context, transactionID int64) (Tran
 	var i Transaction
 	err := row.Scan(
 		&i.TransactionID,
-		&i.ProductID,
+		&i.PostID,
 		&i.Buyer,
 		&i.Seller,
 		&i.Status,
@@ -147,7 +147,7 @@ func (q *Queries) GetTransaction(ctx context.Context, transactionID int64) (Tran
 }
 
 const updateTransactionStatus = `-- name: UpdateTransactionStatus :one
-UPDATE transactions SET status = $2 WHERE transaction_id = $1 RETURNING transaction_id, product_id, buyer, seller, status, total_amount, created_at
+UPDATE transactions SET status = $2 WHERE transaction_id = $1 RETURNING transaction_id, post_id, buyer, seller, status, total_amount, created_at
 `
 
 type UpdateTransactionStatusParams struct {
@@ -160,7 +160,7 @@ func (q *Queries) UpdateTransactionStatus(ctx context.Context, arg UpdateTransac
 	var i Transaction
 	err := row.Scan(
 		&i.TransactionID,
-		&i.ProductID,
+		&i.PostID,
 		&i.Buyer,
 		&i.Seller,
 		&i.Status,

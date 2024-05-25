@@ -36,12 +36,13 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 	router.Use(cors.New(config))
 
 	router.POST("/login", server.loginUser)	
-	router.POST("/user", server.createUser)	
+	router.POST("/user", server.createUser)		
 
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 
 	authRoutes.GET("/user/:id", server.getUser)
 	authRoutes.DELETE("/user/:id", server.deleteUser)	
+	authRoutes.POST("/post", server.createPost)
 
 }
 

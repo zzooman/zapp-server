@@ -1,6 +1,7 @@
 package token
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -8,53 +9,74 @@ import (
 	"github.com/google/uuid"
 )
 
-// PasetoMaker is a struct that implements Maker interface
+// PasetoMaker는 Maker 인터페이스를 구현하는 구조체입니다.
 type PasetoMaker struct {
     symmetricKey paseto.V4SymmetricKey
     implicit     []byte
 }
- 
+
 func NewPasetoMaker() Maker {
-    return &PasetoMaker{paseto.NewV4SymmetricKey(), []byte("my implicit nonce")}
+    return &PasetoMaker{
+        symmetricKey: paseto.NewV4SymmetricKey(),
+        implicit:     []byte("my implicit nonce"),
+    }
 }
- 
-// CreateToken creates a new token for a specific username and duration
+
+// CreateToken은 특정 사용자 이름과 기간에 대해 새로운 토큰을 생성합니다.
 func (maker *PasetoMaker) CreateToken(username string, duration time.Duration) (string, error) {
-    // create paseto token
+    // 대칭 키와 암시적 논스 디버그 출력
+    fmt.Println("Symmetric Key (Create):", maker.symmetricKey)
+    fmt.Println("Implicit (Create):", maker.implicit)
+
+    // paseto 토큰 생성
     token := paseto.NewToken()
-    // Create uuid for token id
+    // 토큰 ID용 uuid 생성
     tokenID, err := uuid.NewRandom()
     if err != nil {
         return "", err
     }
-    // add data to the token.
+    // 토큰에 데이터 추가
     token.Set("id", tokenID.String())
     token.Set("username", username)
     token.SetIssuedAt(time.Now())
     token.SetExpiration(time.Now().Add(duration))
-    return token.V4Encrypt(maker.symmetricKey, maker.implicit), nil
+    tokenString := token.V4Encrypt(maker.symmetricKey, maker.implicit)
+
+    // 생성된 토큰 디버그 출력
+    fmt.Println("Generated Token:", tokenString)
+    return tokenString, nil
 }
- 
-// VerifyToken checks if the token is valid or not
+
+// VerifyToken은 토큰이 유효한지 확인합니다.
 func (maker *PasetoMaker) VerifyToken(token string) (*Payload, error) {
+    // 대칭 키와 암시적 논스 디버그 출력
+    fmt.Println("Symmetric Key (Verify):", maker.symmetricKey)
+    fmt.Println("Implicit (Verify):", maker.implicit)
+    fmt.Println("Token: ", token)
+
     parser := paseto.NewParser()
     parser.AddRule(paseto.NotExpired())
+
+    // 토큰 파싱
     parsedToken, err := parser.ParseV4Local(maker.symmetricKey, token, maker.implicit)
     if err != nil {
+        fmt.Println("Error parsing token:", err)
         if strings.Contains(err.Error(), "expired") {
             return nil, ErrExpiredToken
         }
         return nil, ErrInvalidToken
     }
-    // construct payload from token
+
+    fmt.Println("Parsed Token: ", parsedToken)
+
+    // 토큰에서 페이로드 생성
     payload, err := getPayloadFromToken(parsedToken)
     if err != nil {
         return nil, ErrInvalidToken
     }
     return payload, nil
- 
 }
- 
+
 func getPayloadFromToken(t *paseto.Token) (*Payload, error) {
     id, err := t.GetString("id")
     if err != nil {
@@ -72,7 +94,7 @@ func getPayloadFromToken(t *paseto.Token) (*Payload, error) {
     if err != nil {
         return nil, ErrInvalidToken
     }
- 
+
     return &Payload{
         ID:        uuid.MustParse(id),
         Username:  username,
@@ -80,5 +102,5 @@ func getPayloadFromToken(t *paseto.Token) (*Payload, error) {
         ExpiredAt: expiredAt,
     }, nil
 }
- 
+
 var _ Maker = (*PasetoMaker)(nil)

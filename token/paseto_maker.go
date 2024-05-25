@@ -24,10 +24,6 @@ func NewPasetoMaker() Maker {
 
 // CreateToken은 특정 사용자 이름과 기간에 대해 새로운 토큰을 생성합니다.
 func (maker *PasetoMaker) CreateToken(username string, duration time.Duration) (string, error) {
-    // 대칭 키와 암시적 논스 디버그 출력
-    fmt.Println("Symmetric Key (Create):", maker.symmetricKey)
-    fmt.Println("Implicit (Create):", maker.implicit)
-
     // paseto 토큰 생성
     token := paseto.NewToken()
     // 토큰 ID용 uuid 생성
@@ -42,18 +38,11 @@ func (maker *PasetoMaker) CreateToken(username string, duration time.Duration) (
     token.SetExpiration(time.Now().Add(duration))
     tokenString := token.V4Encrypt(maker.symmetricKey, maker.implicit)
 
-    // 생성된 토큰 디버그 출력
-    fmt.Println("Generated Token:", tokenString)
     return tokenString, nil
 }
 
 // VerifyToken은 토큰이 유효한지 확인합니다.
 func (maker *PasetoMaker) VerifyToken(token string) (*Payload, error) {
-    // 대칭 키와 암시적 논스 디버그 출력
-    fmt.Println("Symmetric Key (Verify):", maker.symmetricKey)
-    fmt.Println("Implicit (Verify):", maker.implicit)
-    fmt.Println("Token: ", token)
-
     parser := paseto.NewParser()
     parser.AddRule(paseto.NotExpired())
 
@@ -66,8 +55,6 @@ func (maker *PasetoMaker) VerifyToken(token string) (*Payload, error) {
         }
         return nil, ErrInvalidToken
     }
-
-    fmt.Println("Parsed Token: ", parsedToken)
 
     // 토큰에서 페이로드 생성
     payload, err := getPayloadFromToken(parsedToken)

@@ -43,12 +43,6 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 	authRoutes.GET("/user/:id", server.getUser)
 	authRoutes.DELETE("/user/:id", server.deleteUser)	
 
-	authRoutes.POST("/account", server.createAccount)
-	authRoutes.GET("/account/:id", server.getAccount)
-	authRoutes.DELETE("/account/:id", server.deleteAccount)
-
-	authRoutes.POST("/transfer", server.createTransfer)
-	authRoutes.GET("/transfer/:id", server.getTransfer)
 }
 
 func (server *Server) Start(address string) error {

@@ -17,39 +17,28 @@ CREATE TABLE accounts (
   FOREIGN KEY ("owner") REFERENCES users("username")
 );
 
-CREATE TABLE products (
-  "id" BIGSERIAL PRIMARY KEY,
-  "seller" VARCHAR(255) NOT NULL,
-  "name" VARCHAR(255) NOT NULL,
-  "description" TEXT,
-  "price" BIGINT NOT NULL,
-  "stock" BIGINT NOT NULL,
-  "medias" VARCHAR[],
-  FOREIGN KEY ("seller") REFERENCES users("username")
-);
-
 CREATE TABLE posts (
   "id" BIGSERIAL PRIMARY KEY,
-  "author" VARCHAR(255) NOT NULL,
-  "product_id" BIGINT NOT NULL,
+  "author" VARCHAR(255) NOT NULL,  
   "title" VARCHAR(255) NOT NULL,
   "content" TEXT NOT NULL,
   "media" VARCHAR[],  
+  "price" BIGINT NOT NULL,
+  "stock" BIGINT NOT NULL,
   "views" BIGINT DEFAULT 0,
   "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,  
-  FOREIGN KEY ("author") REFERENCES users("username"),
-  FOREIGN KEY ("product_id") REFERENCES products("id")
+  FOREIGN KEY ("author") REFERENCES users("username")
 );
 
 CREATE TABLE transactions (
   "transaction_id" BIGSERIAL PRIMARY KEY,
-  "product_id" BIGINT NOT NULL,
+  "post_id" BIGINT NOT NULL,
   "buyer" VARCHAR(255) NOT NULL,
   "seller" VARCHAR(255) NOT NULL,
   "status" VARCHAR(20) DEFAULT 'pending',
   "total_amount" DECIMAL(10, 2) NOT NULL,
   "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,  
-  FOREIGN KEY ("product_id") REFERENCES products("id"),
+  FOREIGN KEY ("post_id") REFERENCES posts("id"),
   FOREIGN KEY ("buyer") REFERENCES users("username"),
   FOREIGN KEY ("seller") REFERENCES users("username")
 );
@@ -73,20 +62,19 @@ CREATE TABLE like_with_post (
 
 CREATE TABLE wish_with_product (
   "username" VARCHAR(255) NOT NULL,
-  "product_id" BIGINT NOT NULL,
+  "post_id" BIGINT NOT NULL,
   FOREIGN KEY ("username") REFERENCES users("username"),
-  FOREIGN KEY ("product_id") REFERENCES products("id")
+  FOREIGN KEY ("post_id") REFERENCES posts("id")
 );
 
 CREATE TABLE reviews (
   "id" BIGSERIAL PRIMARY KEY,
-  "product_id" BIGINT NOT NULL,
+  "seller" VARCHAR(255) NOT NULL,
   "reviewer" VARCHAR(255) NOT NULL,
-  "rating" INT NOT NULL,
-  "medias" VARCHAR[],
+  "rating" INT NOT NULL,  
   "content" TEXT,
   "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,  
-  FOREIGN KEY ("product_id") REFERENCES products("id"),
+  FOREIGN KEY ("seller") REFERENCES users("username"),
   FOREIGN KEY ("reviewer") REFERENCES users("username")
 );
 
@@ -107,18 +95,16 @@ CREATE TABLE comments (
 -- Create indexes after table creation
 CREATE INDEX ON users ("username");
 CREATE INDEX ON accounts ("owner");
-CREATE INDEX ON products ("seller");
 CREATE INDEX ON posts ("author");
-CREATE INDEX ON posts ("product_id");
-CREATE INDEX ON transactions ("product_id");
+CREATE INDEX ON transactions ("post_id");
 CREATE INDEX ON transactions ("buyer");
 CREATE INDEX ON transactions ("seller");
 CREATE INDEX ON payments ("transaction_id");
 CREATE INDEX ON like_with_post ("username");
 CREATE INDEX ON like_with_post ("post_id");
 CREATE INDEX ON wish_with_product ("username");
-CREATE INDEX ON wish_with_product ("product_id");
-CREATE INDEX ON reviews ("product_id");
+CREATE INDEX ON wish_with_product ("post_id");
+CREATE INDEX ON reviews ("seller");
 CREATE INDEX ON reviews ("reviewer");
 CREATE INDEX ON comments ("post_id");
 CREATE INDEX ON comments ("commentor");

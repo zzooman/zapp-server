@@ -1,30 +1,31 @@
-// package db
+package db
 
-// import (
-// 	"context"
-
-// 	"github.com/jackc/pgx/v5/pgtype"
-// 	"github.com/jackc/pgx/v5/pgxpool"
-// )
+import (
+	"github.com/jackc/pgx/v5/pgxpool"
+)
 
 
-// type Store interface {
-// 	TransferTx(ctx context.Context, arg CreateTransferParams) (TransferTxResult, error)
-// 	Querier
-// } 
+type Store interface {
+	// TransferTx(ctx context.Context, arg CreateTransferParams) (TransferTxResult, error)
+	Querier
+} 
 
-// // SQLStore provides all functions to execute SQL queries and transactions
-// type SQLStore struct {
-// 	*Queries
-// 	connPool *pgxpool.Pool // in order to DB transaction
-// } 
+// SQLStore provides all functions to execute SQL queries and transactions
+type SQLStore struct {
+	*Queries
+	connPool *pgxpool.Pool // in order to DB transaction
+} 
 
-// func NewStore(connPool *pgxpool.Pool) Store {
-// 	return &SQLStore{
-// 		connPool: connPool,
-// 		Queries: New(connPool),
-// 	}
-// }
+func NewStore(connPool *pgxpool.Pool) Store {
+	return &SQLStore{
+		connPool: connPool,
+		Queries: New(connPool),
+	}
+}
+
+func (store *SQLStore) registerProduct() {
+	// store.CreateProduct()
+}
 
 // type TransferTxParams struct {
 // 	FromAccountID int64 `json:"from_account_id"`

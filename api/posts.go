@@ -12,7 +12,7 @@ type createPostRequest struct {
 	Title   string   	`json:"title" binding:"required"`
 	Content string   	`json:"content" binding:"required"`
 	Medias  []*multipart.FileHeader 	`form:"medias"`
-	Price   int64		`json:"price" binding:"required"`
+	Price   string		`json:"price" binding:"required"`
 	Stock   int64		`json:"stock" binding:"required"`
 }
 func (server *Server) createPost(ctx *gin.Context) {

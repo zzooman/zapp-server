@@ -22,7 +22,7 @@ func (server *Server) createPost(ctx *gin.Context) {
 		return
 	}
 	// auth_payload := ctx.MustGet(AUTH_TOKEN).(*token.Payload)		
-	fmt.Println(req.Medias)
+	fmt.Println(req)
 	// post, err := server.store.CreatePost(ctx, db.CreatePostParams{
 	// 	Author: auth_payload.Username,
 	// 	Title:  req.Title,

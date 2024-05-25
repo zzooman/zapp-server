@@ -116,14 +116,13 @@ func (server *Server) deleteUser(ctx *gin.Context) {
 
 // Login User
 type loginUserRequest struct {
-	Username string   `json:"username" binding:"required,alphanum,min=4,max=32"`
-	Password string   `json:"password" binding:"required,min=6,max=32"`
+	Username string `json:"username" binding:"required,alphanum,min=4,max=32"`
+	Password string `json:"password" binding:"required,min=6,max=32"`
 }
 type loginUserResponse struct {
-	AuthToken string 		  `json:"auth_token"`
-	User 	   	userResponse  `json:"user"`
+	AuthToken string      `json:"auth_token"`
+	User      userResponse `json:"user"`
 }
-
 
 func (server *Server) loginUser(ctx *gin.Context) {
 	var req loginUserRequest
@@ -131,26 +130,32 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+
 	user, err := server.store.GetUser(ctx, req.Username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	if(!utils.CheckPasswordHash(req.Password, user.Password)) {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+
+	if !utils.CheckPasswordHash(req.Password, user.Password) {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(fmt.Errorf("invalid credentials")))
 		return
 	}
 
-	authToken, err := server.tokenMaker.CreateToken(user.Username, time.Duration(time.Duration.Minutes(720)))
+	// 토큰 만료 시간을 12시간으로 설정
+	authToken, err := server.tokenMaker.CreateToken(user.Username, time.Hour*12)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
 	rsp := loginUserResponse{
 		AuthToken: authToken,
-		User: newUserResponse(user),
-	}	
-	// Set the cookie with the access token	
-	ctx.SetCookie("auth_token", authToken, int(time.Hour.Seconds()), "/", "localhost:3000", false, true)		
-	ctx.JSON(http.StatusOK, rsp)	
+		User:      newUserResponse(user),
+	}
+
+	// Set the cookie with the access token, 만료 시간도 12시간으로 설정
+	ctx.SetCookie("auth_token", authToken, int((time.Hour * 12).Seconds()), "/", "localhost", false, true)
+	ctx.JSON(http.StatusOK, rsp)
 }
+

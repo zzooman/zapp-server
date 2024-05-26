@@ -12,7 +12,7 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (username, password, email, phone) VALUES ($1, $2, $3, $4) RETURNING username, password, email, phone, password_changed_at, created_at
+INSERT INTO users (username, password, email, phone) VALUES ($1, $2, $3, $4) RETURNING username, password, email, phone, password_changed_at, profile, created_at
 `
 
 type CreateUserParams struct {
@@ -36,6 +36,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Email,
 		&i.Phone,
 		&i.PasswordChangedAt,
+		&i.Profile,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -51,7 +52,7 @@ func (q *Queries) DeleteUser(ctx context.Context, username string) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT username, password, email, phone, password_changed_at, created_at FROM users WHERE username = $1 LIMIT 1
+SELECT username, password, email, phone, password_changed_at, profile, created_at FROM users WHERE username = $1 LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
@@ -63,13 +64,14 @@ func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 		&i.Email,
 		&i.Phone,
 		&i.PasswordChangedAt,
+		&i.Profile,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const updateUser = `-- name: UpdateUser :exec
-UPDATE users SET password = $2, phone = $3, email = $4 WHERE username = $1
+UPDATE users SET password = $2, phone = $3, email = $4, profile = $5 WHERE username = $1
 `
 
 type UpdateUserParams struct {
@@ -77,6 +79,7 @@ type UpdateUserParams struct {
 	Password string      `json:"password"`
 	Phone    pgtype.Text `json:"phone"`
 	Email    string      `json:"email"`
+	Profile  pgtype.Text `json:"profile"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
@@ -85,6 +88,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 		arg.Password,
 		arg.Phone,
 		arg.Email,
+		arg.Profile,
 	)
 	return err
 }

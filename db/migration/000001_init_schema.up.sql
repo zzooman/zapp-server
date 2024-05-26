@@ -4,6 +4,7 @@ CREATE TABLE users (
   "email" VARCHAR(255) UNIQUE NOT NULL,
   "phone" VARCHAR(11),
   "password_changed_at" TIMESTAMPTZ NOT NULL DEFAULT '0001-01-01 00:00:00Z',
+  "profile" VARCHAR(255),
   "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -43,4 +43,25 @@ func (server *Server) createPost(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, post)
 }
 
+type getPostsRequest struct {
+	Limit  int32 `form:"limit"`
+	Offset int32 `form:"offset"`
+}
+func (server *Server) getPosts(ctx *gin.Context) {
+	var req getPostsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	posts, err := server.store.GetPosts(ctx, db.GetPostsParams{
+		Limit:  req.Limit,
+		Offset: req.Offset,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, posts)	
+}
+
 

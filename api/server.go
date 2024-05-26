@@ -37,11 +37,13 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 
 	router.POST("/login", server.loginUser)	
 	router.POST("/user", server.createUser)		
+	router.POST("/posts", server.getPosts)
 
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 
 	authRoutes.GET("/user/:id", server.getUser)
-	authRoutes.DELETE("/user/:id", server.deleteUser)	
+	authRoutes.PUT("/user/:id", server.updateUser)
+	authRoutes.DELETE("/user/:id", server.deleteUser)
 	authRoutes.POST("/post", server.createPost)	
 }
 

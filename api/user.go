@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
 	db "github.com/zzooman/zapp-server/db/sqlc"
+	"github.com/zzooman/zapp-server/token"
 	"github.com/zzooman/zapp-server/utils"
 )
 
@@ -82,6 +83,53 @@ func (server *Server) getUser(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, user)
 
+}
+
+// Update User
+type updateUserRequest struct {
+	Username string `uri:"username" binding:"required"`
+	Email    string `json:"email" binding:"omitempty,email,max=64"`
+	Phone    string `json:"phone" binding:"omitempty"`
+	Profile  string `json:"profile" binding:"omitempty"`
+}
+func (server *Server) updateUser(ctx *gin.Context) {
+	var req updateUserRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	payload := ctx.MustGet(AUTH_TOKEN).(*token.Payload)
+	user, err := server.store.GetUser(ctx, payload.Username)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// Update the user with the provided values
+	if req.Email != "" {
+		user.Email = req.Email
+	}
+	if req.Phone != "" {
+		user.Phone = pgtype.Text{String: req.Phone, Valid: true}
+	}
+	if req.Profile != "" {
+		user.Profile = pgtype.Text{String: req.Profile, Valid: true}
+	}
+
+	// Save the updated user
+	updatedUser, err := server.store.UpdateUser(ctx, db.UpdateUserParams{
+		Username: user.Username,
+		Email:    user.Email,
+		Phone:    user.Phone,
+		Profile:  user.Profile,		
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, newUserResponse(updatedUser))
 }
 
 

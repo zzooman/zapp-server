@@ -70,8 +70,8 @@ func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
 	return i, err
 }
 
-const updateUser = `-- name: UpdateUser :exec
-UPDATE users SET password = $2, phone = $3, email = $4, profile = $5 WHERE username = $1
+const updateUser = `-- name: UpdateUser :one
+UPDATE users SET password = $2, phone = $3, email = $4, profile = $5 WHERE username = $1 RETURNING username, password, email, phone, password_changed_at, profile, created_at
 `
 
 type UpdateUserParams struct {
@@ -82,13 +82,23 @@ type UpdateUserParams struct {
 	Profile  pgtype.Text `json:"profile"`
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
-	_, err := q.db.Exec(ctx, updateUser,
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateUser,
 		arg.Username,
 		arg.Password,
 		arg.Phone,
 		arg.Email,
 		arg.Profile,
 	)
-	return err
+	var i User
+	err := row.Scan(
+		&i.Username,
+		&i.Password,
+		&i.Email,
+		&i.Phone,
+		&i.PasswordChangedAt,
+		&i.Profile,
+		&i.CreatedAt,
+	)
+	return i, err
 }

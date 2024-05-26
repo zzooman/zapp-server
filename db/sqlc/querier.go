@@ -61,7 +61,7 @@ type Querier interface {
 	UpdatePost(ctx context.Context, arg UpdatePostParams) error
 	UpdateReview(ctx context.Context, arg UpdateReviewParams) error
 	UpdateTransactionStatus(ctx context.Context, arg UpdateTransactionStatusParams) (Transaction, error)
-	UpdateUser(ctx context.Context, arg UpdateUserParams) error
+	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

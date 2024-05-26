@@ -42,8 +42,7 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 
 	authRoutes.GET("/user/:id", server.getUser)
 	authRoutes.DELETE("/user/:id", server.deleteUser)	
-	authRoutes.POST("/post", server.createPost)
-
+	authRoutes.POST("/post", server.createPost)	
 }
 
 func (server *Server) Start(address string) error {

@@ -34,7 +34,7 @@ func (server *Server) createPost(ctx *gin.Context) {
 		Price:     	price,
 		Stock:     	req.Stock,
 		Media:    	req.Medias,
-		CreatedAt: pgtype.Timestamptz{Time: time.Now()},				
+		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},				
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

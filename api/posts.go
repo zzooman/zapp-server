@@ -82,6 +82,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 		return
 	}
 
+	// 게시글 & 작성자 정보 조회
 	postsWithAuthor, err := server.store.GetPostsWithAuthor(ctx, db.GetPostsWithAuthorParams{
 		Limit:  req.Limit,
 		Offset: req.Offset,

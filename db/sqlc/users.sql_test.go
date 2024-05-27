@@ -67,11 +67,12 @@ func TestUpdateUser(t *testing.T) {
 		Username: user.Username,
 		Password: "newpassword",
 		Phone:    pgtype.Text{String: "9876543210", Valid: true},
-		Email:    utils.RandomString(12),		
+		Email:    utils.RandomString(12),	
+		Profile: pgtype.Text{String: "profile", Valid: true},
 	}
 
 	// Call the UpdateUser method
-	err := testStore.UpdateUser(context.Background(), params)
+	_, err := testStore.UpdateUser(context.Background(), params)
 	require.NoError(t, err)
 
 	// Retrieve the updated user

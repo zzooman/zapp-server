@@ -100,19 +100,15 @@ func (server *Server) getPosts(ctx *gin.Context) {
 
 	// 비동기 처리
 	for _, post := range postsWithAuthor {
-		go func(post db.GetPostsWithAuthorRow) {
-			isLiked := false
+		go func(post db.GetPostsWithAuthorRow) {			
 			_, err := server.store.GetLikeWithPost(ctx, db.GetLikeWithPostParams{
 				PostID:   post.ID,
 				Username: post.Author,
-			})
-			if err == nil {
-				isLiked = true
-			}
+			})	
 			ch <- struct {
 				db.GetPostsWithAuthorRow
 				IsLiked bool
-			}{post, isLiked}
+			}{post, err == nil}
 		}(post)
 	}
 

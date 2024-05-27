@@ -69,13 +69,9 @@ type PostResponse struct {
 	IsLiked   bool                `json:"isLiked"`
 }
 
-type postsResponse struct {
-	Posts []PostResponse `json:"posts"`
-}
-
 func (server *Server) getPosts(ctx *gin.Context) {
 	var req getPostsRequest
-	var res postsResponse
+	var res []PostResponse
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -115,7 +111,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 	// 결과 수집
 	for range postsWithAuthor {
 		result := <-ch
-		res.Posts = append(res.Posts, PostResponse{
+		res = append(res, PostResponse{
 			ID:        result.ID,
 			Title:     result.Title,
 			Content:   result.Content,

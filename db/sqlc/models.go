@@ -45,7 +45,7 @@ type Post struct {
 	Author    string             `json:"author"`
 	Title     string             `json:"title"`
 	Content   string             `json:"content"`
-	Media     []string           `json:"media"`
+	Medias    []string           `json:"medias"`
 	Price     int64              `json:"price"`
 	Stock     int64              `json:"stock"`
 	Views     pgtype.Int8        `json:"views"`

@@ -12,7 +12,7 @@ import (
 )
 
 const createPost = `-- name: CreatePost :one
-INSERT INTO posts (author, title, content, price, stock, media, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, author, title, content, media, price, stock, views, created_at
+INSERT INTO posts (author, title, content, price, stock, medias, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, author, title, content, medias, price, stock, views, created_at
 `
 
 type CreatePostParams struct {
@@ -21,7 +21,7 @@ type CreatePostParams struct {
 	Content   string             `json:"content"`
 	Price     int64              `json:"price"`
 	Stock     int64              `json:"stock"`
-	Media     []string           `json:"media"`
+	Medias    []string           `json:"medias"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
@@ -32,7 +32,7 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 		arg.Content,
 		arg.Price,
 		arg.Stock,
-		arg.Media,
+		arg.Medias,
 		arg.CreatedAt,
 	)
 	var i Post
@@ -41,7 +41,7 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 		&i.Author,
 		&i.Title,
 		&i.Content,
-		&i.Media,
+		&i.Medias,
 		&i.Price,
 		&i.Stock,
 		&i.Views,
@@ -60,7 +60,7 @@ func (q *Queries) DeletePost(ctx context.Context, id int64) error {
 }
 
 const getPost = `-- name: GetPost :one
-SELECT id, author, title, content, media, price, stock, views, created_at FROM posts WHERE id = $1 LIMIT 1
+SELECT id, author, title, content, medias, price, stock, views, created_at FROM posts WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
@@ -71,7 +71,7 @@ func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
 		&i.Author,
 		&i.Title,
 		&i.Content,
-		&i.Media,
+		&i.Medias,
 		&i.Price,
 		&i.Stock,
 		&i.Views,
@@ -81,7 +81,7 @@ func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
 }
 
 const getPostsWithAuthor = `-- name: GetPostsWithAuthor :many
-SELECT posts.id, posts.author, posts.title, posts.content, posts.media, posts.price, posts.stock, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username ORDER BY posts.created_at DESC LIMIT $1 OFFSET $2
+SELECT posts.id, posts.author, posts.title, posts.content, posts.medias, posts.price, posts.stock, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username ORDER BY posts.created_at DESC LIMIT $1 OFFSET $2
 `
 
 type GetPostsWithAuthorParams struct {
@@ -94,7 +94,7 @@ type GetPostsWithAuthorRow struct {
 	Author    string             `json:"author"`
 	Title     string             `json:"title"`
 	Content   string             `json:"content"`
-	Media     []string           `json:"media"`
+	Medias    []string           `json:"medias"`
 	Price     int64              `json:"price"`
 	Stock     int64              `json:"stock"`
 	Views     pgtype.Int8        `json:"views"`
@@ -118,7 +118,7 @@ func (q *Queries) GetPostsWithAuthor(ctx context.Context, arg GetPostsWithAuthor
 			&i.Author,
 			&i.Title,
 			&i.Content,
-			&i.Media,
+			&i.Medias,
 			&i.Price,
 			&i.Stock,
 			&i.Views,
@@ -138,7 +138,7 @@ func (q *Queries) GetPostsWithAuthor(ctx context.Context, arg GetPostsWithAuthor
 }
 
 const updatePost = `-- name: UpdatePost :exec
-UPDATE posts SET title = $2, content = $3, price = $4, stock = $5, media = $6 WHERE id = $1
+UPDATE posts SET title = $2, content = $3, price = $4, stock = $5, medias = $6 WHERE id = $1
 `
 
 type UpdatePostParams struct {
@@ -147,7 +147,7 @@ type UpdatePostParams struct {
 	Content string   `json:"content"`
 	Price   int64    `json:"price"`
 	Stock   int64    `json:"stock"`
-	Media   []string `json:"media"`
+	Medias  []string `json:"medias"`
 }
 
 func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
@@ -157,7 +157,7 @@ func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
 		arg.Content,
 		arg.Price,
 		arg.Stock,
-		arg.Media,
+		arg.Medias,
 	)
 	return err
 }

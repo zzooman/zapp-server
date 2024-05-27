@@ -18,8 +18,9 @@ INSERT INTO posts (author, title, content, price, stock, media, created_at) VALU
 -- name: GetPost :one
 SELECT * FROM posts WHERE id = $1 LIMIT 1;
 
--- name: GetPosts :many
-SELECT * FROM posts ORDER BY id LIMIT $1 OFFSET $2;
+-- name: GetPostsWithAuthor :many
+SELECT posts.*, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username ORDER BY posts.created_at DESC LIMIT $1 OFFSET $2;
+
 
 -- name: UpdatePost :exec
 UPDATE posts SET title = $2, content = $3, price = $4, stock = $5, media = $6 WHERE id = $1;

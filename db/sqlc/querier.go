@@ -48,7 +48,7 @@ type Querier interface {
 	GetPayment(ctx context.Context, paymentID int64) (Payment, error)
 	GetPayments(ctx context.Context, arg GetPaymentsParams) ([]Payment, error)
 	GetPost(ctx context.Context, id int64) (Post, error)
-	GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, error)
+	GetPostsWithAuthor(ctx context.Context, arg GetPostsWithAuthorParams) ([]GetPostsWithAuthorRow, error)
 	GetReview(ctx context.Context, id int64) (Review, error)
 	GetReviews(ctx context.Context, arg GetReviewsParams) ([]Review, error)
 	GetSellerTransactions(ctx context.Context, arg GetSellerTransactionsParams) ([]Transaction, error)

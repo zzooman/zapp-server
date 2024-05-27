@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -47,13 +48,22 @@ type getPostsRequest struct {
 	Limit  int32 `form:"limit"`
 	Offset int32 `form:"offset"`
 }
-func (server *Server) getPosts(ctx *gin.Context) {
-	var req getPostsRequest
+type postsResponse struct {
+	Posts   []struct {
+		db.GetPostsWithAuthorRow
+		IsLiked bool `json:"isLiked"`
+	} `json:"posts"`
+}
+func (server *Server) getPosts(ctx *gin.Context) {	
+	var req getPostsRequest	
+	var res postsResponse
+
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
-	}
-	posts, err := server.store.GetPosts(ctx, db.GetPostsParams{
+	}	
+	fmt.Println(req)
+	postsWithAuthor, err := server.store.GetPostsWithAuthor(ctx, db.GetPostsWithAuthorParams{
 		Limit:  req.Limit,
 		Offset: req.Offset,
 	})
@@ -61,7 +71,34 @@ func (server *Server) getPosts(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, posts)	
+	
+	
+	ch := make(chan struct {
+		db.GetPostsWithAuthorRow
+		IsLiked bool
+	})
+	for _, post := range postsWithAuthor {
+		go func(post db.GetPostsWithAuthorRow) {
+			_, err := server.store.GetLikeWithPost(ctx, db.GetLikeWithPostParams{
+				PostID:   post.ID,
+				Username: post.Author,
+			})
+			ch <- struct {
+				db.GetPostsWithAuthorRow
+				IsLiked bool
+			}{post, err != nil}
+		}(post)
+	}
+
+	for range postsWithAuthor {
+		result := <-ch
+		res.Posts = append(res.Posts, struct {
+			db.GetPostsWithAuthorRow
+			IsLiked bool `json:"isLiked"`
+		}(result))
+	}		
+	
+	ctx.JSON(http.StatusOK, res)	
 }
 
 

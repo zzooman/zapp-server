@@ -80,24 +80,39 @@ func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
 	return i, err
 }
 
-const getPosts = `-- name: GetPosts :many
-SELECT id, author, title, content, media, price, stock, views, created_at FROM posts ORDER BY id LIMIT $1 OFFSET $2
+const getPostsWithAuthor = `-- name: GetPostsWithAuthor :many
+SELECT posts.id, posts.author, posts.title, posts.content, posts.media, posts.price, posts.stock, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username ORDER BY posts.created_at DESC LIMIT $1 OFFSET $2
 `
 
-type GetPostsParams struct {
+type GetPostsWithAuthorParams struct {
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, error) {
-	rows, err := q.db.Query(ctx, getPosts, arg.Limit, arg.Offset)
+type GetPostsWithAuthorRow struct {
+	ID        int64              `json:"id"`
+	Author    string             `json:"author"`
+	Title     string             `json:"title"`
+	Content   string             `json:"content"`
+	Media     []string           `json:"media"`
+	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
+	Views     pgtype.Int8        `json:"views"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	Email     string             `json:"email"`
+	Phone     pgtype.Text        `json:"phone"`
+	Profile   pgtype.Text        `json:"profile"`
+}
+
+func (q *Queries) GetPostsWithAuthor(ctx context.Context, arg GetPostsWithAuthorParams) ([]GetPostsWithAuthorRow, error) {
+	rows, err := q.db.Query(ctx, getPostsWithAuthor, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Post{}
+	items := []GetPostsWithAuthorRow{}
 	for rows.Next() {
-		var i Post
+		var i GetPostsWithAuthorRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Author,
@@ -108,6 +123,9 @@ func (q *Queries) GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, err
 			&i.Stock,
 			&i.Views,
 			&i.CreatedAt,
+			&i.Email,
+			&i.Phone,
+			&i.Profile,
 		); err != nil {
 			return nil, err
 		}

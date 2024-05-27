@@ -112,14 +112,14 @@ func (server *Server) getPosts(ctx *gin.Context) {
 	for range postsWithAuthor {
 		result := <-ch
 		res = append(res, PostResponse{
-			ID:        result.ID,
-			Title:     result.Title,
-			Content:   result.Content,
+			ID:        	result.ID,
+			Title:     	result.Title,
+			Content:   	result.Content,
 			Medias:     result.Medias,
-			Price:     result.Price,
-			Stock:     result.Stock,
-			Views:     result.Views,
-			CreatedAt: result.CreatedAt,
+			Price:     	result.Price,
+			Stock:     	result.Stock,
+			Views:     	result.Views,
+			CreatedAt: 	result.CreatedAt,
 			Author: Author{
 				Username: result.Author,
 				Email:    result.Email,

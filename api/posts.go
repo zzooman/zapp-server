@@ -60,7 +60,7 @@ type PostResponse struct {
 	ID        int64               `json:"id"`
 	Title     string              `json:"title"`
 	Content   string              `json:"content"`
-	Media     []string            `json:"media"`
+	Media     []string            `json:"medias"`
 	Price     int64               `json:"price"`
 	Stock     int64               `json:"stock"`
 	Views     pgtype.Int8         `json:"views"`

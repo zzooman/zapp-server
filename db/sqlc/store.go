@@ -136,7 +136,7 @@ func (store *SQLStore) registerProduct() {
 // 	Username string 		`json:"username"`
 // 	Title    string 		`json:"title"`
 // 	Content  string 		`json:"content"`
-// 	Media    []string 		`json:"media"`	
+// 	Media    []string 		`json:"medias"`	
 // 	ProductID pgtype.Int8   `json:"product_id"` // nullable ProductID field 
 // }
 

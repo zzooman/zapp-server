@@ -23,7 +23,7 @@ CREATE TABLE posts (
   "author" VARCHAR(255) NOT NULL,  
   "title" VARCHAR(255) NOT NULL,
   "content" TEXT NOT NULL,
-  "media" VARCHAR[],  
+  "medias" VARCHAR[],  
   "price" BIGINT NOT NULL,
   "stock" BIGINT NOT NULL,
   "views" BIGINT DEFAULT 0,

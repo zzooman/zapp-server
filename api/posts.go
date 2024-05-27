@@ -34,7 +34,7 @@ func (server *Server) createPost(ctx *gin.Context) {
 		Content:   req.Content,
 		Price:     price,
 		Stock:     req.Stock,
-		Media:     req.Medias,
+		Medias:     req.Medias,
 		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
 	})
 	if err != nil {
@@ -60,7 +60,7 @@ type PostResponse struct {
 	ID        int64               `json:"id"`
 	Title     string              `json:"title"`
 	Content   string              `json:"content"`
-	Media     []string            `json:"medias"`
+	Medias    []string            `json:"medias"`
 	Price     int64               `json:"price"`
 	Stock     int64               `json:"stock"`
 	Views     pgtype.Int8         `json:"views"`
@@ -115,7 +115,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 			ID:        result.ID,
 			Title:     result.Title,
 			Content:   result.Content,
-			Media:     result.Media,
+			Medias:     result.Medias,
 			Price:     result.Price,
 			Stock:     result.Stock,
 			Views:     result.Views,

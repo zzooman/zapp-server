@@ -64,7 +64,7 @@ type PostResponse struct {
 }
 // 포스트 조회
 type getPostRequest struct {
-	ID int64 `uri:"id" binding:"required"`	
+	Id string `uri:"id" binding:"required"`	
 }
 func (server *Server) getPost(ctx *gin.Context) {
 	var req getPostRequest	
@@ -72,7 +72,12 @@ func (server *Server) getPost(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	postWithAuthor, err := server.store.GetPostWithAuthor(ctx, req.ID)
+	id, err := strconv.ParseInt(req.Id, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	postWithAuthor, err := server.store.GetPostWithAuthor(ctx, id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

@@ -12,8 +12,8 @@ type Store interface {
 
 // SQLStore provides all functions to execute SQL queries and transactions
 type SQLStore struct {
-	*Queries
 	connPool *pgxpool.Pool // in order to DB transaction
+	*Queries	
 } 
 
 func NewStore(connPool *pgxpool.Pool) Store {

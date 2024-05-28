@@ -80,6 +80,45 @@ func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
 	return i, err
 }
 
+const getPostWithAuthor = `-- name: GetPostWithAuthor :one
+SELECT posts.id, posts.author, posts.title, posts.content, posts.medias, posts.price, posts.stock, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username WHERE posts.id = $1 LIMIT 1
+`
+
+type GetPostWithAuthorRow struct {
+	ID        int64              `json:"id"`
+	Author    string             `json:"author"`
+	Title     string             `json:"title"`
+	Content   string             `json:"content"`
+	Medias    []string           `json:"medias"`
+	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
+	Views     pgtype.Int8        `json:"views"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	Email     string             `json:"email"`
+	Phone     pgtype.Text        `json:"phone"`
+	Profile   pgtype.Text        `json:"profile"`
+}
+
+func (q *Queries) GetPostWithAuthor(ctx context.Context, id int64) (GetPostWithAuthorRow, error) {
+	row := q.db.QueryRow(ctx, getPostWithAuthor, id)
+	var i GetPostWithAuthorRow
+	err := row.Scan(
+		&i.ID,
+		&i.Author,
+		&i.Title,
+		&i.Content,
+		&i.Medias,
+		&i.Price,
+		&i.Stock,
+		&i.Views,
+		&i.CreatedAt,
+		&i.Email,
+		&i.Phone,
+		&i.Profile,
+	)
+	return i, err
+}
+
 const getPostsWithAuthor = `-- name: GetPostsWithAuthor :many
 SELECT posts.id, posts.author, posts.title, posts.content, posts.medias, posts.price, posts.stock, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username ORDER BY posts.created_at DESC LIMIT $1 OFFSET $2
 `

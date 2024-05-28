@@ -18,6 +18,9 @@ INSERT INTO posts (author, title, content, price, stock, medias, created_at) VAL
 -- name: GetPost :one
 SELECT * FROM posts WHERE id = $1 LIMIT 1;
 
+-- name: GetPostWithAuthor :one
+SELECT posts.*, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username WHERE posts.id = $1 LIMIT 1;
+
 -- name: GetPostsWithAuthor :many
 SELECT posts.*, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username ORDER BY posts.created_at DESC LIMIT $1 OFFSET $2;
 

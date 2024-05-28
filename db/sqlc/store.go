@@ -23,9 +23,9 @@ func NewStore(connPool *pgxpool.Pool) Store {
 	}
 }
 
-func (store *SQLStore) registerProduct() {
-	// store.CreateProduct()
-}
+// func (store *SQLStore) registerProduct() {
+// 	store.CreateProduct()
+// }
 
 // type TransferTxParams struct {
 // 	FromAccountID int64 `json:"from_account_id"`
@@ -136,7 +136,7 @@ func (store *SQLStore) registerProduct() {
 // 	Username string 		`json:"username"`
 // 	Title    string 		`json:"title"`
 // 	Content  string 		`json:"content"`
-// 	Media    []string 		`json:"medias"`	
+// 	Media    []string 		`json:"media"`	
 // 	ProductID pgtype.Int8   `json:"product_id"` // nullable ProductID field 
 // }
 

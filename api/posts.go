@@ -44,18 +44,12 @@ func (server *Server) createPost(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, post)
 }
 
-type getPostsRequest struct {
-	Limit  int32 `form:"limit"`
-	Offset int32 `form:"offset"`
-}
-
 type Author struct {
 	Username string      `json:"username"`
 	Email    string      `json:"email"`
 	Phone    pgtype.Text `json:"phone"`
 	Profile  pgtype.Text `json:"profile"`
 }
-
 type PostResponse struct {
 	ID        int64               `json:"id"`
 	Title     string              `json:"title"`
@@ -68,7 +62,49 @@ type PostResponse struct {
 	Author    Author              `json:"author"`
 	IsLiked   bool                `json:"isLiked"`
 }
+// 포스트 조회
+type getPostRequest struct {
+	ID int64 `uri:"id" binding:"required"`	
+}
+func (server *Server) getPost(ctx *gin.Context) {
+	var req getPostRequest	
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	postWithAuthor, err := server.store.GetPostWithAuthor(ctx, req.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	_, err = server.store.GetLikeWithPost(ctx, db.GetLikeWithPostParams{
+		PostID:   postWithAuthor.ID,
+		Username: postWithAuthor.Author,
+	})
+	ctx.JSON(http.StatusOK, PostResponse{
+		ID:        	postWithAuthor.ID,
+		Title:     	postWithAuthor.Title,
+		Content:   	postWithAuthor.Content,
+		Medias:    	postWithAuthor.Medias,
+		Price:     	postWithAuthor.Price,
+		Stock:     	postWithAuthor.Stock,
+		Views:     	postWithAuthor.Views,
+		CreatedAt: 	postWithAuthor.CreatedAt,
+		Author: Author{
+			Username: postWithAuthor.Author,
+			Email:    postWithAuthor.Email,
+			Phone:    postWithAuthor.Phone,
+			Profile:  postWithAuthor.Profile,			
+		},
+		IsLiked: err == nil,
+	})
+}
 
+type getPostsRequest struct {
+	Limit  int32 `form:"limit"`
+	Offset int32 `form:"offset"`
+}
+// 포스트 목록 조회
 func (server *Server) getPosts(ctx *gin.Context) {
 	var req getPostsRequest
 	var res []PostResponse

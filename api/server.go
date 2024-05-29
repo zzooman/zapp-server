@@ -46,8 +46,8 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 	authRoutes.PUT("/user/:id", server.updateUser)
 	authRoutes.DELETE("/user/:id", server.deleteUser)
 	authRoutes.POST("/post", server.createPost)	
-	authRoutes.GET("/like", server.createLike)
-	authRoutes.DELETE("/unlike", server.deleteLike)
+	authRoutes.POST("/post/:id/like", server.createLike)
+	authRoutes.DELETE("/post/:id/unlike", server.deleteLike)
 }
 
 func (server *Server) Start(address string) error {

@@ -9,7 +9,7 @@ import (
 )
 
 type createLikeRequest struct {
-	PostID int64 `json:"post_id" binding:"required"`
+	Id int64 `json:"post_id" binding:"required"`
 }
 func (server *Server) createLike(ctx *gin.Context) {
 	var req createLikeRequest
@@ -19,7 +19,7 @@ func (server *Server) createLike(ctx *gin.Context) {
 	}
 	authPayload := ctx.MustGet(AUTH_TOKEN).(*token.Payload)
 	like, err := server.store.CreateLikeWithPost(ctx, db.CreateLikeWithPostParams{
-		PostID: req.PostID,
+		PostID: req.Id,
 		Username: authPayload.Username,
 	})
 	if err != nil {
@@ -30,7 +30,7 @@ func (server *Server) createLike(ctx *gin.Context) {
 }
 
 type deleteLikeRequest struct {
-	PostID int64 `json:"post_id" binding:"required"`
+	Id int64 `json:"post_id" binding:"required"`
 }
 func (server *Server) deleteLike(ctx *gin.Context) {
 	var req deleteLikeRequest
@@ -40,7 +40,7 @@ func (server *Server) deleteLike(ctx *gin.Context) {
 	}
 	authPayload := ctx.MustGet(AUTH_TOKEN).(*token.Payload)
 	err := server.store.DeleteLikeWithPost(ctx, db.DeleteLikeWithPostParams{
-		PostID: req.PostID,
+		PostID: req.Id,
 		Username: authPayload.Username,
 	})
 	if err != nil {

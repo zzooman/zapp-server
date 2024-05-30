@@ -91,7 +91,12 @@ CREATE TABLE comments (
   FOREIGN KEY ("parent_comment_id") REFERENCES comments("id")
 );
 
-
+CREATE TABLE search_count (
+  "id" BIGSERIAL PRIMARY KEY,  
+  "search_text" TEXT NOT NULL,
+  "count" BIGINT NOT NULL DEFAULT 1,
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP  
+);
 
 -- Create indexes after table creation
 CREATE INDEX ON users ("username");
@@ -109,3 +114,4 @@ CREATE INDEX ON reviews ("seller");
 CREATE INDEX ON reviews ("reviewer");
 CREATE INDEX ON comments ("post_id");
 CREATE INDEX ON comments ("commentor");
+CREATE INDEX ON search_count ("search_text");

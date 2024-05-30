@@ -61,6 +61,13 @@ type Review struct {
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
+type SearchCount struct {
+	ID         int64              `json:"id"`
+	SearchText string             `json:"search_text"`
+	Count      int64              `json:"count"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+}
+
 type Transaction struct {
 	TransactionID int64              `json:"transaction_id"`
 	PostID        int64              `json:"post_id"`

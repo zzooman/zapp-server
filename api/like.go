@@ -9,11 +9,11 @@ import (
 )
 
 type createLikeRequest struct {
-	Id int64 `json:"post_id" binding:"required"`
+	Id int64 `uri:"id" binding:"required"`
 }
 func (server *Server) createLike(ctx *gin.Context) {
 	var req createLikeRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindUri(&req); err != nil {		
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -30,7 +30,7 @@ func (server *Server) createLike(ctx *gin.Context) {
 }
 
 type deleteLikeRequest struct {
-	Id int64 `json:"post_id" binding:"required"`
+	Id int64 `uri:"id" binding:"required"`
 }
 func (server *Server) deleteLike(ctx *gin.Context) {
 	var req deleteLikeRequest

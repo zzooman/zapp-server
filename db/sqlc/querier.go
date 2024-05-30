@@ -58,6 +58,7 @@ type Querier interface {
 	GetTransaction(ctx context.Context, transactionID int64) (Transaction, error)
 	GetUser(ctx context.Context, username string) (User, error)
 	GetWishWithProduct(ctx context.Context, arg GetWishWithProductParams) (WishWithProduct, error)
+	HotSearchTexts(ctx context.Context) ([]SearchCount, error)
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateComment(ctx context.Context, arg UpdateCommentParams) error
 	UpdatePaymentStatus(ctx context.Context, arg UpdatePaymentStatusParams) (Payment, error)

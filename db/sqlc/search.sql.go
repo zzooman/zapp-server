@@ -25,6 +25,35 @@ func (q *Queries) GetSearchCount(ctx context.Context, searchText string) (Search
 	return i, err
 }
 
+const hotSearchTexts = `-- name: HotSearchTexts :many
+SELECT id, search_text, count, created_at FROM search_count ORDER BY count DESC LIMIT 10
+`
+
+func (q *Queries) HotSearchTexts(ctx context.Context) ([]SearchCount, error) {
+	rows, err := q.db.Query(ctx, hotSearchTexts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SearchCount{}
+	for rows.Next() {
+		var i SearchCount
+		if err := rows.Scan(
+			&i.ID,
+			&i.SearchText,
+			&i.Count,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const upsertSearchCount = `-- name: UpsertSearchCount :one
 INSERT INTO search_count (search_text, count) 
 VALUES ($1, 1) 

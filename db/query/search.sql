@@ -8,3 +8,5 @@ ON CONFLICT (search_text)
 DO UPDATE SET count = search_count.count + 1 
 RETURNING *;
 
+-- name: HotSearchTexts :many
+SELECT * FROM search_count ORDER BY count DESC LIMIT 10;

@@ -60,3 +60,12 @@ func (server *Server) searchPosts(ctx *gin.Context) {
 	res.Posts = result.Posts
 	ctx.JSON(http.StatusOK, res)
 }
+
+func (server *Server) hotSearchTexts(ctx *gin.Context) {
+	searchTexts, err := server.store.HotSearchTexts(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, searchTexts)
+}

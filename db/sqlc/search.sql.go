@@ -9,29 +9,38 @@ import (
 	"context"
 )
 
-const createSearchCount = `-- name: CreateSearchCount :exec
-INSERT INTO search_count (search_text) VALUES ($1)
+const getSearchCount = `-- name: GetSearchCount :one
+SELECT id, search_text, count, created_at FROM search_count WHERE search_text = $1 LIMIT 1
 `
 
-func (q *Queries) CreateSearchCount(ctx context.Context, searchText string) error {
-	_, err := q.db.Exec(ctx, createSearchCount, searchText)
-	return err
+func (q *Queries) GetSearchCount(ctx context.Context, searchText string) (SearchCount, error) {
+	row := q.db.QueryRow(ctx, getSearchCount, searchText)
+	var i SearchCount
+	err := row.Scan(
+		&i.ID,
+		&i.SearchText,
+		&i.Count,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
-const getSearchCount = `-- name: GetSearchCount :exec
-SELECT count FROM search_count WHERE search_text = $1
+const upsertSearchCount = `-- name: UpsertSearchCount :one
+INSERT INTO search_count (search_text, count) 
+VALUES ($1, 1) 
+ON CONFLICT (search_text) 
+DO UPDATE SET count = search_count.count + 1 
+RETURNING id, search_text, count, created_at
 `
 
-func (q *Queries) GetSearchCount(ctx context.Context, searchText string) error {
-	_, err := q.db.Exec(ctx, getSearchCount, searchText)
-	return err
-}
-
-const increceSearchCount = `-- name: IncreceSearchCount :exec
-UPDATE search_count SET count = count + 1 WHERE search_text = $1
-`
-
-func (q *Queries) IncreceSearchCount(ctx context.Context, searchText string) error {
-	_, err := q.db.Exec(ctx, increceSearchCount, searchText)
-	return err
+func (q *Queries) UpsertSearchCount(ctx context.Context, searchText string) (SearchCount, error) {
+	row := q.db.QueryRow(ctx, upsertSearchCount, searchText)
+	var i SearchCount
+	err := row.Scan(
+		&i.ID,
+		&i.SearchText,
+		&i.Count,
+		&i.CreatedAt,
+	)
+	return i, err
 }

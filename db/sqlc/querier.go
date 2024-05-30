@@ -26,7 +26,6 @@ type Querier interface {
 	CreatePayment(ctx context.Context, arg CreatePaymentParams) (Payment, error)
 	CreatePost(ctx context.Context, arg CreatePostParams) (Post, error)
 	CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error)
-	CreateSearchCount(ctx context.Context, searchText string) error
 	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateWishWithProduct(ctx context.Context, arg CreateWishWithProductParams) (WishWithProduct, error)
@@ -51,14 +50,14 @@ type Querier interface {
 	GetPost(ctx context.Context, id int64) (Post, error)
 	GetPostWithAuthor(ctx context.Context, id int64) (GetPostWithAuthorRow, error)
 	GetPostsWithAuthor(ctx context.Context, arg GetPostsWithAuthorParams) ([]GetPostsWithAuthorRow, error)
+	GetPostsWithAuthorByQuery(ctx context.Context, arg GetPostsWithAuthorByQueryParams) ([]GetPostsWithAuthorByQueryRow, error)
 	GetReview(ctx context.Context, id int64) (Review, error)
 	GetReviews(ctx context.Context, arg GetReviewsParams) ([]Review, error)
-	GetSearchCount(ctx context.Context, searchText string) error
+	GetSearchCount(ctx context.Context, searchText string) (SearchCount, error)
 	GetSellerTransactions(ctx context.Context, arg GetSellerTransactionsParams) ([]Transaction, error)
 	GetTransaction(ctx context.Context, transactionID int64) (Transaction, error)
 	GetUser(ctx context.Context, username string) (User, error)
 	GetWishWithProduct(ctx context.Context, arg GetWishWithProductParams) (WishWithProduct, error)
-	IncreceSearchCount(ctx context.Context, searchText string) error
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateComment(ctx context.Context, arg UpdateCommentParams) error
 	UpdatePaymentStatus(ctx context.Context, arg UpdatePaymentStatusParams) (Payment, error)
@@ -66,6 +65,7 @@ type Querier interface {
 	UpdateReview(ctx context.Context, arg UpdateReviewParams) error
 	UpdateTransactionStatus(ctx context.Context, arg UpdateTransactionStatusParams) (Transaction, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
+	UpsertSearchCount(ctx context.Context, searchText string) (SearchCount, error)
 }
 
 var _ Querier = (*Queries)(nil)

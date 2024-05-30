@@ -24,6 +24,8 @@ SELECT posts.*, users.email, users.phone, users.profile FROM posts JOIN users ON
 -- name: GetPostsWithAuthor :many
 SELECT posts.*, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username ORDER BY posts.created_at DESC LIMIT $1 OFFSET $2;
 
+-- name: GetPostsWithAuthorByQuery :many
+SELECT posts.*, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username WHERE posts.title ILIKE $1 OR posts.content ILIKE $1 ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3;
 
 -- name: UpdatePost :exec
 UPDATE posts SET title = $2, content = $3, price = $4, stock = $5, medias = $6 WHERE id = $1;

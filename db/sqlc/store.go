@@ -1,12 +1,16 @@
 package db
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 
 type Store interface {
 	// TransferTx(ctx context.Context, arg CreateTransferParams) (TransferTxResult, error)
+	SearchPostsTx(ctx context.Context, arg SearchPostsParams) (SearchPostsResult, error)
 	Querier
 } 
 
@@ -21,6 +25,50 @@ func NewStore(connPool *pgxpool.Pool) Store {
 		connPool: connPool,
 		Queries: New(connPool),
 	}
+}
+
+// execTx executes a function within a database transaction
+func (store *SQLStore) execTx(context context.Context, callback func(*Queries) error) error {
+	tx, err := store.connPool.Begin(context)
+	if err != nil {
+		return err
+	}
+
+	queries := New(tx)
+	err = callback(queries)
+	if err != nil {
+		if rbErr := tx.Rollback(context); rbErr != nil {
+			return fmt.Errorf("tx error: %v, rb error: %v", err, rbErr)
+		}
+		return err				
+	}	
+	return tx.Commit(context)
+}	
+
+type SearchPostsParams struct {
+	Query string `uri:"query" binding:"required"`
+	Limit int32  `uri:"limit" binding:"required"`
+	Offset int32 `uri:"offset" binding:"required"`
+}
+type SearchPostsResult struct {
+	Posts []GetPostsWithAuthorByQueryRow `json:"posts"`
+}
+func (store *SQLStore) SearchPostsTx(ctx context.Context, arg SearchPostsParams) (SearchPostsResult, error) {
+	var result SearchPostsResult		
+	err := store.execTx(ctx, func(queries *Queries) error {		
+		_, err := queries.UpsertSearchCount(ctx, arg.Query)
+		if err != nil { return err }
+
+		result.Posts, err = queries.GetPostsWithAuthorByQuery(ctx, GetPostsWithAuthorByQueryParams{
+			Title: arg.Query,			
+			Limit: arg.Limit,
+			Offset: arg.Offset,			
+		})
+		if err != nil { return err }
+
+		return nil
+	})
+	return result, err
 }
 
 // func (store *SQLStore) registerProduct() {

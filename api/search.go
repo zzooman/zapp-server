@@ -15,13 +15,9 @@ type SearchPostsRequest struct {
 	Offset int32  `form:"offset" binding:"required"`
 }
 
-type SearchPostsResult struct {
-	Posts []db.GetPostsWithAuthorByQueryRow `json:"posts"`
-}
-
 func (server *Server) searchPosts(ctx *gin.Context) {
 	var req SearchPostsRequest
-	var res SearchPostsResult
+	var res []db.GetPostsWithAuthorByQueryRow
 
 	// Set default values for Limit and Offset
 	limitStr := ctx.DefaultQuery("limit", "10")
@@ -56,8 +52,7 @@ func (server *Server) searchPosts(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-
-	res.Posts = result.Posts
+	res = result.Posts
 	ctx.JSON(http.StatusOK, res)
 }
 

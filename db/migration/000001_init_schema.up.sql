@@ -93,9 +93,9 @@ CREATE TABLE comments (
 
 CREATE TABLE search_count (
   "id" BIGSERIAL PRIMARY KEY,  
-  "search_text" TEXT NOT NULL,
+  "search_text" TEXT NOT NULL UNIQUE,
   "count" BIGINT NOT NULL DEFAULT 1,
-  "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP  
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP    
 );
 
 -- Create indexes after table creation

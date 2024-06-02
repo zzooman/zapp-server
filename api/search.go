@@ -36,12 +36,20 @@ func (server *Server) searchPosts(ctx *gin.Context) {
 		return
 	}
 
-	_, err = server.store.SearchPostsTx(ctx, db.SearchPostsParams{
+	nextPosts, err := server.store.SearchPostsTx(ctx, db.SearchPostsParams{
 		Query:  req.Query,
 		Limit:  req.Limit,
 		Offset: req.Page * req.Limit,
 	})
-	if err != nil { res.Next = false } else { res.Next = true }
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	if len(nextPosts.Posts) == 0 {
+		res.Next = false
+	} else {
+		res.Next = true
+	}
 
 	res.Posts = result.Posts
 	ctx.JSON(http.StatusOK, res)

@@ -171,5 +171,13 @@ func (server *Server) getPosts(ctx *gin.Context) {
 		})
 	}
 
-	ctx.JSON(http.StatusOK, res)
+	// 최신순 정렬
+	for range res {
+		for i := 0; i < len(res)-1; i++ {
+			if res[i].CreatedAt.Time.Before(res[i+1].CreatedAt.Time) {				
+				res[i], res[i+1] = res[i+1], res[i]
+			}
+		}
+	}	
+	ctx.JSON(http.StatusOK, res)	
 }

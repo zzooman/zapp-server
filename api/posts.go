@@ -126,7 +126,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 	// 게시글 & 작성자 정보 조회
 	postsWithAuthor, err := server.store.GetPostsWithAuthor(ctx, db.GetPostsWithAuthorParams{
 		Limit:  req.Limit,
-		Offset: req.Page * req.Limit,
+		Offset: (req.Page - 1) * req.Limit,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -136,7 +136,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 	// 다음 페이지 존재 여부 확인
 	_, err = server.store.GetPosts(ctx, db.GetPostsParams{
 		Limit:  req.Limit,
-		Offset: (req.Page + 1) * req.Limit,
+		Offset: req.Page * req.Limit,
 	})
 	if err != nil {
 		res.Next = false

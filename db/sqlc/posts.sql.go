@@ -119,6 +119,45 @@ func (q *Queries) GetPostWithAuthor(ctx context.Context, id int64) (GetPostWithA
 	return i, err
 }
 
+const getPosts = `-- name: GetPosts :many
+SELECT id, author, title, content, medias, price, stock, views, created_at FROM posts ORDER BY created_at DESC LIMIT $1 OFFSET $2
+`
+
+type GetPostsParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, error) {
+	rows, err := q.db.Query(ctx, getPosts, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Post{}
+	for rows.Next() {
+		var i Post
+		if err := rows.Scan(
+			&i.ID,
+			&i.Author,
+			&i.Title,
+			&i.Content,
+			&i.Medias,
+			&i.Price,
+			&i.Stock,
+			&i.Views,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPostsWithAuthor = `-- name: GetPostsWithAuthor :many
 SELECT posts.id, posts.author, posts.title, posts.content, posts.medias, posts.price, posts.stock, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username ORDER BY posts.created_at DESC LIMIT $1 OFFSET $2
 `

@@ -106,13 +106,17 @@ func (server *Server) getPost(ctx *gin.Context) {
 }
 
 type getPostsRequest struct {
-	Limit  int32 `form:"limit"`
-	Offset int32 `form:"offset"`
+	Limit  	int32 	`form:"limit"`
+	Page 	int32 	`form:"page"`
+}
+type getPostsResponse struct {
+	Posts []PostResponse 	`json:"posts"`
+	Next  bool		   		`json:"next"`
 }
 // 포스트 목록 조회
 func (server *Server) getPosts(ctx *gin.Context) {
 	var req getPostsRequest
-	var res []PostResponse
+	var res getPostsResponse
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -122,11 +126,22 @@ func (server *Server) getPosts(ctx *gin.Context) {
 	// 게시글 & 작성자 정보 조회
 	postsWithAuthor, err := server.store.GetPostsWithAuthor(ctx, db.GetPostsWithAuthorParams{
 		Limit:  req.Limit,
-		Offset: req.Offset,
+		Offset: req.Page * req.Limit,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
+	}
+
+	// 다음 페이지 존재 여부 확인
+	_, err = server.store.GetPosts(ctx, db.GetPostsParams{
+		Limit:  req.Limit,
+		Offset: (req.Page + 1) * req.Limit,
+	})
+	if err != nil {
+		res.Next = false
+	} else {
+		res.Next = true
 	}
 
 	// 채널 생성
@@ -152,7 +167,7 @@ func (server *Server) getPosts(ctx *gin.Context) {
 	// 결과 수집
 	for range postsWithAuthor {
 		result := <-ch
-		res = append(res, PostResponse{
+		res.Posts = append(res.Posts, PostResponse{
 			ID:        	result.ID,
 			Title:     	result.Title,
 			Content:   	result.Content,
@@ -171,11 +186,12 @@ func (server *Server) getPosts(ctx *gin.Context) {
 		})
 	}
 
+	posts := res.Posts
 	// 최신순 정렬
-	for range res {
-		for i := 0; i < len(res)-1; i++ {
-			if res[i].CreatedAt.Time.Before(res[i+1].CreatedAt.Time) {				
-				res[i], res[i+1] = res[i+1], res[i]
+	for range posts {
+		for i := 0; i < len(posts)-1; i++ {
+			if posts[i].CreatedAt.Time.Before(posts[i+1].CreatedAt.Time) {				
+				posts[i], posts[i+1] = posts[i+1], posts[i]
 			}
 		}
 	}	

@@ -216,13 +216,13 @@ func (q *Queries) GetPostsWithAuthor(ctx context.Context, arg GetPostsWithAuthor
 }
 
 const getPostsWithAuthorByQuery = `-- name: GetPostsWithAuthorByQuery :many
-SELECT posts.id, posts.author, posts.title, posts.content, posts.medias, posts.price, posts.stock, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username WHERE posts.title ILIKE $1 OR posts.content ILIKE $1 ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3
+SELECT posts.id, posts.author, posts.title, posts.content, posts.medias, posts.price, posts.stock, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username WHERE posts.title ILIKE '%' || $1 || '%' OR posts.content ILIKE '%' || $1 || '%' ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3
 `
 
 type GetPostsWithAuthorByQueryParams struct {
-	Title  string `json:"title"`
-	Limit  int32  `json:"limit"`
-	Offset int32  `json:"offset"`
+	Column1 pgtype.Text `json:"column_1"`
+	Limit   int32       `json:"limit"`
+	Offset  int32       `json:"offset"`
 }
 
 type GetPostsWithAuthorByQueryRow struct {
@@ -241,7 +241,7 @@ type GetPostsWithAuthorByQueryRow struct {
 }
 
 func (q *Queries) GetPostsWithAuthorByQuery(ctx context.Context, arg GetPostsWithAuthorByQueryParams) ([]GetPostsWithAuthorByQueryRow, error) {
-	rows, err := q.db.Query(ctx, getPostsWithAuthorByQuery, arg.Title, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, getPostsWithAuthorByQuery, arg.Column1, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

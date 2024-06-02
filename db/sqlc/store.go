@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -60,7 +61,7 @@ func (store *SQLStore) SearchPostsTx(ctx context.Context, arg SearchPostsParams)
 		if err != nil { return err }
 
 		result.Posts, err = queries.GetPostsWithAuthorByQuery(ctx, GetPostsWithAuthorByQueryParams{
-			Title: arg.Query,			
+			Column1: pgtype.Text{String: arg.Query, Valid: true},			
 			Limit: arg.Limit,
 			Offset: arg.Offset,			
 		})

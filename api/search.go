@@ -12,23 +12,26 @@ import (
 type SearchPostsRequest struct {
 	Query  string `form:"query" binding:"required"`
 	Limit  int32  `form:"limit" binding:"required"`
-	Offset int32  `form:"offset" binding:"required"`
+	Page int32  `form:"page" binding:"required"`
 }
-
+type SearchPostsResponse struct {
+	Posts []db.GetPostsWithAuthorByQueryRow `json:"posts"`
+	Next  bool							  	`json:"next"`
+}
 func (server *Server) searchPosts(ctx *gin.Context) {
 	var req SearchPostsRequest
-	var res []db.GetPostsWithAuthorByQueryRow
+	var res SearchPostsResponse
 
-	// Set default values for Limit and Offset
+	// Set default values for Limit and Page
 	limitStr := ctx.DefaultQuery("limit", "10")
-	offsetStr := ctx.DefaultQuery("offset", "0")
+	pageStr := ctx.DefaultQuery("page", "0")
 
 	limit, err := strconv.Atoi(limitStr)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	offset, err := strconv.Atoi(offsetStr)
+	page, err := strconv.Atoi(pageStr)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -36,7 +39,7 @@ func (server *Server) searchPosts(ctx *gin.Context) {
 
 	req.Query = ctx.Query("query")
 	req.Limit = int32(limit)
-	req.Offset = int32(offset)
+	req.Page = int32(page)
 
 	if req.Query == "" {
 		ctx.JSON(http.StatusBadRequest, errorResponse(fmt.Errorf("query is required")))
@@ -46,13 +49,21 @@ func (server *Server) searchPosts(ctx *gin.Context) {
 	result, err := server.store.SearchPostsTx(ctx, db.SearchPostsParams{
 		Query:  req.Query,
 		Limit:  req.Limit,
-		Offset: req.Offset,
+		Offset: req.Page * req.Limit,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	res = result.Posts
+
+	_, err = server.store.SearchPostsTx(ctx, db.SearchPostsParams{
+		Query:  req.Query,
+		Limit:  req.Limit,
+		Offset: (req.Page + 1) * req.Limit,
+	})
+	if err != nil { res.Next = false } else { res.Next = true }
+
+	res.Posts = result.Posts
 	ctx.JSON(http.StatusOK, res)
 }
 

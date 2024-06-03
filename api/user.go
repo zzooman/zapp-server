@@ -206,14 +206,28 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rsp)
 }
 
-
-func (server *Server) me(ctx *gin.Context) {		
+type meResponse struct {
+	Username 			string 				`json:"username"`
+	PasswordChangedAt 	pgtype.Timestamptz 	`json:"password_changed_at"`
+	Email    			string 				`json:"email"`
+	Phone    			pgtype.Text 		`json:"phone"`
+	Profile  			pgtype.Text 		`json:"profile"`
+	CreatedAt 			pgtype.Timestamptz 	`json:"created_at"`		
+}
+func (server *Server) me(ctx *gin.Context) {			
 	payload := ctx.MustGet(AUTH_TOKEN).(*token.Payload)	
 	user, err := server.store.GetUser(ctx, payload.Username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, user)
+	ctx.JSON(http.StatusOK, meResponse{
+		Username: user.Username,
+		PasswordChangedAt: user.PasswordChangedAt,
+		Email: user.Email,
+		Phone: user.Phone,
+		Profile: user.Profile,
+		CreatedAt: user.CreatedAt,			
+	})
 }
 

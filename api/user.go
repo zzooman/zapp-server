@@ -82,7 +82,6 @@ func (server *Server) getUser(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, user)
-
 }
 
 // Update User
@@ -207,4 +206,14 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rsp)
 }
 
+
+func (server *Server) me(ctx *gin.Context) {		
+	payload := ctx.MustGet(AUTH_TOKEN).(*token.Payload)	
+	user, err := server.store.GetUser(ctx, payload.Username)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, user)
+}
 

@@ -201,3 +201,70 @@ func (server *Server) getPosts(ctx *gin.Context) {
 	}	
 	ctx.JSON(http.StatusOK, res)	
 }
+
+// TODO : 포스트 수정
+// TODO : 포스트 삭제
+
+func (server *Server) getPostsILiked(ctx *gin.Context) {
+	var req getPostsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	username := ctx.MustGet(AUTH_TOKEN).(*token.Payload).Username
+	posts, err := server.store.GetPostsWithAuthorThatILiked(ctx, db.GetPostsWithAuthorThatILikedParams{
+		Username: 	username,
+		Limit:    	req.Limit,
+		Offset:  	(req.Page - 1) * req.Limit,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, posts)
+}
+
+
+func (server *Server) getPostsISold(ctx *gin.Context) {
+	var req getPostsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	username := ctx.MustGet(AUTH_TOKEN).(*token.Payload).Username
+	posts, err := server.store.GetPostsWithAuthorThatISold(ctx, db.GetPostsWithAuthorThatISoldParams{
+		Seller: 	username,
+		Limit:    	req.Limit,
+		Offset:  	(req.Page - 1) * req.Limit,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, posts)
+}
+
+func (server *Server) getPostsIBought(ctx *gin.Context) {
+	var req getPostsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	username := ctx.MustGet(AUTH_TOKEN).(*token.Payload).Username
+	posts, err := server.store.GetPostsWithAuthorThatIBought(ctx, db.GetPostsWithAuthorThatIBoughtParams{
+		Buyer: 	username,
+		Limit:    	req.Limit,
+		Offset:  	(req.Page - 1) * req.Limit,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, posts)
+}

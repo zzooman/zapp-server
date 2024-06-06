@@ -273,6 +273,180 @@ func (q *Queries) GetPostsWithAuthorByQuery(ctx context.Context, arg GetPostsWit
 	return items, nil
 }
 
+const getPostsWithAuthorThatIBought = `-- name: GetPostsWithAuthorThatIBought :many
+SELECT posts.id, posts.author, posts.title, posts.content, posts.medias, posts.price, posts.stock, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username JOIN transactions ON posts.id = transactions.post_id WHERE transactions.buyer = $1 ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3
+`
+
+type GetPostsWithAuthorThatIBoughtParams struct {
+	Buyer  string `json:"buyer"`
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+}
+
+type GetPostsWithAuthorThatIBoughtRow struct {
+	ID        int64              `json:"id"`
+	Author    string             `json:"author"`
+	Title     string             `json:"title"`
+	Content   string             `json:"content"`
+	Medias    []string           `json:"medias"`
+	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
+	Views     pgtype.Int8        `json:"views"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	Email     string             `json:"email"`
+	Phone     pgtype.Text        `json:"phone"`
+	Profile   pgtype.Text        `json:"profile"`
+}
+
+func (q *Queries) GetPostsWithAuthorThatIBought(ctx context.Context, arg GetPostsWithAuthorThatIBoughtParams) ([]GetPostsWithAuthorThatIBoughtRow, error) {
+	rows, err := q.db.Query(ctx, getPostsWithAuthorThatIBought, arg.Buyer, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetPostsWithAuthorThatIBoughtRow{}
+	for rows.Next() {
+		var i GetPostsWithAuthorThatIBoughtRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Author,
+			&i.Title,
+			&i.Content,
+			&i.Medias,
+			&i.Price,
+			&i.Stock,
+			&i.Views,
+			&i.CreatedAt,
+			&i.Email,
+			&i.Phone,
+			&i.Profile,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPostsWithAuthorThatILiked = `-- name: GetPostsWithAuthorThatILiked :many
+SELECT posts.id, posts.author, posts.title, posts.content, posts.medias, posts.price, posts.stock, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username JOIN like_with_post ON posts.id = like_with_post.post_id WHERE like_with_post.username = $1 ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3
+`
+
+type GetPostsWithAuthorThatILikedParams struct {
+	Username string `json:"username"`
+	Limit    int32  `json:"limit"`
+	Offset   int32  `json:"offset"`
+}
+
+type GetPostsWithAuthorThatILikedRow struct {
+	ID        int64              `json:"id"`
+	Author    string             `json:"author"`
+	Title     string             `json:"title"`
+	Content   string             `json:"content"`
+	Medias    []string           `json:"medias"`
+	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
+	Views     pgtype.Int8        `json:"views"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	Email     string             `json:"email"`
+	Phone     pgtype.Text        `json:"phone"`
+	Profile   pgtype.Text        `json:"profile"`
+}
+
+func (q *Queries) GetPostsWithAuthorThatILiked(ctx context.Context, arg GetPostsWithAuthorThatILikedParams) ([]GetPostsWithAuthorThatILikedRow, error) {
+	rows, err := q.db.Query(ctx, getPostsWithAuthorThatILiked, arg.Username, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetPostsWithAuthorThatILikedRow{}
+	for rows.Next() {
+		var i GetPostsWithAuthorThatILikedRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Author,
+			&i.Title,
+			&i.Content,
+			&i.Medias,
+			&i.Price,
+			&i.Stock,
+			&i.Views,
+			&i.CreatedAt,
+			&i.Email,
+			&i.Phone,
+			&i.Profile,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPostsWithAuthorThatISold = `-- name: GetPostsWithAuthorThatISold :many
+SELECT posts.id, posts.author, posts.title, posts.content, posts.medias, posts.price, posts.stock, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username JOIN transactions ON posts.id = transactions.post_id WHERE transactions.seller = $1 ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3
+`
+
+type GetPostsWithAuthorThatISoldParams struct {
+	Seller string `json:"seller"`
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+}
+
+type GetPostsWithAuthorThatISoldRow struct {
+	ID        int64              `json:"id"`
+	Author    string             `json:"author"`
+	Title     string             `json:"title"`
+	Content   string             `json:"content"`
+	Medias    []string           `json:"medias"`
+	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
+	Views     pgtype.Int8        `json:"views"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	Email     string             `json:"email"`
+	Phone     pgtype.Text        `json:"phone"`
+	Profile   pgtype.Text        `json:"profile"`
+}
+
+func (q *Queries) GetPostsWithAuthorThatISold(ctx context.Context, arg GetPostsWithAuthorThatISoldParams) ([]GetPostsWithAuthorThatISoldRow, error) {
+	rows, err := q.db.Query(ctx, getPostsWithAuthorThatISold, arg.Seller, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetPostsWithAuthorThatISoldRow{}
+	for rows.Next() {
+		var i GetPostsWithAuthorThatISoldRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Author,
+			&i.Title,
+			&i.Content,
+			&i.Medias,
+			&i.Price,
+			&i.Stock,
+			&i.Views,
+			&i.CreatedAt,
+			&i.Email,
+			&i.Phone,
+			&i.Profile,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updatePost = `-- name: UpdatePost :exec
 UPDATE posts SET title = $2, content = $3, price = $4, stock = $5, medias = $6 WHERE id = $1
 `

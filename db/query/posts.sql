@@ -30,6 +30,15 @@ SELECT posts.*, users.email, users.phone, users.profile FROM posts JOIN users ON
 -- name: GetPostsWithAuthorByQuery :many
 SELECT posts.*, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username WHERE posts.title ILIKE '%' || $1 || '%' OR posts.content ILIKE '%' || $1 || '%' ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3;
 
+-- name: GetPostsWithAuthorThatILiked :many
+SELECT posts.*, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username JOIN like_with_post ON posts.id = like_with_post.post_id WHERE like_with_post.username = $1 ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3;
+
+-- name: GetPostsWithAuthorThatIBought :many
+SELECT posts.*, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username JOIN transactions ON posts.id = transactions.post_id WHERE transactions.buyer = $1 ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3;
+
+-- name: GetPostsWithAuthorThatISold :many
+SELECT posts.*, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username JOIN transactions ON posts.id = transactions.post_id WHERE transactions.seller = $1 ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3;
+
 -- name: UpdatePost :exec
 UPDATE posts SET title = $2, content = $3, price = $4, stock = $5, medias = $6 WHERE id = $1;
 

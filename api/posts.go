@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -250,21 +251,25 @@ func (server *Server) getPostsISold(ctx *gin.Context) {
 
 func (server *Server) getPostsIBought(ctx *gin.Context) {
 	var req getPostsRequest
+	fmt.Println("start")
 	if err := ctx.ShouldBindQuery(&req); err != nil {
+		fmt.Println("error 1", err)
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
+	fmt.Println("req", req)
 	username := ctx.MustGet(AUTH_TOKEN).(*token.Payload).Username
-	posts, err := server.store.GetPostsWithAuthorThatIBought(ctx, db.GetPostsWithAuthorThatIBoughtParams{
-		Buyer: 	username,
+	fmt.Println("username", username)
+	posts, err := server.store.GetPostsWithAuthorThatIBought(ctx, db.GetPostsWithAuthorThatIBoughtParams{		
+		Buyer: 		username,
 		Limit:    	req.Limit,
 		Offset:  	(req.Page - 1) * req.Limit,
 	})
 	if err != nil {
+		fmt.Println("error 2", err)
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-
+	fmt.Println("posts", posts)
 	ctx.JSON(http.StatusOK, posts)
 }

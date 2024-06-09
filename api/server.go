@@ -53,7 +53,8 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 	authRoutes.DELETE("/user/:id", server.deleteUser)
 	authRoutes.POST("/post", server.createPost)	
 	authRoutes.POST("/post/:id/like", server.createLike)
-	authRoutes.DELETE("/post/:id/unlike", server.deleteLike)		
+	authRoutes.DELETE("/post/:id/unlike", server.deleteLike)
+	authRoutes.GET("/ws", server.handleWebSocket)
 }
 
 func (server *Server) Start(address string) error {

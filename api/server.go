@@ -46,14 +46,14 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 
 	authRoutes.GET("/me", server.me)
 	authRoutes.GET("/user/:id", server.getUser)
+	authRoutes.GET("/posts/liked", server.getPostsILiked)
+	authRoutes.GET("/posts/sold", server.getPostsISold)
+	authRoutes.GET("/posts/bought", server.getPostsIBought)
 	authRoutes.PUT("/user/:id", server.updateUser)
 	authRoutes.DELETE("/user/:id", server.deleteUser)
 	authRoutes.POST("/post", server.createPost)	
 	authRoutes.POST("/post/:id/like", server.createLike)
-	authRoutes.DELETE("/post/:id/unlike", server.deleteLike)	
-	authRoutes.GET("/posts/liked", server.getPostsILiked)
-	authRoutes.GET("/posts/sold", server.getPostsISold)
-	authRoutes.GET("/posts/bought", server.getPostsIBought)
+	authRoutes.DELETE("/post/:id/unlike", server.deleteLike)		
 }
 
 func (server *Server) Start(address string) error {

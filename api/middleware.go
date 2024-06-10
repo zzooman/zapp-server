@@ -9,21 +9,23 @@ import (
 )
 
 const (
-  AUTH_TOKEN = "auth_token"
+	AUTH_TOKEN = "auth_token"
 )
 
 func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		tokenInCookie, err := ctx.Cookie(AUTH_TOKEN)		
-		if err != nil { 
+		tokenInCookie, err := ctx.Cookie(AUTH_TOKEN)
+		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, errorResponse(errors.New("auth_token is empty")))
 			ctx.Abort()
 			return
-		}		
+		}
 		token, err := tokenMaker.VerifyToken(tokenInCookie)
 		if err != nil {
+			// Remove the auth_token cookie
+			ctx.SetCookie(AUTH_TOKEN, "", -1, "", "", false, true)
 			ctx.JSON(http.StatusUnauthorized, errorResponse(err))
-			ctx.Abort()
+			ctx.Abort()			
 			return
 		}
 
@@ -31,4 +33,3 @@ func authMiddleware(tokenMaker token.Maker) gin.HandlerFunc {
 		ctx.Next()
 	}
 }
-

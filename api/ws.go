@@ -47,8 +47,8 @@ func (server *Server) handleWebSocket(ctx *gin.Context) {
 		Conn:   conn,
 		RoomID: roomID,
 	}
-	addClientToRoom(roomID, client)	
-	defer removeClientFromRoom(roomID, username)
+	enterRoom(roomID, client)	
+	defer exitRoom(roomID, username)
 	for {
         messageType, message, err := conn.ReadMessage()
         if err != nil {
@@ -73,7 +73,7 @@ func broadcastMessageToRoom(roomID string, messageType int, message []byte) {
     }
 }
 
-func addClientToRoom(roomID string, client *Client) {
+func enterRoom(roomID string, client *Client) {
 	room, ok := rooms[roomID]
 	if !ok {
 		room = &Room{
@@ -86,7 +86,7 @@ func addClientToRoom(roomID string, client *Client) {
 	room.Clients[client.ID] = client
 	room.Mutex.Unlock()
 }
-func removeClientFromRoom(roomID string, clientID string) {
+func exitRoom(roomID string, clientID string) {
 	room, ok := rooms[roomID]
 	if !ok {
 		return

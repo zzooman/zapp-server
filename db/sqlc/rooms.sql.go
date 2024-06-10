@@ -14,8 +14,8 @@ SELECT id, user_a, user_b, created_at FROM Rooms WHERE (user_a = $1 AND user_b =
 `
 
 type CheckRoomParams struct {
-	UserA int64 `json:"user_a"`
-	UserB int64 `json:"user_b"`
+	UserA string `json:"user_a"`
+	UserB string `json:"user_b"`
 }
 
 func (q *Queries) CheckRoom(ctx context.Context, arg CheckRoomParams) (Room, error) {
@@ -35,8 +35,8 @@ INSERT INTO Rooms (user_a, user_b) VALUES ($1, $2) RETURNING id, user_a, user_b,
 `
 
 type CreateRoomParams struct {
-	UserA int64 `json:"user_a"`
-	UserB int64 `json:"user_b"`
+	UserA string `json:"user_a"`
+	UserB string `json:"user_b"`
 }
 
 func (q *Queries) CreateRoom(ctx context.Context, arg CreateRoomParams) (Room, error) {
@@ -71,7 +71,7 @@ const getRoomsByUser = `-- name: GetRoomsByUser :many
 SELECT id, user_a, user_b, created_at FROM Rooms WHERE user_a = $1 OR user_b = $1 ORDER BY id
 `
 
-func (q *Queries) GetRoomsByUser(ctx context.Context, userA int64) ([]Room, error) {
+func (q *Queries) GetRoomsByUser(ctx context.Context, userA string) ([]Room, error) {
 	rows, err := q.db.Query(ctx, getRoomsByUser, userA)
 	if err != nil {
 		return nil, err

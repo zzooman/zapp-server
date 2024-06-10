@@ -34,7 +34,7 @@ type LikeWithPost struct {
 type Message struct {
 	ID        int64            `json:"id"`
 	RoomID    int64            `json:"room_id"`
-	SenderID  int64            `json:"sender_id"`
+	Sender    string           `json:"sender"`
 	Message   string           `json:"message"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
@@ -71,8 +71,8 @@ type Review struct {
 
 type Room struct {
 	ID        int64            `json:"id"`
-	UserA     int64            `json:"user_a"`
-	UserB     int64            `json:"user_b"`
+	UserA     string           `json:"user_a"`
+	UserB     string           `json:"user_b"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 

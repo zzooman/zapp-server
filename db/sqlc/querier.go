@@ -64,7 +64,7 @@ type Querier interface {
 	GetReview(ctx context.Context, id int64) (Review, error)
 	GetReviews(ctx context.Context, arg GetReviewsParams) ([]Review, error)
 	GetRoom(ctx context.Context, id int64) (Room, error)
-	GetRoomsByUser(ctx context.Context, userA int64) ([]Room, error)
+	GetRoomsByUser(ctx context.Context, userA string) ([]Room, error)
 	GetSearchCount(ctx context.Context, searchText string) (SearchCount, error)
 	GetSellerTransactions(ctx context.Context, arg GetSellerTransactionsParams) ([]Transaction, error)
 	GetTransaction(ctx context.Context, transactionID int64) (Transaction, error)

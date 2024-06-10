@@ -1,5 +1,5 @@
 -- name: CreateMessage :one
-INSERT INTO Messages (room_id, sender_id, message) VALUES ($1, $2, $3) RETURNING *;
+INSERT INTO Messages (room_id, sender, message) VALUES ($1, $2, $3) RETURNING *;
 
 -- name: GetMessagesByRoom :many
 SELECT * FROM Messages WHERE room_id = $1 ORDER BY id;

@@ -98,23 +98,23 @@ CREATE TABLE search_count (
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP    
 );
 
-CREATE TABLE Rooms (
+CREATE TABLE rooms (
   id BIGSERIAL PRIMARY KEY,
-  user_a BIGINT NOT NULL,
-  user_b BIGINT NOT NULL,
+  user_a VARCHAR(255) NOT NULL,
+  user_b VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_a) REFERENCES Users(id),
-  FOREIGN KEY (user_b) REFERENCES Users(id)
+  FOREIGN KEY (user_a) REFERENCES users(username),
+  FOREIGN KEY (user_b) REFERENCES users(username)
 );
 
-CREATE TABLE Messages (
+CREATE TABLE messages (
   id BIGSERIAL PRIMARY KEY,
   room_id BIGINT NOT NULL,
-  sender_id BIGINT NOT NULL,
+  sender VARCHAR(255) NOT NULL,
   message TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (room_id) REFERENCES Rooms(id),
-  FOREIGN KEY (sender_id) REFERENCES Users(id)
+  FOREIGN KEY (room_id) REFERENCES rooms(id),
+  FOREIGN KEY (sender) REFERENCES users(username)
 );
 
 -- Create indexes after table creation
@@ -134,8 +134,7 @@ CREATE INDEX ON reviews (reviewer);
 CREATE INDEX ON comments (post_id);
 CREATE INDEX ON comments (commentor);
 CREATE INDEX ON search_count (search_text);
-CREATE INDEX ON Rooms (user_a);
-CREATE INDEX ON Rooms (user_b);
-CREATE INDEX ON Messages (room_id);
-CREATE INDEX ON Messages (sender_id);
-
+CREATE INDEX ON rooms (user_a);
+CREATE INDEX ON rooms (user_b);
+CREATE INDEX ON messages (room_id);
+CREATE INDEX ON messages (sender);

@@ -100,11 +100,11 @@ CREATE TABLE search_count (
 
 CREATE TABLE Rooms (
   id BIGSERIAL AUTO_INCREMENT PRIMARY KEY,
-  user1_id BIGINT NOT NULL,
-  user2_id BIGINT NOT NULL,
+  user_a BIGINT NOT NULL,
+  user_b BIGINT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user1_id) REFERENCES Users(id),
-  FOREIGN KEY (user2_id) REFERENCES Users(id)
+  FOREIGN KEY (user_a) REFERENCES Users(id),
+  FOREIGN KEY (user_b) REFERENCES Users(id)
 );
 
 CREATE TABLE Messages (
@@ -134,8 +134,8 @@ CREATE INDEX ON reviews (reviewer);
 CREATE INDEX ON comments (post_id);
 CREATE INDEX ON comments (commentor);
 CREATE INDEX ON search_count (search_text);
-CREATE INDEX ON Rooms (user1_id);
-CREATE INDEX ON Rooms (user2_id);
+CREATE INDEX ON Rooms (user_a);
+CREATE INDEX ON Rooms (user_b);
 CREATE INDEX ON Messages (room_id);
 CREATE INDEX ON Messages (sender_id);
 

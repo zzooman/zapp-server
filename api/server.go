@@ -54,7 +54,7 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 	authRoutes.POST("/post", server.createPost)	
 	authRoutes.POST("/post/:id/like", server.createLike)
 	authRoutes.DELETE("/post/:id/unlike", server.deleteLike)
-	authRoutes.POST("/room", server.createRoom)
+	authRoutes.POST("/room", server.enterChatRoom)
 	authRoutes.GET("/ws/:room_id", server.connectWS)
 }
 

@@ -9,12 +9,12 @@ import (
 
 
 
-type createRoomRequest struct {
+type enterChatRoomRequest struct {
 	User_a string `json:"user_a" binding:"required"`
 	User_b string `json:"user_b" binding:"required"`
 }
-func (server *Server) createRoom(ctx *gin.Context) {
-	var req createRoomRequest
+func (server *Server) enterChatRoom(ctx *gin.Context) {
+	var req enterChatRoomRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return

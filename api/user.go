@@ -20,6 +20,7 @@ func newUserResponse(user db.User) userResponse {
 		Phone:             user.Phone,		
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
+		Profile:           user.Profile,
 	}
 }
 
@@ -33,8 +34,9 @@ type userResponse struct {
 	Username          string             `json:"username"`	
 	Email             string             `json:"email"`
 	Phone             pgtype.Text        `json:"phone"`	
+	Profile		   	  pgtype.Text        `json:"profile"`
 	PasswordChangedAt pgtype.Timestamptz `json:"password_changed_at"`
-	CreatedAt         pgtype.Timestamptz `json:"created_at"`
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`	
 }
 func (server *Server) createUser(ctx *gin.Context) {
 	var req createUserRequest

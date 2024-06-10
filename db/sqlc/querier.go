@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	CheckRoom(ctx context.Context, arg CheckRoomParams) (Room, error)
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
 	// CREATE TABLE comments (
 	//   "id" BIGSERIAL PRIMARY KEY,
@@ -23,15 +24,18 @@ type Querier interface {
 	// );
 	CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error)
 	CreateLikeWithPost(ctx context.Context, arg CreateLikeWithPostParams) (LikeWithPost, error)
+	CreateMessage(ctx context.Context, arg CreateMessageParams) (Message, error)
 	CreatePayment(ctx context.Context, arg CreatePaymentParams) (Payment, error)
 	CreatePost(ctx context.Context, arg CreatePostParams) (Post, error)
 	CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error)
+	CreateRoom(ctx context.Context, arg CreateRoomParams) (Room, error)
 	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateWishWithProduct(ctx context.Context, arg CreateWishWithProductParams) (WishWithProduct, error)
 	DeleteAccount(ctx context.Context, id int64) error
 	DeleteComment(ctx context.Context, id int64) error
 	DeleteLikeWithPost(ctx context.Context, arg DeleteLikeWithPostParams) error
+	DeleteMessage(ctx context.Context, id int64) (Message, error)
 	DeletePayment(ctx context.Context, paymentID int64) error
 	DeletePost(ctx context.Context, id int64) error
 	DeleteReview(ctx context.Context, id int64) error
@@ -44,7 +48,9 @@ type Querier interface {
 	GetBuyerTransactions(ctx context.Context, arg GetBuyerTransactionsParams) ([]Transaction, error)
 	GetComment(ctx context.Context, id int64) (Comment, error)
 	GetComments(ctx context.Context, arg GetCommentsParams) ([]Comment, error)
+	GetLastMessage(ctx context.Context, roomID int64) (Message, error)
 	GetLikeWithPost(ctx context.Context, arg GetLikeWithPostParams) (LikeWithPost, error)
+	GetMessagesByRoom(ctx context.Context, roomID int64) ([]Message, error)
 	GetPayment(ctx context.Context, paymentID int64) (Payment, error)
 	GetPayments(ctx context.Context, arg GetPaymentsParams) ([]Payment, error)
 	GetPost(ctx context.Context, id int64) (Post, error)
@@ -57,6 +63,8 @@ type Querier interface {
 	GetPostsWithAuthorThatISold(ctx context.Context, arg GetPostsWithAuthorThatISoldParams) ([]GetPostsWithAuthorThatISoldRow, error)
 	GetReview(ctx context.Context, id int64) (Review, error)
 	GetReviews(ctx context.Context, arg GetReviewsParams) ([]Review, error)
+	GetRoom(ctx context.Context, id int64) (Room, error)
+	GetRoomsByUser(ctx context.Context, userA int64) ([]Room, error)
 	GetSearchCount(ctx context.Context, searchText string) (SearchCount, error)
 	GetSellerTransactions(ctx context.Context, arg GetSellerTransactionsParams) ([]Transaction, error)
 	GetTransaction(ctx context.Context, transactionID int64) (Transaction, error)
@@ -65,6 +73,7 @@ type Querier interface {
 	HotSearchTexts(ctx context.Context) ([]SearchCount, error)
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateComment(ctx context.Context, arg UpdateCommentParams) error
+	UpdateMessage(ctx context.Context, arg UpdateMessageParams) (Message, error)
 	UpdatePaymentStatus(ctx context.Context, arg UpdatePaymentStatusParams) (Payment, error)
 	UpdatePost(ctx context.Context, arg UpdatePostParams) error
 	UpdateReview(ctx context.Context, arg UpdateReviewParams) error

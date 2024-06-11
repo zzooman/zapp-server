@@ -15,17 +15,17 @@ type enterChatRoomRequest struct {
 }
 func (server *Server) enterChatRoom(ctx *gin.Context) {
 	var req enterChatRoomRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBindJSON(&req); err != nil {		
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 	user_a, err := server.store.GetUser(ctx, req.User_a)
-	if err != nil {
+	if err != nil {		
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 	user_b, err := server.store.GetUser(ctx, req.User_b)
-	if err != nil {
+	if err != nil {		
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
@@ -41,7 +41,7 @@ func (server *Server) enterChatRoom(ctx *gin.Context) {
 		UserA: user_a.Username,
 		UserB: user_b.Username,
 	})
-	if err != nil {
+	if err != nil {		
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}	

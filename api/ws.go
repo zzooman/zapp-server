@@ -26,19 +26,22 @@ var rooms = make(map[int64]*Room)
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,	
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
 type connectWebSocketRequest struct {
-	RoomID int64 `json:"room_id" binding:"required"`
+	RoomId int64 `uri:"room_id" binding:"required"`
 }
 func (server *Server) connectWS(ctx *gin.Context) {
 	var req connectWebSocketRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindUri(&req); err != nil {		
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
-	if err != nil {
+	if err != nil {		
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
@@ -48,16 +51,16 @@ func (server *Server) connectWS(ctx *gin.Context) {
 	client := &Client{
 		Username:     username,
 		Conn:   conn,
-		RoomID: req.RoomID,
+		RoomID: req.RoomId,
 	}
-	enterRoom(req.RoomID, client)	
-	defer exitRoom(req.RoomID, username)
+	enterRoom(req.RoomId, client)		
+	defer exitRoom(req.RoomId, username)
 	for {						
         messageType, message, err := conn.ReadMessage()
         if err != nil {
             break
         }
-		broadcastMessageToRoom(req.RoomID, messageType, message)   
+		broadcastMessageToRoom(req.RoomId, messageType, message)		
     }
 }
 

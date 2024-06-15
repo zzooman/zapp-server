@@ -56,6 +56,7 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 	authRoutes.DELETE("/post/:id/unlike", server.deleteLike)
 	authRoutes.POST("/room", server.enterChatRoom)
 	authRoutes.GET("/ws/:room_id", server.connectWS)
+	authRoutes.GET("/messages/:room_id", server.getMessages)
 }
 
 func (server *Server) Start(address string) error {

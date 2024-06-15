@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 
@@ -60,7 +61,9 @@ func (server *Server) connectWS(ctx *gin.Context) {
         if err != nil {
             break
         }
+		fmt.Println(string(message))		
 		broadcastMessageToRoom(req.RoomId, messageType, message)		
+		server.createMessage(ctx, req.RoomId, string(message), username)
     }
 }
 

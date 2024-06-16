@@ -32,12 +32,12 @@ type LikeWithPost struct {
 }
 
 type Message struct {
-	ID        int64            `json:"id"`
-	RoomID    int64            `json:"room_id"`
-	Sender    string           `json:"sender"`
-	Message   string           `json:"message"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	ReadAt    pgtype.Timestamp `json:"read_at"`
+	ID        int64              `json:"id"`
+	RoomID    int64              `json:"room_id"`
+	Sender    string             `json:"sender"`
+	Message   string             `json:"message"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	ReadAt    pgtype.Timestamptz `json:"read_at"`
 }
 
 type Payment struct {
@@ -71,10 +71,10 @@ type Review struct {
 }
 
 type Room struct {
-	ID        int64            `json:"id"`
-	UserA     string           `json:"user_a"`
-	UserB     string           `json:"user_b"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
+	ID        int64              `json:"id"`
+	UserA     string             `json:"user_a"`
+	UserB     string             `json:"user_b"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
 type SearchCount struct {

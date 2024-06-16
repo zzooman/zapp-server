@@ -71,7 +71,7 @@ type Querier interface {
 	GetUser(ctx context.Context, username string) (User, error)
 	GetWishWithProduct(ctx context.Context, arg GetWishWithProductParams) (WishWithProduct, error)
 	HotSearchTexts(ctx context.Context) ([]SearchCount, error)
-	ReadMessage(ctx context.Context, id int64) (Message, error)
+	ReadMessage(ctx context.Context, id int64) error
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateComment(ctx context.Context, arg UpdateCommentParams) error
 	UpdateMessage(ctx context.Context, arg UpdateMessageParams) (Message, error)

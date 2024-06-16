@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	db "github.com/zzooman/zapp-server/db/sqlc"
+	"github.com/zzooman/zapp-server/token"
 )
 
 
@@ -58,6 +59,17 @@ func (server *Server) getMessages(ctx *gin.Context) {
 		return
 	}
 	messages, err := server.store.GetMessagesByRoom(ctx, req.RoomID)
+	username := ctx.MustGet(AUTH_TOKEN).(*token.Payload).Username
+	for i := range messages {
+		message := &messages[i]
+		if message.Sender != username && !message.ReadAt.Valid {
+			err = server.store.ReadMessage(ctx, message.ID)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+				return
+			}
+		}
+	}	
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

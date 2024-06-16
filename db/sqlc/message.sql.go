@@ -100,22 +100,13 @@ func (q *Queries) GetMessagesByRoom(ctx context.Context, roomID int64) ([]Messag
 	return items, nil
 }
 
-const readMessage = `-- name: ReadMessage :one
-UPDATE Messages SET read_at = NOW() WHERE id = $1 RETURNING id, room_id, sender, message, created_at, read_at
+const readMessage = `-- name: ReadMessage :exec
+UPDATE Messages SET read_at = NOW() WHERE id = $1
 `
 
-func (q *Queries) ReadMessage(ctx context.Context, id int64) (Message, error) {
-	row := q.db.QueryRow(ctx, readMessage, id)
-	var i Message
-	err := row.Scan(
-		&i.ID,
-		&i.RoomID,
-		&i.Sender,
-		&i.Message,
-		&i.CreatedAt,
-		&i.ReadAt,
-	)
-	return i, err
+func (q *Queries) ReadMessage(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, readMessage, id)
+	return err
 }
 
 const updateMessage = `-- name: UpdateMessage :one

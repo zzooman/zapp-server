@@ -39,6 +39,7 @@ type Querier interface {
 	DeletePayment(ctx context.Context, paymentID int64) error
 	DeletePost(ctx context.Context, id int64) error
 	DeleteReview(ctx context.Context, id int64) error
+	DeleteRoom(ctx context.Context, id int64) (Room, error)
 	DeleteTransaction(ctx context.Context, transactionID int64) error
 	DeleteUser(ctx context.Context, username string) error
 	DeleteWishWithProduct(ctx context.Context, arg DeleteWishWithProductParams) error
@@ -72,6 +73,7 @@ type Querier interface {
 	GetWishWithProduct(ctx context.Context, arg GetWishWithProductParams) (WishWithProduct, error)
 	HotSearchTexts(ctx context.Context) ([]SearchCount, error)
 	ReadMessage(ctx context.Context, id int64) error
+	UnreadMessageCount(ctx context.Context, sender string) (int64, error)
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateComment(ctx context.Context, arg UpdateCommentParams) error
 	UpdateMessage(ctx context.Context, arg UpdateMessageParams) (Message, error)

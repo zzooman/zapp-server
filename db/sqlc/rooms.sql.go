@@ -51,6 +51,22 @@ func (q *Queries) CreateRoom(ctx context.Context, arg CreateRoomParams) (Room, e
 	return i, err
 }
 
+const deleteRoom = `-- name: DeleteRoom :one
+DELETE FROM Rooms WHERE id = $1 RETURNING id, user_a, user_b, created_at
+`
+
+func (q *Queries) DeleteRoom(ctx context.Context, id int64) (Room, error) {
+	row := q.db.QueryRow(ctx, deleteRoom, id)
+	var i Room
+	err := row.Scan(
+		&i.ID,
+		&i.UserA,
+		&i.UserB,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getRoom = `-- name: GetRoom :one
 SELECT id, user_a, user_b, created_at FROM Rooms WHERE id = $1 LIMIT 1
 `

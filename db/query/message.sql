@@ -15,3 +15,6 @@ SELECT * FROM Messages WHERE room_id = $1 ORDER BY id DESC LIMIT 1;
 
 -- name: ReadMessage :exec
 UPDATE Messages SET read_at = NOW() WHERE id = $1;
+
+-- name: UnreadMessageCount :one
+SELECT COUNT(*) FROM Messages WHERE sender != $1 AND read_at IS NULL;

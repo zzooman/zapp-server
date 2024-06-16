@@ -10,4 +10,8 @@ SELECT * FROM Rooms WHERE id = $1 LIMIT 1;
 -- name: GetRoomsByUser :many
 SELECT * FROM Rooms WHERE user_a = $1 OR user_b = $1 ORDER BY id;
 
+-- name: DeleteRoom :one
+DELETE FROM Rooms WHERE id = $1 RETURNING *;
+
+
 

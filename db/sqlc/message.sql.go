@@ -109,6 +109,17 @@ func (q *Queries) ReadMessage(ctx context.Context, id int64) error {
 	return err
 }
 
+const unreadMessageCount = `-- name: UnreadMessageCount :one
+SELECT COUNT(*) FROM Messages WHERE sender != $1 AND read_at IS NULL
+`
+
+func (q *Queries) UnreadMessageCount(ctx context.Context, sender string) (int64, error) {
+	row := q.db.QueryRow(ctx, unreadMessageCount, sender)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const updateMessage = `-- name: UpdateMessage :one
 UPDATE Messages SET message = $2 WHERE id = $1 RETURNING id, room_id, sender, message, created_at, read_at
 `

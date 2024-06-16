@@ -30,6 +30,10 @@ func (server *Server) enterChatRoom(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+	if user_a.Username == user_b.Username {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
 	existingRoom, err := server.store.CheckRoom(ctx, db.CheckRoomParams{
 		UserA: user_a.Username,
 		UserB: user_b.Username,
@@ -96,9 +100,11 @@ func (server *Server) createMessage(ctx *gin.Context, roomID int64, message stri
 }
 
 type getAllRoomsResponse struct {
-	RoomID 		int64 	`json:"room_id"`
-	LastMessage string 	`json:"last_message"`
-	UnreadCount int64 	`json:"unread_count"`	
+	RoomID 			int64 	`json:"room_id"`
+	Recipient 		string 	`json:"recipient"`
+	LastMessage 	string 	`json:"last_message"`
+	LastMessageAt 	string 	`json:"last_message_at"`
+	UnreadCount 	int64 	`json:"unread_count"`	
 }
 func (server *Server) getAllRooms(ctx *gin.Context) {
 	var response []getAllRoomsResponse
@@ -119,10 +125,18 @@ func (server *Server) getAllRooms(ctx *gin.Context) {
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 			return
+		}		
+		var recipient string
+		if rooms[i].UserA == username {
+			recipient = rooms[i].UserB
+		} else {
+			recipient = rooms[i].UserA
 		}
 		response = append(response, getAllRoomsResponse{
 					RoomID: rooms[i].ID,
 					LastMessage: lastMessage.Message,
+					LastMessageAt: lastMessage.CreatedAt.Time.String(),
+					Recipient: recipient,
 					UnreadCount: unreadCount,
 		})		
 	}	

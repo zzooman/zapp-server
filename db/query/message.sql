@@ -12,3 +12,6 @@ DELETE FROM Messages WHERE id = $1 RETURNING *;
 
 -- name: GetLastMessage :one
 SELECT * FROM Messages WHERE room_id = $1 ORDER BY id DESC LIMIT 1;
+
+-- name: ReadMessage :one
+UPDATE Messages SET read_at = NOW() WHERE id = $1 RETURNING *;

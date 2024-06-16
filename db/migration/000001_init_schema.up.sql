@@ -113,6 +113,7 @@ CREATE TABLE messages (
   sender VARCHAR(255) NOT NULL,
   message TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  read_at TIMESTAMP DEFAULT NULL,
   FOREIGN KEY (room_id) REFERENCES rooms(id),
   FOREIGN KEY (sender) REFERENCES users(username)
 );

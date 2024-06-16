@@ -10,7 +10,7 @@ import (
 )
 
 const createMessage = `-- name: CreateMessage :one
-INSERT INTO Messages (room_id, sender, message) VALUES ($1, $2, $3) RETURNING id, room_id, sender, message, created_at
+INSERT INTO Messages (room_id, sender, message) VALUES ($1, $2, $3) RETURNING id, room_id, sender, message, created_at, read_at
 `
 
 type CreateMessageParams struct {
@@ -28,12 +28,13 @@ func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) (M
 		&i.Sender,
 		&i.Message,
 		&i.CreatedAt,
+		&i.ReadAt,
 	)
 	return i, err
 }
 
 const deleteMessage = `-- name: DeleteMessage :one
-DELETE FROM Messages WHERE id = $1 RETURNING id, room_id, sender, message, created_at
+DELETE FROM Messages WHERE id = $1 RETURNING id, room_id, sender, message, created_at, read_at
 `
 
 func (q *Queries) DeleteMessage(ctx context.Context, id int64) (Message, error) {
@@ -45,12 +46,13 @@ func (q *Queries) DeleteMessage(ctx context.Context, id int64) (Message, error) 
 		&i.Sender,
 		&i.Message,
 		&i.CreatedAt,
+		&i.ReadAt,
 	)
 	return i, err
 }
 
 const getLastMessage = `-- name: GetLastMessage :one
-SELECT id, room_id, sender, message, created_at FROM Messages WHERE room_id = $1 ORDER BY id DESC LIMIT 1
+SELECT id, room_id, sender, message, created_at, read_at FROM Messages WHERE room_id = $1 ORDER BY id DESC LIMIT 1
 `
 
 func (q *Queries) GetLastMessage(ctx context.Context, roomID int64) (Message, error) {
@@ -62,12 +64,13 @@ func (q *Queries) GetLastMessage(ctx context.Context, roomID int64) (Message, er
 		&i.Sender,
 		&i.Message,
 		&i.CreatedAt,
+		&i.ReadAt,
 	)
 	return i, err
 }
 
 const getMessagesByRoom = `-- name: GetMessagesByRoom :many
-SELECT id, room_id, sender, message, created_at FROM Messages WHERE room_id = $1 ORDER BY id
+SELECT id, room_id, sender, message, created_at, read_at FROM Messages WHERE room_id = $1 ORDER BY id
 `
 
 func (q *Queries) GetMessagesByRoom(ctx context.Context, roomID int64) ([]Message, error) {
@@ -85,6 +88,7 @@ func (q *Queries) GetMessagesByRoom(ctx context.Context, roomID int64) ([]Messag
 			&i.Sender,
 			&i.Message,
 			&i.CreatedAt,
+			&i.ReadAt,
 		); err != nil {
 			return nil, err
 		}
@@ -96,8 +100,26 @@ func (q *Queries) GetMessagesByRoom(ctx context.Context, roomID int64) ([]Messag
 	return items, nil
 }
 
+const readMessage = `-- name: ReadMessage :one
+UPDATE Messages SET read_at = NOW() WHERE id = $1 RETURNING id, room_id, sender, message, created_at, read_at
+`
+
+func (q *Queries) ReadMessage(ctx context.Context, id int64) (Message, error) {
+	row := q.db.QueryRow(ctx, readMessage, id)
+	var i Message
+	err := row.Scan(
+		&i.ID,
+		&i.RoomID,
+		&i.Sender,
+		&i.Message,
+		&i.CreatedAt,
+		&i.ReadAt,
+	)
+	return i, err
+}
+
 const updateMessage = `-- name: UpdateMessage :one
-UPDATE Messages SET message = $2 WHERE id = $1 RETURNING id, room_id, sender, message, created_at
+UPDATE Messages SET message = $2 WHERE id = $1 RETURNING id, room_id, sender, message, created_at, read_at
 `
 
 type UpdateMessageParams struct {
@@ -114,6 +136,7 @@ func (q *Queries) UpdateMessage(ctx context.Context, arg UpdateMessageParams) (M
 		&i.Sender,
 		&i.Message,
 		&i.CreatedAt,
+		&i.ReadAt,
 	)
 	return i, err
 }

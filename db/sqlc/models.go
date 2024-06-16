@@ -37,6 +37,7 @@ type Message struct {
 	Sender    string           `json:"sender"`
 	Message   string           `json:"message"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
+	ReadAt    pgtype.Timestamp `json:"read_at"`
 }
 
 type Payment struct {

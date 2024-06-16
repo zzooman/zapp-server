@@ -94,3 +94,37 @@ func (server *Server) createMessage(ctx *gin.Context, roomID int64, message stri
 	}	
 	ctx.JSON(http.StatusOK, newMessage)
 }
+
+type getAllRoomsResponse struct {
+	RoomID 		int64 	`json:"room_id"`
+	LastMessage string 	`json:"last_message"`
+	UnreadCount int64 	`json:"unread_count"`	
+}
+func (server *Server) getAllRooms(ctx *gin.Context) {
+	var response []getAllRoomsResponse
+	username := ctx.MustGet(AUTH_TOKEN).(*token.Payload).Username
+	rooms, err := server.store.GetRoomsByUser(ctx, username)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	for i := range rooms {
+		lastMessage, err := server.store.GetLastMessage(ctx, rooms[i].ID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		unreadCount, err := server.store.UnreadMessageCount(ctx, username)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		response = append(response, getAllRoomsResponse{
+					RoomID: rooms[i].ID,
+					LastMessage: lastMessage.Message,
+					UnreadCount: unreadCount,
+		})		
+	}	
+	ctx.JSON(http.StatusOK, response)
+}

@@ -57,6 +57,7 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 	authRoutes.POST("/room", server.enterChatRoom)
 	authRoutes.GET("/ws/:room_id", server.connectWS)
 	authRoutes.GET("/messages/:room_id", server.getMessages)
+	authRoutes.GET("/rooms/all", server.getAllRooms)
 }
 
 func (server *Server) Start(address string) error {

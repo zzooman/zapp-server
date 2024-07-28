@@ -32,7 +32,7 @@ func NewServer(store db.Store) *Server {
 func (server *Server) setUpRouter(router *gin.Engine) {	
 	config := cors.DefaultConfig()
 	config.AllowCredentials = true
-	config.AllowOrigins = []string{"http://localhost:3000"}
+	config.AllowOrigins = []string{"http://localhost:8000"}
 	router.Use(cors.New(config))
 
 	router.POST("/login", server.loginUser)	

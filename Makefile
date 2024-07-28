@@ -8,16 +8,16 @@ dropdb:
 	docker exec -it postgres16 dropdb zapp
 
 migrateup:
-	migrate -path db/migration -database "postgresql://postgres:1033@localhost:5432/zapp?sslmode=disable" -verbose up
+	migrate -source file://db/migration -database postgresql://postgres:1033@localhost:5432/zapp?sslmode=disable -verbose up
 
 migratedown:
-	migrate -path db/migration -database "postgresql://postgres:1033@localhost:5432/zapp?sslmode=disable" -verbose down
+	migrate -source file://db/migration -database postgresql://postgres:1033@localhost:5432/zapp?sslmode=disable -verbose down
 
 migrateup1:
-	migrate -path db/migration -database "postgresql://postgres:1033@localhost:5432/zapp?sslmode=disable" -verbose up 1
+	migrate -source file://db/migration -database postgresql://postgres:1033@localhost:5432/zapp?sslmode=disable -verbose up 1
 
 migratedown1:
-	migrate -path db/migration -database "postgresql://postgres:1033@localhost:5432/zapp?sslmode=disable" -verbose down 1
+	migrate -source file://db/migration -database postgresql://postgres:1033@localhost:5432/zapp?sslmode=disable -verbose down 1
 
 sqlc:
 	sqlc generate

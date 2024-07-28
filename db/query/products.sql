@@ -1,17 +1,3 @@
--- /* 상품판매 게시글 */
--- CREATE TABLE products (
---     id BIGSERIAL PRIMARY KEY,
---     seller VARCHAR(255) NOT NULL,
---     title VARCHAR(255) NOT NULL,
---     content TEXT NOT NULL,
---     price BIGINT NOT NULL,
---     views BIGINT DEFAULT 0,
---     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
---     FOREIGN KEY (seller) REFERENCES users(username)
--- );
--- CREATE INDEX idx_products_seller ON products(seller);
-
-
 -- name: CreateProduct :one
 INSERT INTO products (seller, title, content, price, medias, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
 

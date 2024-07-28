@@ -14,18 +14,6 @@ type Querier interface {
 	CreateLikeWithPost(ctx context.Context, arg CreateLikeWithPostParams) (LikeWithPost, error)
 	CreateMessage(ctx context.Context, arg CreateMessageParams) (Message, error)
 	CreatePost(ctx context.Context, arg CreatePostParams) (Post, error)
-	// /* 상품판매 게시글 */
-	// CREATE TABLE products (
-	//     id BIGSERIAL PRIMARY KEY,
-	//     seller VARCHAR(255) NOT NULL,
-	//     title VARCHAR(255) NOT NULL,
-	//     content TEXT NOT NULL,
-	//     price BIGINT NOT NULL,
-	//     views BIGINT DEFAULT 0,
-	//     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	//     FOREIGN KEY (seller) REFERENCES users(username)
-	// );
-	// CREATE INDEX idx_products_seller ON products(seller);
 	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
 	CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error)
 	CreateRoom(ctx context.Context, arg CreateRoomParams) (Room, error)

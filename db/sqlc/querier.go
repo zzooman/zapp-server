@@ -10,50 +10,44 @@ import (
 
 type Querier interface {
 	CheckRoom(ctx context.Context, arg CheckRoomParams) (Room, error)
-	CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error)
-	// CREATE TABLE comments (
-	//   "id" BIGSERIAL PRIMARY KEY,
-	//   "post_id" BIGINT NOT NULL,
-	//   "parent_comment_id" BIGINT NULL,
-	//   "commentor" VARCHAR(255) NOT NULL,
-	//   "comment_text" TEXT NOT NULL,
-	//   "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-	//   FOREIGN KEY ("post_id") REFERENCES posts("id"),
-	//   FOREIGN KEY ("commentor") REFERENCES users("username"),
-	//   FOREIGN KEY ("parent_comment_id") REFERENCES comments("id")
-	// );
 	CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error)
 	CreateLikeWithPost(ctx context.Context, arg CreateLikeWithPostParams) (LikeWithPost, error)
 	CreateMessage(ctx context.Context, arg CreateMessageParams) (Message, error)
-	CreatePayment(ctx context.Context, arg CreatePaymentParams) (Payment, error)
 	CreatePost(ctx context.Context, arg CreatePostParams) (Post, error)
+	// /* 상품판매 게시글 */
+	// CREATE TABLE products (
+	//     id BIGSERIAL PRIMARY KEY,
+	//     seller VARCHAR(255) NOT NULL,
+	//     title VARCHAR(255) NOT NULL,
+	//     content TEXT NOT NULL,
+	//     price BIGINT NOT NULL,
+	//     views BIGINT DEFAULT 0,
+	//     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	//     FOREIGN KEY (seller) REFERENCES users(username)
+	// );
+	// CREATE INDEX idx_products_seller ON products(seller);
+	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
 	CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error)
 	CreateRoom(ctx context.Context, arg CreateRoomParams) (Room, error)
 	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateWishWithProduct(ctx context.Context, arg CreateWishWithProductParams) (WishWithProduct, error)
-	DeleteAccount(ctx context.Context, id int64) error
 	DeleteComment(ctx context.Context, id int64) error
 	DeleteLikeWithPost(ctx context.Context, arg DeleteLikeWithPostParams) error
 	DeleteMessage(ctx context.Context, id int64) (Message, error)
-	DeletePayment(ctx context.Context, paymentID int64) error
 	DeletePost(ctx context.Context, id int64) error
+	DeleteProduct(ctx context.Context, id int64) error
 	DeleteReview(ctx context.Context, id int64) error
 	DeleteRoom(ctx context.Context, id int64) (Room, error)
 	DeleteTransaction(ctx context.Context, transactionID int64) error
 	DeleteUser(ctx context.Context, username string) error
 	DeleteWishWithProduct(ctx context.Context, arg DeleteWishWithProductParams) error
-	GetAccount(ctx context.Context, id int64) (Account, error)
-	// SELECT * FROM accounts WHERE id = $1 LIMIT 1 FOR NO KEY UPDATE;
-	GetAccountForUpdate(ctx context.Context, arg GetAccountForUpdateParams) (Account, error)
 	GetBuyerTransactions(ctx context.Context, arg GetBuyerTransactionsParams) ([]Transaction, error)
 	GetComment(ctx context.Context, id int64) (Comment, error)
 	GetComments(ctx context.Context, arg GetCommentsParams) ([]Comment, error)
 	GetLastMessage(ctx context.Context, roomID int64) (Message, error)
 	GetLikeWithPost(ctx context.Context, arg GetLikeWithPostParams) (LikeWithPost, error)
 	GetMessagesByRoom(ctx context.Context, roomID int64) ([]Message, error)
-	GetPayment(ctx context.Context, paymentID int64) (Payment, error)
-	GetPayments(ctx context.Context, arg GetPaymentsParams) ([]Payment, error)
 	GetPost(ctx context.Context, id int64) (Post, error)
 	GetPostWithAuthor(ctx context.Context, id int64) (GetPostWithAuthorRow, error)
 	GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, error)
@@ -62,6 +56,14 @@ type Querier interface {
 	GetPostsWithAuthorThatIBought(ctx context.Context, arg GetPostsWithAuthorThatIBoughtParams) ([]GetPostsWithAuthorThatIBoughtRow, error)
 	GetPostsWithAuthorThatILiked(ctx context.Context, arg GetPostsWithAuthorThatILikedParams) ([]GetPostsWithAuthorThatILikedRow, error)
 	GetPostsWithAuthorThatISold(ctx context.Context, arg GetPostsWithAuthorThatISoldParams) ([]GetPostsWithAuthorThatISoldRow, error)
+	GetProduct(ctx context.Context, id int64) (Product, error)
+	GetProductWithSeller(ctx context.Context, id int64) (GetProductWithSellerRow, error)
+	GetProducts(ctx context.Context, arg GetProductsParams) ([]Product, error)
+	GetProductsWithSeller(ctx context.Context, arg GetProductsWithSellerParams) ([]GetProductsWithSellerRow, error)
+	GetProductsWithSellerByQuery(ctx context.Context, arg GetProductsWithSellerByQueryParams) ([]GetProductsWithSellerByQueryRow, error)
+	GetProductsWithSellerThatIBought(ctx context.Context, arg GetProductsWithSellerThatIBoughtParams) ([]GetProductsWithSellerThatIBoughtRow, error)
+	GetProductsWithSellerThatISold(ctx context.Context, arg GetProductsWithSellerThatISoldParams) ([]GetProductsWithSellerThatISoldRow, error)
+	GetProductsWithSellerThatIWished(ctx context.Context, arg GetProductsWithSellerThatIWishedParams) ([]GetProductsWithSellerThatIWishedRow, error)
 	GetReview(ctx context.Context, id int64) (Review, error)
 	GetReviews(ctx context.Context, arg GetReviewsParams) ([]Review, error)
 	GetRoom(ctx context.Context, id int64) (Room, error)
@@ -74,11 +76,10 @@ type Querier interface {
 	HotSearchTexts(ctx context.Context) ([]SearchCount, error)
 	ReadMessage(ctx context.Context, id int64) error
 	UnreadMessageCount(ctx context.Context, sender string) (int64, error)
-	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateComment(ctx context.Context, arg UpdateCommentParams) error
 	UpdateMessage(ctx context.Context, arg UpdateMessageParams) (Message, error)
-	UpdatePaymentStatus(ctx context.Context, arg UpdatePaymentStatusParams) (Payment, error)
 	UpdatePost(ctx context.Context, arg UpdatePostParams) error
+	UpdateProduct(ctx context.Context, arg UpdateProductParams) error
 	UpdateReview(ctx context.Context, arg UpdateReviewParams) error
 	UpdateTransactionStatus(ctx context.Context, arg UpdateTransactionStatusParams) (Transaction, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)

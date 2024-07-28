@@ -1,5 +1,5 @@
 -- name: CreateTransaction :one
-INSERT INTO transactions (post_id, buyer, seller, total_amount) VALUES ($1, $2, $3, $4) RETURNING *;
+INSERT INTO transactions (product_id, buyer, seller) VALUES ($1, $2, $3) RETURNING *;
 
 -- name: GetTransaction :one
 SELECT * FROM transactions WHERE transaction_id = $1 LIMIT 1;

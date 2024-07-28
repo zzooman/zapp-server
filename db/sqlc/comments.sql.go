@@ -12,7 +12,6 @@ import (
 )
 
 const createComment = `-- name: CreateComment :one
-
 INSERT INTO comments (post_id, commentor, comment_text, parent_comment_id) VALUES ($1, $2, $3, $4) RETURNING id, post_id, parent_comment_id, commentor, comment_text, created_at
 `
 
@@ -23,19 +22,6 @@ type CreateCommentParams struct {
 	ParentCommentID pgtype.Int8 `json:"parent_comment_id"`
 }
 
-// CREATE TABLE comments (
-//
-//	"id" BIGSERIAL PRIMARY KEY,
-//	"post_id" BIGINT NOT NULL,
-//	"parent_comment_id" BIGINT NULL,
-//	"commentor" VARCHAR(255) NOT NULL,
-//	"comment_text" TEXT NOT NULL,
-//	"created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-//	FOREIGN KEY ("post_id") REFERENCES posts("id"),
-//	FOREIGN KEY ("commentor") REFERENCES users("username"),
-//	FOREIGN KEY ("parent_comment_id") REFERENCES comments("id")
-//
-// );
 func (q *Queries) CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error) {
 	row := q.db.QueryRow(ctx, createComment,
 		arg.PostID,

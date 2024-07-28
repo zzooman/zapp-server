@@ -8,15 +8,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Account struct {
-	ID                int64              `json:"id"`
-	Owner             string             `json:"owner"`
-	AccountNumber     string             `json:"account_number"`
-	BankName          string             `json:"bank_name"`
-	AccountHolderName string             `json:"account_holder_name"`
-	CreatedAt         pgtype.Timestamptz `json:"created_at"`
-}
-
 type Comment struct {
 	ID              int64              `json:"id"`
 	PostID          int64              `json:"post_id"`
@@ -40,15 +31,6 @@ type Message struct {
 	ReadAt    pgtype.Timestamptz `json:"read_at"`
 }
 
-type Payment struct {
-	PaymentID     int64              `json:"payment_id"`
-	TransactionID int64              `json:"transaction_id"`
-	PaymentStatus pgtype.Text        `json:"payment_status"`
-	PaymentMethod string             `json:"payment_method"`
-	PaymentDate   pgtype.Timestamptz `json:"payment_date"`
-	PaymentAmount pgtype.Numeric     `json:"payment_amount"`
-}
-
 type Post struct {
 	ID        int64              `json:"id"`
 	Author    string             `json:"author"`
@@ -57,6 +39,17 @@ type Post struct {
 	Medias    []string           `json:"medias"`
 	Price     int64              `json:"price"`
 	Stock     int64              `json:"stock"`
+	Views     pgtype.Int8        `json:"views"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
+type Product struct {
+	ID        int64              `json:"id"`
+	Seller    string             `json:"seller"`
+	Title     string             `json:"title"`
+	Content   string             `json:"content"`
+	Medias    []string           `json:"medias"`
+	Price     int64              `json:"price"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
@@ -74,6 +67,7 @@ type Room struct {
 	ID        int64              `json:"id"`
 	UserA     string             `json:"user_a"`
 	UserB     string             `json:"user_b"`
+	Type      pgtype.Text        `json:"type"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
@@ -86,11 +80,10 @@ type SearchCount struct {
 
 type Transaction struct {
 	TransactionID int64              `json:"transaction_id"`
-	PostID        int64              `json:"post_id"`
+	ProductID     int64              `json:"product_id"`
 	Buyer         string             `json:"buyer"`
 	Seller        string             `json:"seller"`
 	Status        pgtype.Text        `json:"status"`
-	TotalAmount   pgtype.Numeric     `json:"total_amount"`
 	CreatedAt     pgtype.Timestamptz `json:"created_at"`
 }
 
@@ -105,6 +98,6 @@ type User struct {
 }
 
 type WishWithProduct struct {
-	Username string `json:"username"`
-	PostID   int64  `json:"post_id"`
+	Username  string `json:"username"`
+	ProductID int64  `json:"product_id"`
 }

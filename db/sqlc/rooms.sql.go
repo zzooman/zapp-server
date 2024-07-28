@@ -10,7 +10,7 @@ import (
 )
 
 const checkRoom = `-- name: CheckRoom :one
-SELECT id, user_a, user_b, created_at FROM Rooms WHERE (user_a = $1 AND user_b = $2) OR (user_a = $2 AND user_b = $1) LIMIT 1
+SELECT id, user_a, user_b, type, created_at FROM Rooms WHERE (user_a = $1 AND user_b = $2) OR (user_a = $2 AND user_b = $1) LIMIT 1
 `
 
 type CheckRoomParams struct {
@@ -25,13 +25,14 @@ func (q *Queries) CheckRoom(ctx context.Context, arg CheckRoomParams) (Room, err
 		&i.ID,
 		&i.UserA,
 		&i.UserB,
+		&i.Type,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const createRoom = `-- name: CreateRoom :one
-INSERT INTO Rooms (user_a, user_b) VALUES ($1, $2) RETURNING id, user_a, user_b, created_at
+INSERT INTO Rooms (user_a, user_b) VALUES ($1, $2) RETURNING id, user_a, user_b, type, created_at
 `
 
 type CreateRoomParams struct {
@@ -46,13 +47,14 @@ func (q *Queries) CreateRoom(ctx context.Context, arg CreateRoomParams) (Room, e
 		&i.ID,
 		&i.UserA,
 		&i.UserB,
+		&i.Type,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const deleteRoom = `-- name: DeleteRoom :one
-DELETE FROM Rooms WHERE id = $1 RETURNING id, user_a, user_b, created_at
+DELETE FROM Rooms WHERE id = $1 RETURNING id, user_a, user_b, type, created_at
 `
 
 func (q *Queries) DeleteRoom(ctx context.Context, id int64) (Room, error) {
@@ -62,13 +64,14 @@ func (q *Queries) DeleteRoom(ctx context.Context, id int64) (Room, error) {
 		&i.ID,
 		&i.UserA,
 		&i.UserB,
+		&i.Type,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getRoom = `-- name: GetRoom :one
-SELECT id, user_a, user_b, created_at FROM Rooms WHERE id = $1 LIMIT 1
+SELECT id, user_a, user_b, type, created_at FROM Rooms WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetRoom(ctx context.Context, id int64) (Room, error) {
@@ -78,13 +81,14 @@ func (q *Queries) GetRoom(ctx context.Context, id int64) (Room, error) {
 		&i.ID,
 		&i.UserA,
 		&i.UserB,
+		&i.Type,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getRoomsByUser = `-- name: GetRoomsByUser :many
-SELECT id, user_a, user_b, created_at FROM Rooms WHERE user_a = $1 OR user_b = $1 ORDER BY id
+SELECT id, user_a, user_b, type, created_at FROM Rooms WHERE user_a = $1 OR user_b = $1 ORDER BY id
 `
 
 func (q *Queries) GetRoomsByUser(ctx context.Context, userA string) ([]Room, error) {
@@ -100,6 +104,7 @@ func (q *Queries) GetRoomsByUser(ctx context.Context, userA string) ([]Room, err
 			&i.ID,
 			&i.UserA,
 			&i.UserB,
+			&i.Type,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err

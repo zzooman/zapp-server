@@ -1,5 +1,5 @@
 -- name: CreateComment :one
-INSERT INTO comments (post_id, commentor, comment_text, parent_comment_id) VALUES ($1, $2, $3, $4) RETURNING *;
+INSERT INTO comments (feed_id, commentor, comment_text, parent_comment_id) VALUES ($1, $2, $3, $4) RETURNING *;
 
 -- name: GetComment :one
 SELECT * FROM comments WHERE id = $1 LIMIT 1;

@@ -274,7 +274,7 @@ func (q *Queries) GetProductsWithSellerByQuery(ctx context.Context, arg GetProdu
 }
 
 const getProductsWithSellerThatIBought = `-- name: GetProductsWithSellerThatIBought :many
-SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.stock, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN transactions ON products.id = transactions.post_id WHERE transactions.buyer = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
+SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.stock, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN transactions ON products.id = transactions.feed_id WHERE transactions.buyer = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
 `
 
 type GetProductsWithSellerThatIBoughtParams struct {
@@ -332,7 +332,7 @@ func (q *Queries) GetProductsWithSellerThatIBought(ctx context.Context, arg GetP
 }
 
 const getProductsWithSellerThatILiked = `-- name: GetProductsWithSellerThatILiked :many
-SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.stock, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN like_with_post ON products.id = like_with_post.post_id WHERE like_with_post.username = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
+SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.stock, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN like_with_feed ON products.id = like_with_feed.feed_id WHERE like_with_feed.username = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
 `
 
 type GetProductsWithSellerThatILikedParams struct {
@@ -390,7 +390,7 @@ func (q *Queries) GetProductsWithSellerThatILiked(ctx context.Context, arg GetPr
 }
 
 const getProductsWithSellerThatISold = `-- name: GetProductsWithSellerThatISold :many
-SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.stock, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN transactions ON products.id = transactions.post_id WHERE transactions.seller = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
+SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.stock, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN transactions ON products.id = transactions.feed_id WHERE transactions.seller = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
 `
 
 type GetProductsWithSellerThatISoldParams struct {

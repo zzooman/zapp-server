@@ -1,9 +1,9 @@
--- name: CreateLikeWithPost :one
-INSERT INTO like_with_post (username, post_id) VALUES ($1, $2) RETURNING *;
--- name: GetLikeWithPost :one
-SELECT * FROM like_with_post WHERE username = $1 AND post_id = $2 LIMIT 1;
--- name: DeleteLikeWithPost :exec
-DELETE FROM like_with_post WHERE username = $1 AND post_id = $2;
+-- name: CreateLikeWithFeed :one
+INSERT INTO like_with_feed (username, feed_id) VALUES ($1, $2) RETURNING *;
+-- name: GetLikeWithFeed :one
+SELECT * FROM like_with_feed WHERE username = $1 AND feed_id = $2 LIMIT 1;
+-- name: DeleteLikeWithFeed :exec
+DELETE FROM like_with_feed WHERE username = $1 AND feed_id = $2;
 
 
 -- name: CreateWishWithProduct :one

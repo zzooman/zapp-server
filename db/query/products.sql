@@ -17,13 +17,13 @@ SELECT products.*, users.email, users.phone, users.profile FROM products JOIN us
 SELECT products.*, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username WHERE products.title ILIKE '%' || $1 || '%' OR products.content ILIKE '%' || $1 || '%' ORDER BY products.created_at DESC LIMIT $2 OFFSET $3;
 
 -- name: GetProductsWithSellerThatILiked :many
-SELECT products.*, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN like_with_post ON products.id = like_with_post.post_id WHERE like_with_post.username = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3;
+SELECT products.*, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN like_with_feed ON products.id = like_with_feed.feed_id WHERE like_with_feed.username = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3;
 
 -- name: GetProductsWithSellerThatIBought :many
-SELECT products.*, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN transactions ON products.id = transactions.post_id WHERE transactions.buyer = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3;
+SELECT products.*, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN transactions ON products.id = transactions.feed_id WHERE transactions.buyer = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3;
 
 -- name: GetProductsWithSellerThatISold :many
-SELECT products.*, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN transactions ON products.id = transactions.post_id WHERE transactions.seller = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3;
+SELECT products.*, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN transactions ON products.id = transactions.feed_id WHERE transactions.seller = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3;
 
 -- name: UpdateProduct :exec
 UPDATE products SET title = $2, content = $3, price = $4, stock = $5, medias = $6 WHERE id = $1;

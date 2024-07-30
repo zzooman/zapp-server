@@ -10,16 +10,25 @@ import (
 
 type Comment struct {
 	ID              int64              `json:"id"`
-	PostID          int64              `json:"post_id"`
+	FeedID          int64              `json:"feed_id"`
 	ParentCommentID pgtype.Int8        `json:"parent_comment_id"`
 	Commentor       string             `json:"commentor"`
 	CommentText     string             `json:"comment_text"`
 	CreatedAt       pgtype.Timestamptz `json:"created_at"`
 }
 
-type LikeWithPost struct {
+type Feed struct {
+	ID        int64              `json:"id"`
+	Author    string             `json:"author"`
+	Content   string             `json:"content"`
+	Medias    []string           `json:"medias"`
+	Views     pgtype.Int8        `json:"views"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
+type LikeWithFeed struct {
 	Username string `json:"username"`
-	PostID   int64  `json:"post_id"`
+	FeedID   int64  `json:"feed_id"`
 }
 
 type Message struct {
@@ -29,15 +38,6 @@ type Message struct {
 	Message   string             `json:"message"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	ReadAt    pgtype.Timestamptz `json:"read_at"`
-}
-
-type Post struct {
-	ID        int64              `json:"id"`
-	Author    string             `json:"author"`
-	Content   string             `json:"content"`
-	Medias    []string           `json:"medias"`
-	Views     pgtype.Int8        `json:"views"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
 type Product struct {

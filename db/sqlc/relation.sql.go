@@ -9,19 +9,19 @@ import (
 	"context"
 )
 
-const createLikeWithPost = `-- name: CreateLikeWithPost :one
-INSERT INTO like_with_post (username, post_id) VALUES ($1, $2) RETURNING username, post_id
+const createLikeWithFeed = `-- name: CreateLikeWithFeed :one
+INSERT INTO like_with_feed (username, feed_id) VALUES ($1, $2) RETURNING username, feed_id
 `
 
-type CreateLikeWithPostParams struct {
+type CreateLikeWithFeedParams struct {
 	Username string `json:"username"`
-	PostID   int64  `json:"post_id"`
+	FeedID   int64  `json:"feed_id"`
 }
 
-func (q *Queries) CreateLikeWithPost(ctx context.Context, arg CreateLikeWithPostParams) (LikeWithPost, error) {
-	row := q.db.QueryRow(ctx, createLikeWithPost, arg.Username, arg.PostID)
-	var i LikeWithPost
-	err := row.Scan(&i.Username, &i.PostID)
+func (q *Queries) CreateLikeWithFeed(ctx context.Context, arg CreateLikeWithFeedParams) (LikeWithFeed, error) {
+	row := q.db.QueryRow(ctx, createLikeWithFeed, arg.Username, arg.FeedID)
+	var i LikeWithFeed
+	err := row.Scan(&i.Username, &i.FeedID)
 	return i, err
 }
 
@@ -41,17 +41,17 @@ func (q *Queries) CreateWishWithProduct(ctx context.Context, arg CreateWishWithP
 	return i, err
 }
 
-const deleteLikeWithPost = `-- name: DeleteLikeWithPost :exec
-DELETE FROM like_with_post WHERE username = $1 AND post_id = $2
+const deleteLikeWithFeed = `-- name: DeleteLikeWithFeed :exec
+DELETE FROM like_with_feed WHERE username = $1 AND feed_id = $2
 `
 
-type DeleteLikeWithPostParams struct {
+type DeleteLikeWithFeedParams struct {
 	Username string `json:"username"`
-	PostID   int64  `json:"post_id"`
+	FeedID   int64  `json:"feed_id"`
 }
 
-func (q *Queries) DeleteLikeWithPost(ctx context.Context, arg DeleteLikeWithPostParams) error {
-	_, err := q.db.Exec(ctx, deleteLikeWithPost, arg.Username, arg.PostID)
+func (q *Queries) DeleteLikeWithFeed(ctx context.Context, arg DeleteLikeWithFeedParams) error {
+	_, err := q.db.Exec(ctx, deleteLikeWithFeed, arg.Username, arg.FeedID)
 	return err
 }
 
@@ -69,19 +69,19 @@ func (q *Queries) DeleteWishWithProduct(ctx context.Context, arg DeleteWishWithP
 	return err
 }
 
-const getLikeWithPost = `-- name: GetLikeWithPost :one
-SELECT username, post_id FROM like_with_post WHERE username = $1 AND post_id = $2 LIMIT 1
+const getLikeWithFeed = `-- name: GetLikeWithFeed :one
+SELECT username, feed_id FROM like_with_feed WHERE username = $1 AND feed_id = $2 LIMIT 1
 `
 
-type GetLikeWithPostParams struct {
+type GetLikeWithFeedParams struct {
 	Username string `json:"username"`
-	PostID   int64  `json:"post_id"`
+	FeedID   int64  `json:"feed_id"`
 }
 
-func (q *Queries) GetLikeWithPost(ctx context.Context, arg GetLikeWithPostParams) (LikeWithPost, error) {
-	row := q.db.QueryRow(ctx, getLikeWithPost, arg.Username, arg.PostID)
-	var i LikeWithPost
-	err := row.Scan(&i.Username, &i.PostID)
+func (q *Queries) GetLikeWithFeed(ctx context.Context, arg GetLikeWithFeedParams) (LikeWithFeed, error) {
+	row := q.db.QueryRow(ctx, getLikeWithFeed, arg.Username, arg.FeedID)
+	var i LikeWithFeed
+	err := row.Scan(&i.Username, &i.FeedID)
 	return i, err
 }
 

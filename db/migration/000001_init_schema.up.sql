@@ -22,13 +22,13 @@ CREATE TABLE products (
     stock BIGINT NOT NULL,
     views BIGINT DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (author) REFERENCES users(username)
+    FOREIGN KEY (seller) REFERENCES users(username)
 );
-CREATE INDEX idx_products_author_created_at ON products(seller, created_at);
+CREATE INDEX idx_products_seller_created_at ON products(seller, created_at);
 
 
 /* 포스팅 */
-CREATE TABLE posts (
+CREATE TABLE feeds (
     id BIGSERIAL PRIMARY KEY,
     author VARCHAR(255) NOT NULL,    
     content TEXT NOT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE posts (
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (author) REFERENCES users(username)
 );
-CREATE INDEX idx_posts_seller ON posts(author);
+CREATE INDEX idx_feeds_seller ON feeds(author);
 
 
 /* 상품 거래 상태 */
@@ -58,15 +58,15 @@ CREATE INDEX idx_transactions_seller ON transactions(seller);
 
 
 /* 포스팅 좋아요 */
-CREATE TABLE like_with_post (
+CREATE TABLE like_with_feed (
     username VARCHAR(255) NOT NULL,
-    post_id BIGINT NOT NULL,
-    PRIMARY KEY (username, post_id),
+    feed_id BIGINT NOT NULL,
+    PRIMARY KEY (username, feed_id),
     FOREIGN KEY (username) REFERENCES users(username),
-    FOREIGN KEY (post_id) REFERENCES posts(id)
+    FOREIGN KEY (feed_id) REFERENCES feeds(id)
 );
-CREATE INDEX idx_like_with_post_username ON like_with_post(username);
-CREATE INDEX idx_like_with_post_post_id ON like_with_post(post_id);
+CREATE INDEX idx_like_with_feed_username ON like_with_feed(username);
+
 
 
 /* 상품 찜 */
@@ -99,16 +99,16 @@ CREATE INDEX idx_reviews_reviewer ON reviews(reviewer);
 /* 포스팅 댓글 */
 CREATE TABLE comments (
     id BIGSERIAL PRIMARY KEY,
-    post_id BIGINT NOT NULL,
+    feed_id BIGINT NOT NULL,
     parent_comment_id BIGINT,
     commentor VARCHAR(255) NOT NULL,
     comment_text TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (post_id) REFERENCES posts(id),
+    FOREIGN KEY (feed_id) REFERENCES feeds(id),
     FOREIGN KEY (commentor) REFERENCES users(username),
     FOREIGN KEY (parent_comment_id) REFERENCES comments(id) ON DELETE CASCADE
 );
-CREATE INDEX idx_comments_post_id ON comments(post_id);
+CREATE INDEX idx_comments_feed_id ON comments(feed_id);
 CREATE INDEX idx_comments_commentor ON comments(commentor);
 CREATE INDEX idx_comments_parent_comment_id ON comments(parent_comment_id);
 

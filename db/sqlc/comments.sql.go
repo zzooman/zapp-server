@@ -12,11 +12,11 @@ import (
 )
 
 const createComment = `-- name: CreateComment :one
-INSERT INTO comments (post_id, commentor, comment_text, parent_comment_id) VALUES ($1, $2, $3, $4) RETURNING id, post_id, parent_comment_id, commentor, comment_text, created_at
+INSERT INTO comments (feed_id, commentor, comment_text, parent_comment_id) VALUES ($1, $2, $3, $4) RETURNING id, feed_id, parent_comment_id, commentor, comment_text, created_at
 `
 
 type CreateCommentParams struct {
-	PostID          int64       `json:"post_id"`
+	FeedID          int64       `json:"feed_id"`
 	Commentor       string      `json:"commentor"`
 	CommentText     string      `json:"comment_text"`
 	ParentCommentID pgtype.Int8 `json:"parent_comment_id"`
@@ -24,7 +24,7 @@ type CreateCommentParams struct {
 
 func (q *Queries) CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error) {
 	row := q.db.QueryRow(ctx, createComment,
-		arg.PostID,
+		arg.FeedID,
 		arg.Commentor,
 		arg.CommentText,
 		arg.ParentCommentID,
@@ -32,7 +32,7 @@ func (q *Queries) CreateComment(ctx context.Context, arg CreateCommentParams) (C
 	var i Comment
 	err := row.Scan(
 		&i.ID,
-		&i.PostID,
+		&i.FeedID,
 		&i.ParentCommentID,
 		&i.Commentor,
 		&i.CommentText,
@@ -51,7 +51,7 @@ func (q *Queries) DeleteComment(ctx context.Context, id int64) error {
 }
 
 const getComment = `-- name: GetComment :one
-SELECT id, post_id, parent_comment_id, commentor, comment_text, created_at FROM comments WHERE id = $1 LIMIT 1
+SELECT id, feed_id, parent_comment_id, commentor, comment_text, created_at FROM comments WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetComment(ctx context.Context, id int64) (Comment, error) {
@@ -59,7 +59,7 @@ func (q *Queries) GetComment(ctx context.Context, id int64) (Comment, error) {
 	var i Comment
 	err := row.Scan(
 		&i.ID,
-		&i.PostID,
+		&i.FeedID,
 		&i.ParentCommentID,
 		&i.Commentor,
 		&i.CommentText,
@@ -69,7 +69,7 @@ func (q *Queries) GetComment(ctx context.Context, id int64) (Comment, error) {
 }
 
 const getComments = `-- name: GetComments :many
-SELECT id, post_id, parent_comment_id, commentor, comment_text, created_at FROM comments ORDER BY id LIMIT $1 OFFSET $2
+SELECT id, feed_id, parent_comment_id, commentor, comment_text, created_at FROM comments ORDER BY id LIMIT $1 OFFSET $2
 `
 
 type GetCommentsParams struct {
@@ -88,7 +88,7 @@ func (q *Queries) GetComments(ctx context.Context, arg GetCommentsParams) ([]Com
 		var i Comment
 		if err := rows.Scan(
 			&i.ID,
-			&i.PostID,
+			&i.FeedID,
 			&i.ParentCommentID,
 			&i.Commentor,
 			&i.CommentText,

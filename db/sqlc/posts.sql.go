@@ -11,25 +11,25 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createPost = `-- name: CreatePost :one
-INSERT INTO posts (author, content, medias, created_at) VALUES ($1, $2, $3, $4) RETURNING id, author, content, medias, views, created_at
+const createFeed = `-- name: CreateFeed :one
+INSERT INTO feeds (author, content, medias, created_at) VALUES ($1, $2, $3, $4) RETURNING id, author, content, medias, views, created_at
 `
 
-type CreatePostParams struct {
+type CreateFeedParams struct {
 	Author    string             `json:"author"`
 	Content   string             `json:"content"`
 	Medias    []string           `json:"medias"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
-func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
-	row := q.db.QueryRow(ctx, createPost,
+func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, error) {
+	row := q.db.QueryRow(ctx, createFeed,
 		arg.Author,
 		arg.Content,
 		arg.Medias,
 		arg.CreatedAt,
 	)
-	var i Post
+	var i Feed
 	err := row.Scan(
 		&i.ID,
 		&i.Author,
@@ -41,22 +41,22 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 	return i, err
 }
 
-const deletePost = `-- name: DeletePost :exec
-DELETE FROM posts WHERE id = $1
+const deleteFeed = `-- name: DeleteFeed :exec
+DELETE FROM feeds WHERE id = $1
 `
 
-func (q *Queries) DeletePost(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deletePost, id)
+func (q *Queries) DeleteFeed(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, deleteFeed, id)
 	return err
 }
 
-const getPost = `-- name: GetPost :one
-SELECT id, author, content, medias, views, created_at FROM posts WHERE id = $1 LIMIT 1
+const getFeed = `-- name: GetFeed :one
+SELECT id, author, content, medias, views, created_at FROM feeds WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
-	row := q.db.QueryRow(ctx, getPost, id)
-	var i Post
+func (q *Queries) GetFeed(ctx context.Context, id int64) (Feed, error) {
+	row := q.db.QueryRow(ctx, getFeed, id)
+	var i Feed
 	err := row.Scan(
 		&i.ID,
 		&i.Author,
@@ -68,24 +68,24 @@ func (q *Queries) GetPost(ctx context.Context, id int64) (Post, error) {
 	return i, err
 }
 
-const getPosts = `-- name: GetPosts :many
-SELECT id, author, content, medias, views, created_at FROM posts ORDER BY created_at DESC LIMIT $1 OFFSET $2
+const getFeeds = `-- name: GetFeeds :many
+SELECT id, author, content, medias, views, created_at FROM feeds ORDER BY created_at DESC LIMIT $1 OFFSET $2
 `
 
-type GetPostsParams struct {
+type GetFeedsParams struct {
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, error) {
-	rows, err := q.db.Query(ctx, getPosts, arg.Limit, arg.Offset)
+func (q *Queries) GetFeeds(ctx context.Context, arg GetFeedsParams) ([]Feed, error) {
+	rows, err := q.db.Query(ctx, getFeeds, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Post{}
+	items := []Feed{}
 	for rows.Next() {
-		var i Post
+		var i Feed
 		if err := rows.Scan(
 			&i.ID,
 			&i.Author,
@@ -104,16 +104,16 @@ func (q *Queries) GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, err
 	return items, nil
 }
 
-const getPostsWithAuthor = `-- name: GetPostsWithAuthor :many
-SELECT posts.id, posts.author, posts.content, posts.medias, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.seller = users.username ORDER BY posts.created_at DESC LIMIT $1 OFFSET $2
+const getFeedsWithAuthor = `-- name: GetFeedsWithAuthor :many
+SELECT feeds.id, feeds.author, feeds.content, feeds.medias, feeds.views, feeds.created_at, users.email, users.phone, users.profile FROM feeds JOIN users ON feeds.seller = users.username ORDER BY feeds.created_at DESC LIMIT $1 OFFSET $2
 `
 
-type GetPostsWithAuthorParams struct {
+type GetFeedsWithAuthorParams struct {
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
-type GetPostsWithAuthorRow struct {
+type GetFeedsWithAuthorRow struct {
 	ID        int64              `json:"id"`
 	Author    string             `json:"author"`
 	Content   string             `json:"content"`
@@ -125,15 +125,15 @@ type GetPostsWithAuthorRow struct {
 	Profile   pgtype.Text        `json:"profile"`
 }
 
-func (q *Queries) GetPostsWithAuthor(ctx context.Context, arg GetPostsWithAuthorParams) ([]GetPostsWithAuthorRow, error) {
-	rows, err := q.db.Query(ctx, getPostsWithAuthor, arg.Limit, arg.Offset)
+func (q *Queries) GetFeedsWithAuthor(ctx context.Context, arg GetFeedsWithAuthorParams) ([]GetFeedsWithAuthorRow, error) {
+	rows, err := q.db.Query(ctx, getFeedsWithAuthor, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetPostsWithAuthorRow{}
+	items := []GetFeedsWithAuthorRow{}
 	for rows.Next() {
-		var i GetPostsWithAuthorRow
+		var i GetFeedsWithAuthorRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Author,
@@ -155,17 +155,17 @@ func (q *Queries) GetPostsWithAuthor(ctx context.Context, arg GetPostsWithAuthor
 	return items, nil
 }
 
-const getPostsWithAuthorByQuery = `-- name: GetPostsWithAuthorByQuery :many
-SELECT posts.id, posts.author, posts.content, posts.medias, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.seller = users.username WHERE posts.content ILIKE '%' || $1 || '%' ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3
+const getFeedsWithAuthorByQuery = `-- name: GetFeedsWithAuthorByQuery :many
+SELECT feeds.id, feeds.author, feeds.content, feeds.medias, feeds.views, feeds.created_at, users.email, users.phone, users.profile FROM feeds JOIN users ON feeds.seller = users.username WHERE feeds.content ILIKE '%' || $1 || '%' ORDER BY feeds.created_at DESC LIMIT $2 OFFSET $3
 `
 
-type GetPostsWithAuthorByQueryParams struct {
+type GetFeedsWithAuthorByQueryParams struct {
 	Column1 pgtype.Text `json:"column_1"`
 	Limit   int32       `json:"limit"`
 	Offset  int32       `json:"offset"`
 }
 
-type GetPostsWithAuthorByQueryRow struct {
+type GetFeedsWithAuthorByQueryRow struct {
 	ID        int64              `json:"id"`
 	Author    string             `json:"author"`
 	Content   string             `json:"content"`
@@ -177,15 +177,15 @@ type GetPostsWithAuthorByQueryRow struct {
 	Profile   pgtype.Text        `json:"profile"`
 }
 
-func (q *Queries) GetPostsWithAuthorByQuery(ctx context.Context, arg GetPostsWithAuthorByQueryParams) ([]GetPostsWithAuthorByQueryRow, error) {
-	rows, err := q.db.Query(ctx, getPostsWithAuthorByQuery, arg.Column1, arg.Limit, arg.Offset)
+func (q *Queries) GetFeedsWithAuthorByQuery(ctx context.Context, arg GetFeedsWithAuthorByQueryParams) ([]GetFeedsWithAuthorByQueryRow, error) {
+	rows, err := q.db.Query(ctx, getFeedsWithAuthorByQuery, arg.Column1, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetPostsWithAuthorByQueryRow{}
+	items := []GetFeedsWithAuthorByQueryRow{}
 	for rows.Next() {
-		var i GetPostsWithAuthorByQueryRow
+		var i GetFeedsWithAuthorByQueryRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Author,
@@ -207,17 +207,17 @@ func (q *Queries) GetPostsWithAuthorByQuery(ctx context.Context, arg GetPostsWit
 	return items, nil
 }
 
-const getPostsWithAuthorThatIBought = `-- name: GetPostsWithAuthorThatIBought :many
-SELECT posts.id, posts.author, posts.content, posts.medias, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.seller = users.username JOIN transactions ON posts.id = transactions.product_id WHERE transactions.buyer = $1 ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3
+const getFeedsWithAuthorThatIBought = `-- name: GetFeedsWithAuthorThatIBought :many
+SELECT feeds.id, feeds.author, feeds.content, feeds.medias, feeds.views, feeds.created_at, users.email, users.phone, users.profile FROM feeds JOIN users ON feeds.seller = users.username JOIN transactions ON feeds.id = transactions.product_id WHERE transactions.buyer = $1 ORDER BY feeds.created_at DESC LIMIT $2 OFFSET $3
 `
 
-type GetPostsWithAuthorThatIBoughtParams struct {
+type GetFeedsWithAuthorThatIBoughtParams struct {
 	Buyer  string `json:"buyer"`
 	Limit  int32  `json:"limit"`
 	Offset int32  `json:"offset"`
 }
 
-type GetPostsWithAuthorThatIBoughtRow struct {
+type GetFeedsWithAuthorThatIBoughtRow struct {
 	ID        int64              `json:"id"`
 	Author    string             `json:"author"`
 	Content   string             `json:"content"`
@@ -229,15 +229,15 @@ type GetPostsWithAuthorThatIBoughtRow struct {
 	Profile   pgtype.Text        `json:"profile"`
 }
 
-func (q *Queries) GetPostsWithAuthorThatIBought(ctx context.Context, arg GetPostsWithAuthorThatIBoughtParams) ([]GetPostsWithAuthorThatIBoughtRow, error) {
-	rows, err := q.db.Query(ctx, getPostsWithAuthorThatIBought, arg.Buyer, arg.Limit, arg.Offset)
+func (q *Queries) GetFeedsWithAuthorThatIBought(ctx context.Context, arg GetFeedsWithAuthorThatIBoughtParams) ([]GetFeedsWithAuthorThatIBoughtRow, error) {
+	rows, err := q.db.Query(ctx, getFeedsWithAuthorThatIBought, arg.Buyer, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetPostsWithAuthorThatIBoughtRow{}
+	items := []GetFeedsWithAuthorThatIBoughtRow{}
 	for rows.Next() {
-		var i GetPostsWithAuthorThatIBoughtRow
+		var i GetFeedsWithAuthorThatIBoughtRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Author,
@@ -259,17 +259,17 @@ func (q *Queries) GetPostsWithAuthorThatIBought(ctx context.Context, arg GetPost
 	return items, nil
 }
 
-const getPostsWithAuthorThatISold = `-- name: GetPostsWithAuthorThatISold :many
-SELECT posts.id, posts.author, posts.content, posts.medias, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.author = users.username JOIN transactions ON posts.id = transactions.product_id WHERE transactions.seller = $1 ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3
+const getFeedsWithAuthorThatISold = `-- name: GetFeedsWithAuthorThatISold :many
+SELECT feeds.id, feeds.author, feeds.content, feeds.medias, feeds.views, feeds.created_at, users.email, users.phone, users.profile FROM feeds JOIN users ON feeds.author = users.username JOIN transactions ON feeds.id = transactions.product_id WHERE transactions.seller = $1 ORDER BY feeds.created_at DESC LIMIT $2 OFFSET $3
 `
 
-type GetPostsWithAuthorThatISoldParams struct {
+type GetFeedsWithAuthorThatISoldParams struct {
 	Seller string `json:"seller"`
 	Limit  int32  `json:"limit"`
 	Offset int32  `json:"offset"`
 }
 
-type GetPostsWithAuthorThatISoldRow struct {
+type GetFeedsWithAuthorThatISoldRow struct {
 	ID        int64              `json:"id"`
 	Author    string             `json:"author"`
 	Content   string             `json:"content"`
@@ -281,15 +281,15 @@ type GetPostsWithAuthorThatISoldRow struct {
 	Profile   pgtype.Text        `json:"profile"`
 }
 
-func (q *Queries) GetPostsWithAuthorThatISold(ctx context.Context, arg GetPostsWithAuthorThatISoldParams) ([]GetPostsWithAuthorThatISoldRow, error) {
-	rows, err := q.db.Query(ctx, getPostsWithAuthorThatISold, arg.Seller, arg.Limit, arg.Offset)
+func (q *Queries) GetFeedsWithAuthorThatISold(ctx context.Context, arg GetFeedsWithAuthorThatISoldParams) ([]GetFeedsWithAuthorThatISoldRow, error) {
+	rows, err := q.db.Query(ctx, getFeedsWithAuthorThatISold, arg.Seller, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetPostsWithAuthorThatISoldRow{}
+	items := []GetFeedsWithAuthorThatISoldRow{}
 	for rows.Next() {
-		var i GetPostsWithAuthorThatISoldRow
+		var i GetFeedsWithAuthorThatISoldRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Author,
@@ -311,17 +311,17 @@ func (q *Queries) GetPostsWithAuthorThatISold(ctx context.Context, arg GetPostsW
 	return items, nil
 }
 
-const getPostsWithAuthorThatIWished = `-- name: GetPostsWithAuthorThatIWished :many
-SELECT posts.id, posts.author, posts.content, posts.medias, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.seller = users.username JOIN wish_with_product ON posts.id = wish_with_product.product_id WHERE wish_with_product.username = $1 ORDER BY posts.created_at DESC LIMIT $2 OFFSET $3
+const getFeedsWithAuthorThatIWished = `-- name: GetFeedsWithAuthorThatIWished :many
+SELECT feeds.id, feeds.author, feeds.content, feeds.medias, feeds.views, feeds.created_at, users.email, users.phone, users.profile FROM feeds JOIN users ON feeds.seller = users.username JOIN wish_with_product ON feeds.id = wish_with_product.product_id WHERE wish_with_product.username = $1 ORDER BY feeds.created_at DESC LIMIT $2 OFFSET $3
 `
 
-type GetPostsWithAuthorThatIWishedParams struct {
+type GetFeedsWithAuthorThatIWishedParams struct {
 	Username string `json:"username"`
 	Limit    int32  `json:"limit"`
 	Offset   int32  `json:"offset"`
 }
 
-type GetPostsWithAuthorThatIWishedRow struct {
+type GetFeedsWithAuthorThatIWishedRow struct {
 	ID        int64              `json:"id"`
 	Author    string             `json:"author"`
 	Content   string             `json:"content"`
@@ -333,15 +333,15 @@ type GetPostsWithAuthorThatIWishedRow struct {
 	Profile   pgtype.Text        `json:"profile"`
 }
 
-func (q *Queries) GetPostsWithAuthorThatIWished(ctx context.Context, arg GetPostsWithAuthorThatIWishedParams) ([]GetPostsWithAuthorThatIWishedRow, error) {
-	rows, err := q.db.Query(ctx, getPostsWithAuthorThatIWished, arg.Username, arg.Limit, arg.Offset)
+func (q *Queries) GetFeedsWithAuthorThatIWished(ctx context.Context, arg GetFeedsWithAuthorThatIWishedParams) ([]GetFeedsWithAuthorThatIWishedRow, error) {
+	rows, err := q.db.Query(ctx, getFeedsWithAuthorThatIWished, arg.Username, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetPostsWithAuthorThatIWishedRow{}
+	items := []GetFeedsWithAuthorThatIWishedRow{}
 	for rows.Next() {
-		var i GetPostsWithAuthorThatIWishedRow
+		var i GetFeedsWithAuthorThatIWishedRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Author,
@@ -364,7 +364,7 @@ func (q *Queries) GetPostsWithAuthorThatIWished(ctx context.Context, arg GetPost
 }
 
 const getProductWithAuthor = `-- name: GetProductWithAuthor :one
-SELECT posts.id, posts.author, posts.content, posts.medias, posts.views, posts.created_at, users.email, users.phone, users.profile FROM posts JOIN users ON posts.seller = users.username WHERE posts.id = $1 LIMIT 1
+SELECT feeds.id, feeds.author, feeds.content, feeds.medias, feeds.views, feeds.created_at, users.email, users.phone, users.profile FROM feeds JOIN users ON feeds.seller = users.username WHERE feeds.id = $1 LIMIT 1
 `
 
 type GetProductWithAuthorRow struct {
@@ -396,17 +396,17 @@ func (q *Queries) GetProductWithAuthor(ctx context.Context, id int64) (GetProduc
 	return i, err
 }
 
-const updatePost = `-- name: UpdatePost :exec
-UPDATE posts SET content = $2, medias = $3 WHERE id = $1
+const updateFeed = `-- name: UpdateFeed :exec
+UPDATE feeds SET content = $2, medias = $3 WHERE id = $1
 `
 
-type UpdatePostParams struct {
+type UpdateFeedParams struct {
 	ID      int64    `json:"id"`
 	Content string   `json:"content"`
 	Medias  []string `json:"medias"`
 }
 
-func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) error {
-	_, err := q.db.Exec(ctx, updatePost, arg.ID, arg.Content, arg.Medias)
+func (q *Queries) UpdateFeed(ctx context.Context, arg UpdateFeedParams) error {
+	_, err := q.db.Exec(ctx, updateFeed, arg.ID, arg.Content, arg.Medias)
 	return err
 }

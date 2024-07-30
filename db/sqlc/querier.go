@@ -11,9 +11,9 @@ import (
 type Querier interface {
 	CheckRoom(ctx context.Context, arg CheckRoomParams) (Room, error)
 	CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error)
-	CreateLikeWithPost(ctx context.Context, arg CreateLikeWithPostParams) (LikeWithPost, error)
+	CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, error)
+	CreateLikeWithFeed(ctx context.Context, arg CreateLikeWithFeedParams) (LikeWithFeed, error)
 	CreateMessage(ctx context.Context, arg CreateMessageParams) (Message, error)
-	CreatePost(ctx context.Context, arg CreatePostParams) (Post, error)
 	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
 	CreateReview(ctx context.Context, arg CreateReviewParams) (Review, error)
 	CreateRoom(ctx context.Context, arg CreateRoomParams) (Room, error)
@@ -21,9 +21,9 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateWishWithProduct(ctx context.Context, arg CreateWishWithProductParams) (WishWithProduct, error)
 	DeleteComment(ctx context.Context, id int64) error
-	DeleteLikeWithPost(ctx context.Context, arg DeleteLikeWithPostParams) error
+	DeleteFeed(ctx context.Context, id int64) error
+	DeleteLikeWithFeed(ctx context.Context, arg DeleteLikeWithFeedParams) error
 	DeleteMessage(ctx context.Context, id int64) (Message, error)
-	DeletePost(ctx context.Context, id int64) error
 	DeleteProduct(ctx context.Context, id int64) error
 	DeleteReview(ctx context.Context, id int64) error
 	DeleteRoom(ctx context.Context, id int64) (Room, error)
@@ -33,16 +33,16 @@ type Querier interface {
 	GetBuyerTransactions(ctx context.Context, arg GetBuyerTransactionsParams) ([]Transaction, error)
 	GetComment(ctx context.Context, id int64) (Comment, error)
 	GetComments(ctx context.Context, arg GetCommentsParams) ([]Comment, error)
+	GetFeed(ctx context.Context, id int64) (Feed, error)
+	GetFeeds(ctx context.Context, arg GetFeedsParams) ([]Feed, error)
+	GetFeedsWithAuthor(ctx context.Context, arg GetFeedsWithAuthorParams) ([]GetFeedsWithAuthorRow, error)
+	GetFeedsWithAuthorByQuery(ctx context.Context, arg GetFeedsWithAuthorByQueryParams) ([]GetFeedsWithAuthorByQueryRow, error)
+	GetFeedsWithAuthorThatIBought(ctx context.Context, arg GetFeedsWithAuthorThatIBoughtParams) ([]GetFeedsWithAuthorThatIBoughtRow, error)
+	GetFeedsWithAuthorThatISold(ctx context.Context, arg GetFeedsWithAuthorThatISoldParams) ([]GetFeedsWithAuthorThatISoldRow, error)
+	GetFeedsWithAuthorThatIWished(ctx context.Context, arg GetFeedsWithAuthorThatIWishedParams) ([]GetFeedsWithAuthorThatIWishedRow, error)
 	GetLastMessage(ctx context.Context, roomID int64) (Message, error)
-	GetLikeWithPost(ctx context.Context, arg GetLikeWithPostParams) (LikeWithPost, error)
+	GetLikeWithFeed(ctx context.Context, arg GetLikeWithFeedParams) (LikeWithFeed, error)
 	GetMessagesByRoom(ctx context.Context, roomID int64) ([]Message, error)
-	GetPost(ctx context.Context, id int64) (Post, error)
-	GetPosts(ctx context.Context, arg GetPostsParams) ([]Post, error)
-	GetPostsWithAuthor(ctx context.Context, arg GetPostsWithAuthorParams) ([]GetPostsWithAuthorRow, error)
-	GetPostsWithAuthorByQuery(ctx context.Context, arg GetPostsWithAuthorByQueryParams) ([]GetPostsWithAuthorByQueryRow, error)
-	GetPostsWithAuthorThatIBought(ctx context.Context, arg GetPostsWithAuthorThatIBoughtParams) ([]GetPostsWithAuthorThatIBoughtRow, error)
-	GetPostsWithAuthorThatISold(ctx context.Context, arg GetPostsWithAuthorThatISoldParams) ([]GetPostsWithAuthorThatISoldRow, error)
-	GetPostsWithAuthorThatIWished(ctx context.Context, arg GetPostsWithAuthorThatIWishedParams) ([]GetPostsWithAuthorThatIWishedRow, error)
 	GetProduct(ctx context.Context, id int64) (Product, error)
 	GetProductWithAuthor(ctx context.Context, id int64) (GetProductWithAuthorRow, error)
 	GetProductWithSellor(ctx context.Context, id int64) (GetProductWithSellorRow, error)
@@ -65,8 +65,8 @@ type Querier interface {
 	ReadMessage(ctx context.Context, id int64) error
 	UnreadMessageCount(ctx context.Context, sender string) (int64, error)
 	UpdateComment(ctx context.Context, arg UpdateCommentParams) error
+	UpdateFeed(ctx context.Context, arg UpdateFeedParams) error
 	UpdateMessage(ctx context.Context, arg UpdateMessageParams) (Message, error)
-	UpdatePost(ctx context.Context, arg UpdatePostParams) error
 	UpdateProduct(ctx context.Context, arg UpdateProductParams) error
 	UpdateReview(ctx context.Context, arg UpdateReviewParams) error
 	UpdateTransactionStatus(ctx context.Context, arg UpdateTransactionStatusParams) (Transaction, error)

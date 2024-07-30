@@ -12,7 +12,7 @@ import (
 )
 
 const createProduct = `-- name: CreateProduct :one
-INSERT INTO products (seller, title, content, price, medias, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, seller, title, content, medias, price, views, created_at
+INSERT INTO products (seller, title, content, price, stock, medias, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, seller, title, content, medias, price, stock, views, created_at
 `
 
 type CreateProductParams struct {
@@ -20,6 +20,7 @@ type CreateProductParams struct {
 	Title     string             `json:"title"`
 	Content   string             `json:"content"`
 	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
 	Medias    []string           `json:"medias"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
@@ -30,6 +31,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		arg.Title,
 		arg.Content,
 		arg.Price,
+		arg.Stock,
 		arg.Medias,
 		arg.CreatedAt,
 	)
@@ -41,6 +43,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		&i.Content,
 		&i.Medias,
 		&i.Price,
+		&i.Stock,
 		&i.Views,
 		&i.CreatedAt,
 	)
@@ -57,7 +60,7 @@ func (q *Queries) DeleteProduct(ctx context.Context, id int64) error {
 }
 
 const getProduct = `-- name: GetProduct :one
-SELECT id, seller, title, content, medias, price, views, created_at FROM products WHERE id = $1 LIMIT 1
+SELECT id, seller, title, content, medias, price, stock, views, created_at FROM products WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
@@ -70,23 +73,25 @@ func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
 		&i.Content,
 		&i.Medias,
 		&i.Price,
+		&i.Stock,
 		&i.Views,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
-const getProductWithSeller = `-- name: GetProductWithSeller :one
-SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.seller = users.username WHERE products.id = $1 LIMIT 1
+const getProductWithSellor = `-- name: GetProductWithSellor :one
+SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.stock, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username WHERE products.id = $1 LIMIT 1
 `
 
-type GetProductWithSellerRow struct {
+type GetProductWithSellorRow struct {
 	ID        int64              `json:"id"`
 	Seller    string             `json:"seller"`
 	Title     string             `json:"title"`
 	Content   string             `json:"content"`
 	Medias    []string           `json:"medias"`
 	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	Email     string             `json:"email"`
@@ -94,9 +99,9 @@ type GetProductWithSellerRow struct {
 	Profile   pgtype.Text        `json:"profile"`
 }
 
-func (q *Queries) GetProductWithSeller(ctx context.Context, id int64) (GetProductWithSellerRow, error) {
-	row := q.db.QueryRow(ctx, getProductWithSeller, id)
-	var i GetProductWithSellerRow
+func (q *Queries) GetProductWithSellor(ctx context.Context, id int64) (GetProductWithSellorRow, error) {
+	row := q.db.QueryRow(ctx, getProductWithSellor, id)
+	var i GetProductWithSellorRow
 	err := row.Scan(
 		&i.ID,
 		&i.Seller,
@@ -104,6 +109,7 @@ func (q *Queries) GetProductWithSeller(ctx context.Context, id int64) (GetProduc
 		&i.Content,
 		&i.Medias,
 		&i.Price,
+		&i.Stock,
 		&i.Views,
 		&i.CreatedAt,
 		&i.Email,
@@ -114,7 +120,7 @@ func (q *Queries) GetProductWithSeller(ctx context.Context, id int64) (GetProduc
 }
 
 const getProducts = `-- name: GetProducts :many
-SELECT id, seller, title, content, medias, price, views, created_at FROM products ORDER BY created_at DESC LIMIT $1 OFFSET $2
+SELECT id, seller, title, content, medias, price, stock, views, created_at FROM products ORDER BY created_at DESC LIMIT $1 OFFSET $2
 `
 
 type GetProductsParams struct {
@@ -138,6 +144,7 @@ func (q *Queries) GetProducts(ctx context.Context, arg GetProductsParams) ([]Pro
 			&i.Content,
 			&i.Medias,
 			&i.Price,
+			&i.Stock,
 			&i.Views,
 			&i.CreatedAt,
 		); err != nil {
@@ -152,7 +159,7 @@ func (q *Queries) GetProducts(ctx context.Context, arg GetProductsParams) ([]Pro
 }
 
 const getProductsWithSeller = `-- name: GetProductsWithSeller :many
-SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.seller = users.username ORDER BY products.created_at DESC LIMIT $1 OFFSET $2
+SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.stock, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username ORDER BY products.created_at DESC LIMIT $1 OFFSET $2
 `
 
 type GetProductsWithSellerParams struct {
@@ -167,6 +174,7 @@ type GetProductsWithSellerRow struct {
 	Content   string             `json:"content"`
 	Medias    []string           `json:"medias"`
 	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	Email     string             `json:"email"`
@@ -190,6 +198,7 @@ func (q *Queries) GetProductsWithSeller(ctx context.Context, arg GetProductsWith
 			&i.Content,
 			&i.Medias,
 			&i.Price,
+			&i.Stock,
 			&i.Views,
 			&i.CreatedAt,
 			&i.Email,
@@ -207,7 +216,7 @@ func (q *Queries) GetProductsWithSeller(ctx context.Context, arg GetProductsWith
 }
 
 const getProductsWithSellerByQuery = `-- name: GetProductsWithSellerByQuery :many
-SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.seller = users.username WHERE products.title ILIKE '%' || $1 || '%' OR products.content ILIKE '%' || $1 || '%' ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
+SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.stock, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username WHERE products.title ILIKE '%' || $1 || '%' OR products.content ILIKE '%' || $1 || '%' ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
 `
 
 type GetProductsWithSellerByQueryParams struct {
@@ -223,6 +232,7 @@ type GetProductsWithSellerByQueryRow struct {
 	Content   string             `json:"content"`
 	Medias    []string           `json:"medias"`
 	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	Email     string             `json:"email"`
@@ -246,6 +256,7 @@ func (q *Queries) GetProductsWithSellerByQuery(ctx context.Context, arg GetProdu
 			&i.Content,
 			&i.Medias,
 			&i.Price,
+			&i.Stock,
 			&i.Views,
 			&i.CreatedAt,
 			&i.Email,
@@ -263,7 +274,7 @@ func (q *Queries) GetProductsWithSellerByQuery(ctx context.Context, arg GetProdu
 }
 
 const getProductsWithSellerThatIBought = `-- name: GetProductsWithSellerThatIBought :many
-SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.seller = users.username JOIN transactions ON products.id = transactions.product_id WHERE transactions.buyer = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
+SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.stock, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN transactions ON products.id = transactions.post_id WHERE transactions.buyer = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
 `
 
 type GetProductsWithSellerThatIBoughtParams struct {
@@ -279,6 +290,7 @@ type GetProductsWithSellerThatIBoughtRow struct {
 	Content   string             `json:"content"`
 	Medias    []string           `json:"medias"`
 	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	Email     string             `json:"email"`
@@ -302,6 +314,65 @@ func (q *Queries) GetProductsWithSellerThatIBought(ctx context.Context, arg GetP
 			&i.Content,
 			&i.Medias,
 			&i.Price,
+			&i.Stock,
+			&i.Views,
+			&i.CreatedAt,
+			&i.Email,
+			&i.Phone,
+			&i.Profile,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getProductsWithSellerThatILiked = `-- name: GetProductsWithSellerThatILiked :many
+SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.stock, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN like_with_post ON products.id = like_with_post.post_id WHERE like_with_post.username = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
+`
+
+type GetProductsWithSellerThatILikedParams struct {
+	Username string `json:"username"`
+	Limit    int32  `json:"limit"`
+	Offset   int32  `json:"offset"`
+}
+
+type GetProductsWithSellerThatILikedRow struct {
+	ID        int64              `json:"id"`
+	Seller    string             `json:"seller"`
+	Title     string             `json:"title"`
+	Content   string             `json:"content"`
+	Medias    []string           `json:"medias"`
+	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
+	Views     pgtype.Int8        `json:"views"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	Email     string             `json:"email"`
+	Phone     pgtype.Text        `json:"phone"`
+	Profile   pgtype.Text        `json:"profile"`
+}
+
+func (q *Queries) GetProductsWithSellerThatILiked(ctx context.Context, arg GetProductsWithSellerThatILikedParams) ([]GetProductsWithSellerThatILikedRow, error) {
+	rows, err := q.db.Query(ctx, getProductsWithSellerThatILiked, arg.Username, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetProductsWithSellerThatILikedRow{}
+	for rows.Next() {
+		var i GetProductsWithSellerThatILikedRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Seller,
+			&i.Title,
+			&i.Content,
+			&i.Medias,
+			&i.Price,
+			&i.Stock,
 			&i.Views,
 			&i.CreatedAt,
 			&i.Email,
@@ -319,7 +390,7 @@ func (q *Queries) GetProductsWithSellerThatIBought(ctx context.Context, arg GetP
 }
 
 const getProductsWithSellerThatISold = `-- name: GetProductsWithSellerThatISold :many
-SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON posts.author = users.username JOIN transactions ON products.id = transactions.product_id WHERE transactions.seller = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
+SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.stock, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.author = users.username JOIN transactions ON products.id = transactions.post_id WHERE transactions.seller = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
 `
 
 type GetProductsWithSellerThatISoldParams struct {
@@ -335,6 +406,7 @@ type GetProductsWithSellerThatISoldRow struct {
 	Content   string             `json:"content"`
 	Medias    []string           `json:"medias"`
 	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	Email     string             `json:"email"`
@@ -358,62 +430,7 @@ func (q *Queries) GetProductsWithSellerThatISold(ctx context.Context, arg GetPro
 			&i.Content,
 			&i.Medias,
 			&i.Price,
-			&i.Views,
-			&i.CreatedAt,
-			&i.Email,
-			&i.Phone,
-			&i.Profile,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getProductsWithSellerThatIWished = `-- name: GetProductsWithSellerThatIWished :many
-SELECT products.id, products.seller, products.title, products.content, products.medias, products.price, products.views, products.created_at, users.email, users.phone, users.profile FROM products JOIN users ON products.seller = users.username JOIN wish_with_product ON products.id = wish_with_product.product_id WHERE wish_with_product.username = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3
-`
-
-type GetProductsWithSellerThatIWishedParams struct {
-	Username string `json:"username"`
-	Limit    int32  `json:"limit"`
-	Offset   int32  `json:"offset"`
-}
-
-type GetProductsWithSellerThatIWishedRow struct {
-	ID        int64              `json:"id"`
-	Seller    string             `json:"seller"`
-	Title     string             `json:"title"`
-	Content   string             `json:"content"`
-	Medias    []string           `json:"medias"`
-	Price     int64              `json:"price"`
-	Views     pgtype.Int8        `json:"views"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	Email     string             `json:"email"`
-	Phone     pgtype.Text        `json:"phone"`
-	Profile   pgtype.Text        `json:"profile"`
-}
-
-func (q *Queries) GetProductsWithSellerThatIWished(ctx context.Context, arg GetProductsWithSellerThatIWishedParams) ([]GetProductsWithSellerThatIWishedRow, error) {
-	rows, err := q.db.Query(ctx, getProductsWithSellerThatIWished, arg.Username, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []GetProductsWithSellerThatIWishedRow{}
-	for rows.Next() {
-		var i GetProductsWithSellerThatIWishedRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Seller,
-			&i.Title,
-			&i.Content,
-			&i.Medias,
-			&i.Price,
+			&i.Stock,
 			&i.Views,
 			&i.CreatedAt,
 			&i.Email,
@@ -431,7 +448,7 @@ func (q *Queries) GetProductsWithSellerThatIWished(ctx context.Context, arg GetP
 }
 
 const updateProduct = `-- name: UpdateProduct :exec
-UPDATE products SET title = $2, content = $3, price = $4, medias = $5 WHERE id = $1
+UPDATE products SET title = $2, content = $3, price = $4, stock = $5, medias = $6 WHERE id = $1
 `
 
 type UpdateProductParams struct {
@@ -439,6 +456,7 @@ type UpdateProductParams struct {
 	Title   string   `json:"title"`
 	Content string   `json:"content"`
 	Price   int64    `json:"price"`
+	Stock   int64    `json:"stock"`
 	Medias  []string `json:"medias"`
 }
 
@@ -448,6 +466,7 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) er
 		arg.Title,
 		arg.Content,
 		arg.Price,
+		arg.Stock,
 		arg.Medias,
 	)
 	return err

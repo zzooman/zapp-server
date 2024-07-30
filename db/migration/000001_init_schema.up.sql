@@ -11,10 +11,10 @@ CREATE TABLE users (
 CREATE INDEX idx_users_email ON users(email);
 
 
-/* 포스팅 */
-CREATE TABLE posts (
+/* 상품 판매 게시글*/
+CREATE TABLE products (
     id BIGSERIAL PRIMARY KEY,
-    author VARCHAR(255) NOT NULL,
+    seller VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     medias TEXT[],
@@ -24,22 +24,20 @@ CREATE TABLE posts (
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (author) REFERENCES users(username)
 );
-CREATE INDEX idx_posts_author_created_at ON posts(author, created_at);
+CREATE INDEX idx_products_author_created_at ON products(seller, created_at);
 
 
-/* 상품판매 게시글 */
-CREATE TABLE products (
+/* 포스팅 */
+CREATE TABLE posts (
     id BIGSERIAL PRIMARY KEY,
-    seller VARCHAR(255) NOT NULL,
-    title VARCHAR(255) NOT NULL,
+    author VARCHAR(255) NOT NULL,    
     content TEXT NOT NULL,
-    medias TEXT[],
-    price BIGINT NOT NULL,
+    medias TEXT[],    
     views BIGINT DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (seller) REFERENCES users(username)
+    FOREIGN KEY (author) REFERENCES users(username)
 );
-CREATE INDEX idx_products_seller ON products(seller);
+CREATE INDEX idx_posts_seller ON posts(author);
 
 
 /* 상품 거래 상태 */

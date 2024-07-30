@@ -204,7 +204,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	}
 
 	// Set the cookie with the access token, 만료 시간도 12시간으로 설정
-	ctx.SetCookie("auth_token", authToken, int((time.Hour * 12).Seconds()), "/", "localhost", false, false)
+	ctx.SetCookie("auth_token", authToken, int((time.Hour * 12).Seconds()), "/", "localhost", true, true)
 	ctx.JSON(http.StatusOK, rsp)
 }
 

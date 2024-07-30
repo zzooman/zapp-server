@@ -18,8 +18,8 @@ func (server *Server) createLike(ctx *gin.Context) {
 		return
 	}
 	authPayload := ctx.MustGet(AUTH_TOKEN).(*token.Payload)
-	like, err := server.store.CreateLikeWithPost(ctx, db.CreateLikeWithPostParams{
-		PostID: req.Id,
+	like, err := server.store.CreateWishWithProduct(ctx, db.CreateWishWithProductParams{
+		ProductID: req.Id,
 		Username: authPayload.Username,
 	})
 	if err != nil {
@@ -39,8 +39,8 @@ func (server *Server) deleteLike(ctx *gin.Context) {
 		return
 	}
 	authPayload := ctx.MustGet(AUTH_TOKEN).(*token.Payload)
-	err := server.store.DeleteLikeWithPost(ctx, db.DeleteLikeWithPostParams{
-		PostID: req.Id,
+	err := server.store.DeleteWishWithProduct(ctx, db.DeleteWishWithProductParams{
+		ProductID: req.Id,
 		Username: authPayload.Username,
 	})
 	if err != nil {

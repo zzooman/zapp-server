@@ -34,11 +34,8 @@ type Message struct {
 type Post struct {
 	ID        int64              `json:"id"`
 	Author    string             `json:"author"`
-	Title     string             `json:"title"`
 	Content   string             `json:"content"`
 	Medias    []string           `json:"medias"`
-	Price     int64              `json:"price"`
-	Stock     int64              `json:"stock"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
@@ -50,6 +47,7 @@ type Product struct {
 	Content   string             `json:"content"`
 	Medias    []string           `json:"medias"`
 	Price     int64              `json:"price"`
+	Stock     int64              `json:"stock"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }

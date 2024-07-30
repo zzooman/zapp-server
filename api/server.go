@@ -3,8 +3,6 @@ package api
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-playground/validator/v10"
 	db "github.com/zzooman/zapp-server/db/sqlc"
 	"github.com/zzooman/zapp-server/token"
 )
@@ -14,16 +12,12 @@ type Server struct {
 	router *gin.Engine
 }
 
-func NewServer(store db.Store) *Server {
+func NewServer(store db.Store) *Server {	
 	server := &Server{
 		store: store, 
 		tokenMaker: token.NewPasetoMaker(),
 		router: gin.Default(),
 	}			
-	
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		v.RegisterValidation("currency", validCurrency)
-	}
 	
 	server.setUpRouter(server.router)
 	return server
@@ -37,23 +31,24 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 
 	router.POST("/login", server.loginUser)	
 	router.POST("/user", server.createUser)		
-	router.GET("/posts", server.getPosts)	
-	router.GET("/posts/search", server.searchPosts)
-	router.GET("/post/:id", server.getPost)
+	router.GET("/products", server.getProducts)		
+	router.GET("/products/search", server.searchProducts)
+	router.GET("/product/:id", server.getProduct)
 	router.GET("/search/hot", server.hotSearchTexts)
 	
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 
 	authRoutes.GET("/me", server.me)
 	authRoutes.GET("/user/:id", server.getUser)
-	authRoutes.GET("/posts/liked", server.getPostsILiked)
-	authRoutes.GET("/posts/sold", server.getPostsISold)
-	authRoutes.GET("/posts/bought", server.getPostsIBought)
+	authRoutes.GET("/products/liked", server.getProductsILiked)
+	authRoutes.GET("/products/sold", server.getProductsISold)
+	authRoutes.GET("/products/bought", server.getProductsIBought)
 	authRoutes.PUT("/user/:id", server.updateUser)
 	authRoutes.DELETE("/user/:id", server.deleteUser)
-	authRoutes.POST("/post", server.createPost)	
-	authRoutes.POST("/post/:id/like", server.createLike)
-	authRoutes.DELETE("/post/:id/unlike", server.deleteLike)
+	authRoutes.POST("/product", server.createProduct)	
+	authRoutes.POST("/product/:id/like", server.createLike)
+	authRoutes.DELETE("/product/:id/unlike", server.deleteLike)
+	
 	authRoutes.POST("/room", server.enterChatRoom)
 	authRoutes.GET("/ws/:room_id", server.connectWS)
 	authRoutes.GET("/messages/:room_id", server.getMessages)

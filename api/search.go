@@ -36,7 +36,7 @@ func (server *Server) searchProducts(ctx *gin.Context) {
 		return
 	}
 
-	nestProducts, err := server.store.SearchProductsTx(ctx, db.SearchProductsParams{
+	nextProducts, err := server.store.SearchProductsTx(ctx, db.SearchProductsParams{
 		Query:  req.Query,
 		Limit:  req.Limit,
 		Offset: req.Page * req.Limit,
@@ -45,7 +45,7 @@ func (server *Server) searchProducts(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	if len(nestProducts.Products) == 0 {
+	if len(nextProducts.Products) == 0 {
 		res.Next = false
 	} else {
 		res.Next = true

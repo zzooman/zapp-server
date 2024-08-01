@@ -66,7 +66,7 @@ CREATE TABLE like_with_feed (
     FOREIGN KEY (feed_id) REFERENCES feeds(id)
 );
 CREATE INDEX idx_like_with_feed_username ON like_with_feed(username);
-
+CREATE INDEX idx_like_with_feed_feed_id ON like_with_feed(feed_id);
 
 
 /* 상품 찜 */

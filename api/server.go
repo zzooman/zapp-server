@@ -30,7 +30,9 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 	router.Use(cors.New(config))
 
 	router.POST("/login", server.loginUser)	
-	router.POST("/user", server.createUser)		
+	router.POST("/user", server.createUser)	
+	router.GET("/feeds", server.getFeeds)	
+	router.GET("/feed/:id", server.getFeed)
 	router.GET("/products", server.getProducts)		
 	router.GET("/products/search", server.searchProducts)
 	router.GET("/product/:id", server.getProduct)

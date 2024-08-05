@@ -69,16 +69,17 @@ func (q *Queries) GetComment(ctx context.Context, id int64) (Comment, error) {
 }
 
 const getComments = `-- name: GetComments :many
-SELECT id, feed_id, parent_comment_id, commentor, comment_text, created_at FROM comments ORDER BY id LIMIT $1 OFFSET $2
+SELECT id, feed_id, parent_comment_id, commentor, comment_text, created_at FROM comments WHERE feed_id = $1 ORDER BY id LIMIT $2 OFFSET $3
 `
 
 type GetCommentsParams struct {
+	FeedID int64 `json:"feed_id"`
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) GetComments(ctx context.Context, arg GetCommentsParams) ([]Comment, error) {
-	rows, err := q.db.Query(ctx, getComments, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, getComments, arg.FeedID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -102,6 +103,17 @@ func (q *Queries) GetComments(ctx context.Context, arg GetCommentsParams) ([]Com
 		return nil, err
 	}
 	return items, nil
+}
+
+const getCountOfComments = `-- name: GetCountOfComments :one
+SELECT COUNT(*) FROM comments WHERE feed_id = $1
+`
+
+func (q *Queries) GetCountOfComments(ctx context.Context, feedID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, getCountOfComments, feedID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const updateComment = `-- name: UpdateComment :exec

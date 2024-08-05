@@ -33,6 +33,7 @@ type Querier interface {
 	GetBuyerTransactions(ctx context.Context, arg GetBuyerTransactionsParams) ([]Transaction, error)
 	GetComment(ctx context.Context, id int64) (Comment, error)
 	GetComments(ctx context.Context, arg GetCommentsParams) ([]Comment, error)
+	GetCountOfComments(ctx context.Context, feedID int64) (int64, error)
 	GetFeed(ctx context.Context, id int64) (Feed, error)
 	GetFeedWithAuthor(ctx context.Context, id int64) (GetFeedWithAuthorRow, error)
 	GetFeeds(ctx context.Context, arg GetFeedsParams) ([]Feed, error)

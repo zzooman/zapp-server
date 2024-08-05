@@ -17,13 +17,14 @@ type Author struct {
 	Profile  	pgtype.Text `json:"profile"`
 }
 type FeedResponse struct {
-	ID        int64               `json:"id"`	
-	Content   string              `json:"content"`
-	Medias    []string            `json:"medias"`	
-	Views     pgtype.Int8         `json:"views"`
-	CreatedAt pgtype.Timestamptz  `json:"created_at"`
-	Author    Author              `json:"author"`
-	IsLiked   bool                `json:"isLiked"`
+	ID          int64               `json:"id"`	
+	Content     string              `json:"content"`
+	Medias      []string            `json:"medias"`	
+	Views       pgtype.Int8         `json:"views"`
+	CreatedAt   pgtype.Timestamptz  `json:"created_at"`
+	Author      Author              `json:"author"`
+	IsLiked     bool                `json:"isLiked"`
+	Comments   	int32				`json:"comments"`
 }
 type GetFeedsRequest struct {
 	Limit int32 `form:"limit" binding:"required"`
@@ -63,7 +64,8 @@ func (server *Server) getFeeds(ctx *gin.Context) {
 
 	ch := make(chan struct {
 		db.GetFeedsWithAuthorRow
-		IsLiked bool
+		IsLiked 	bool
+		Comments 	int32
 	}, len(feedsWithAuthor))
 	
 	var username string = ""
@@ -77,10 +79,12 @@ func (server *Server) getFeeds(ctx *gin.Context) {
 			_, err = server.store.GetLikeWithFeed(ctx, db.GetLikeWithFeedParams{
 				Username: username,
 				FeedID: feed.ID,
-			})
-			ch <- struct{db.GetFeedsWithAuthorRow; IsLiked bool}{
+			})			
+			count, err := server.store.GetCountOfComments(ctx, feed.ID)
+			ch <- struct{db.GetFeedsWithAuthorRow; IsLiked bool; Comments int32;}{
 				feed,
 				err == nil,
+				int32(count),
 			}
 		}(feed)
 	} 
@@ -100,6 +104,7 @@ func (server *Server) getFeeds(ctx *gin.Context) {
 			Views: result.Views,
 			CreatedAt: result.CreatedAt,
 			IsLiked: result.IsLiked,
+			Comments: result.Comments,
 		})
 	}
 
@@ -116,12 +121,30 @@ func (server *Server) getFeeds(ctx *gin.Context) {
 }
 
 
-type GetFeedRequest struct {
+type GetFeedDetailRequest struct {
 	Id int `json:"id"`	
 }
+type Comment struct {
+	ID              int64              `json:"id"`
+    FeedID          int64              `json:"feed_id"`
+    ParentCommentID pgtype.Int8        `json:"parent_comment_id"`
+    Commentor       Author             `json:"commentor"`
+    CommentText     string             `json:"comment_text"`
+    CreatedAt       pgtype.Timestamptz `json:"created_at"`
+}
+type GetFeedDetailResponse struct {
+	ID          int64               `json:"id"`	
+	Content     string              `json:"content"`
+	Medias      []string            `json:"medias"`	
+	Views       pgtype.Int8         `json:"views"`
+	CreatedAt   pgtype.Timestamptz  `json:"created_at"`
+	Author      Author              `json:"author"`
+	IsLiked     bool                `json:"isLiked"`
+	Comments   	[]Comment			`json:"comments"`
+}
 func (server *Server) getFeed(ctx *gin.Context) {
-	var req GetFeedRequest
-	var res FeedResponse
+	var req GetFeedDetailRequest
+	var res GetFeedDetailResponse
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -133,12 +156,18 @@ func (server *Server) getFeed(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 
+	username := ""
+	auth, ok := ctx.Get(AUTH_TOKEN)
+	if ok {
+		username = auth.(*token.Payload).Username
+	}
+
 	_, err = server.store.GetLikeWithFeed(ctx, db.GetLikeWithFeedParams{
-		Username: feedWithAuthor.Author,
+		Username: username,
 		FeedID: feedWithAuthor.ID,
 	})
-	
-	res = FeedResponse{
+
+	res = GetFeedDetailResponse{
 		ID: feedWithAuthor.ID,
 		Content: feedWithAuthor.Content,
 		Medias: feedWithAuthor.Medias,
@@ -150,8 +179,59 @@ func (server *Server) getFeed(ctx *gin.Context) {
 			Phone: feedWithAuthor.Phone,
 			Profile: feedWithAuthor.Profile,
 		},
-		IsLiked: err == nil,
+		IsLiked: err == nil,		
 	}
+
+	comments, err := server.store.GetComments(ctx, db.GetCommentsParams{
+		FeedID: feedWithAuthor.ID,
+		Limit: 10,
+		Offset: 0,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}	
+
+	if len(comments) == 0 {
+		res.Comments = []Comment{}
+	}
+
+	ch := make(chan Comment, len(comments))
+
+	for i := 0; i < len(comments); i++ {
+		go func(comment db.Comment) {
+			commentor, _ := server.store.GetUser(ctx, comment.Commentor)			
+			ch <- Comment{
+				ID: comment.ID,
+				FeedID: comment.FeedID,              
+				ParentCommentID: comment.ParentCommentID,
+				Commentor: Author{
+					Username: commentor.Username,       
+    				Email: commentor.Email,          
+    				Phone: commentor.Phone,    
+    				Profile: commentor.Profile,  
+				},             
+				CommentText: comment.CommentText,             
+				CreatedAt: comment.CreatedAt,
+			}
+			
+		}(comments[i])
+	}
+
+	for range comments {
+		result := <-ch
+		res.Comments = append(res.Comments, result)
+	}
+
+	
+	// 최신순 버블 정렬
+	for range res.Comments {
+		for i := 0; i < len(res.Comments)-1; i++ {
+			if res.Comments[i].CreatedAt.Time.Before(res.Comments[i+1].CreatedAt.Time) {				
+				res.Comments[i], res.Comments[i+1] = res.Comments[i+1], res.Comments[i]
+			}
+		}
+	}	
 
 	ctx.JSON(http.StatusOK, res)
 }

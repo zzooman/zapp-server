@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -25,31 +26,31 @@ type FeedResponse struct {
 	IsLiked   bool                `json:"isLiked"`
 }
 type GetFeedsRequest struct {
-	Limit 	int32 `json:"limit"`
-	Page 	int32 `json:"page"`
+	Limit int32 `form:"limit" binding:"required"`
+	Page  int32 `form:"page" binding:"required"`
 }
 type GetFeedsResponse struct {
 	Next bool				`json:"next"`
-	feeds []FeedResponse    `json:"feeds"`
+	Feeds []FeedResponse    `json:"feeds"`
 }
 func (server *Server) getFeeds(ctx *gin.Context) {
 	var req GetFeedsRequest
-	var res GetFeedsResponse
-	
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return 
-	}
+	var res GetFeedsResponse	
 
+	if err := ctx.BindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	
 	feedsWithAuthor, err := server.store.GetFeedsWithAuthor(ctx, db.GetFeedsWithAuthorParams{
 		Limit: req.Limit,
-		Offset: req.Limit - 1 * req.Page,
+		Offset: (req.Page - 1) * req.Limit,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
+		
 	nextFeeds, err := server.store.GetFeeds(ctx, db.GetFeedsParams{
 		Limit: req.Limit,
 		Offset: req.Limit * req.Page,
@@ -65,7 +66,12 @@ func (server *Server) getFeeds(ctx *gin.Context) {
 		IsLiked bool
 	}, len(feedsWithAuthor))
 	
-	username := ctx.MustGet(AUTH_TOKEN).(*token.Payload).Username
+	var username string = ""
+	auth, ok := ctx.Get(AUTH_TOKEN)
+	if ok {
+		username = auth.(*token.Payload).Username
+	}
+	
 	for _, feed := range feedsWithAuthor {
 		go func(feed db.GetFeedsWithAuthorRow) {
 			_, err = server.store.GetLikeWithFeed(ctx, db.GetLikeWithFeedParams{
@@ -81,7 +87,7 @@ func (server *Server) getFeeds(ctx *gin.Context) {
 
 	for range feedsWithAuthor {
 		result := <-ch
-		res.feeds = append(res.feeds, FeedResponse{
+		res.Feeds = append(res.Feeds, FeedResponse{
 			Author: Author{
 				Username: result.Author,
 				Phone: result.Phone,
@@ -97,7 +103,7 @@ func (server *Server) getFeeds(ctx *gin.Context) {
 		})
 	}
 
-	feeds := res.feeds
+	feeds := res.Feeds
 	// 최신순 버블 정렬
 	for range feeds {
 		for i := 0; i < len(feeds)-1; i++ {
@@ -148,4 +154,32 @@ func (server *Server) getFeed(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, res)
+}
+
+
+type createFeedRequest struct {	
+	Content string   `json:"content" binding:"required"`	
+	Medias  []string `json:"medias"`
+}
+
+func (server *Server) createFeed(ctx *gin.Context) {
+	var req createFeedRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	username := ctx.MustGet(AUTH_TOKEN).(*token.Payload).Username
+	
+	feed, err := server.store.CreateFeed(ctx, db.CreateFeedParams{
+		Author: username,
+		Content: req.Content,
+		Medias: req.Medias,
+		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, feed)
 }

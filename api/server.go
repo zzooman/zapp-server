@@ -47,6 +47,7 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 	authRoutes.GET("/products/bought", server.getProductsIBought)
 	authRoutes.PUT("/user/:id", server.updateUser)
 	authRoutes.DELETE("/user/:id", server.deleteUser)
+	authRoutes.POST("/feed", server.createFeed)
 	authRoutes.POST("/product", server.createProduct)	
 	authRoutes.POST("/product/:id/like", server.createLike)
 	authRoutes.DELETE("/product/:id/unlike", server.deleteLike)

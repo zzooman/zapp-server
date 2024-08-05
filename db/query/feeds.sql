@@ -10,9 +10,6 @@ SELECT feeds.*, users.email, users.phone, users.profile FROM feeds JOIN users ON
 -- name: GetFeeds :many
 SELECT * FROM feeds ORDER BY created_at DESC LIMIT $1 OFFSET $2;
 
--- name: GetProductWithAuthor :one
-SELECT feeds.*, users.email, users.phone, users.profile FROM feeds JOIN users ON feeds.author = users.username WHERE feeds.id = $1 LIMIT 1;
-
 -- name: GetFeedsWithAuthor :many
 SELECT feeds.*, users.email, users.phone, users.profile FROM feeds JOIN users ON feeds.author = users.username ORDER BY feeds.created_at DESC LIMIT $1 OFFSET $2;
 

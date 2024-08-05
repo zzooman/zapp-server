@@ -15,8 +15,7 @@ import (
 type createProductRequest struct {
 	Title   string   `json:"title" binding:"required"`
 	Content string   `json:"content" binding:"required"`
-	Price   string   `json:"price" binding:"required"`
-	Stock   int64    `json:"stock" binding:"required"`
+	Price   string   `json:"price" binding:"required"`	
 	Medias  []string `json:"medias" binding:"required"`
 }
 
@@ -33,8 +32,7 @@ func (server *Server) createProduct(ctx *gin.Context) {
 		Seller:    authPayload.Username,
 		Title:     req.Title,
 		Content:   req.Content,
-		Price:     price,
-		Stock:     req.Stock,
+		Price:     price,		
 		Medias:     req.Medias,
 		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
 	})
@@ -56,8 +54,7 @@ type ProductResponse struct {
 	Title     string              `json:"title"`
 	Content   string              `json:"content"`
 	Medias    []string            `json:"medias"`
-	Price     int64               `json:"price"`
-	Stock     int64               `json:"stock"`
+	Price     int64               `json:"price"`	
 	Views     pgtype.Int8         `json:"views"`
 	CreatedAt pgtype.Timestamptz  `json:"created_at"`
 	Seller    Seller              `json:"seller"`
@@ -92,8 +89,7 @@ func (server *Server) getProduct(ctx *gin.Context) {
 		Title:     	productWithSeller.Title,
 		Content:   	productWithSeller.Content,
 		Medias:    	productWithSeller.Medias,
-		Price:     	productWithSeller.Price,
-		Stock:     	productWithSeller.Stock,
+		Price:     	productWithSeller.Price,		
 		Views:     	productWithSeller.Views,
 		CreatedAt: 	productWithSeller.CreatedAt,
 		Seller: Seller{
@@ -107,8 +103,8 @@ func (server *Server) getProduct(ctx *gin.Context) {
 }
 
 type getProductsRequest struct {
-	Limit  	int32 	`form:"limit"`
-	Page 	int32 	`form:"page"`
+	Limit  	int32 	`form:"limit" binding:"required`
+	Page 	int32 	`form:"page" binding:"required`
 }
 type getProductsResponse struct {
 	Products []ProductResponse 	`json:"products"`
@@ -119,11 +115,11 @@ func (server *Server) getProducts(ctx *gin.Context) {
 	var req getProductsRequest
 	var res getProductsResponse
 
-	if err := ctx.ShouldBindQuery(&req); err != nil {
+	if err := ctx.BindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
+	
 	// 게시글 & 작성자 정보 조회
 	productsWithSeller, err := server.store.GetProductsWithSeller(ctx, db.GetProductsWithSellerParams{
 		Limit:  req.Limit,
@@ -155,12 +151,18 @@ func (server *Server) getProducts(ctx *gin.Context) {
 		IsLiked bool
 	}, len(productsWithSeller))
 
+	var username string = ""
+	auth, ok := ctx.Get(AUTH_TOKEN)
+	if ok {
+		username = auth.(*token.Payload).Username
+	}
+
 	// 비동기 처리
 	for _, product := range productsWithSeller {
 		go func(product db.GetProductsWithSellerRow) {			
 			_, err := server.store.GetWishWithProduct(ctx, db.GetWishWithProductParams{
 				ProductID:   product.ID,
-				Username: product.Seller,
+				Username: username,
 			})	
 			ch <- struct {
 				db.GetProductsWithSellerRow
@@ -177,8 +179,7 @@ func (server *Server) getProducts(ctx *gin.Context) {
 			Title:     	result.Title,
 			Content:   	result.Content,
 			Medias:     result.Medias,
-			Price:     	result.Price,
-			Stock:     	result.Stock,
+			Price:     	result.Price,			
 			Views:     	result.Views,
 			CreatedAt: 	result.CreatedAt,
 			Seller: Seller{

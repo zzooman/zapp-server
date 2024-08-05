@@ -18,8 +18,7 @@ CREATE TABLE products (
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     medias TEXT[],
-    price BIGINT NOT NULL,
-    stock BIGINT NOT NULL,
+    price BIGINT NOT NULL,    
     views BIGINT DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (seller) REFERENCES users(username)

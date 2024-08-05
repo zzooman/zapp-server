@@ -292,39 +292,6 @@ func (q *Queries) GetFeedsWithAuthorThatILiked(ctx context.Context, arg GetFeeds
 	return items, nil
 }
 
-const getProductWithAuthor = `-- name: GetProductWithAuthor :one
-SELECT feeds.id, feeds.author, feeds.content, feeds.medias, feeds.views, feeds.created_at, users.email, users.phone, users.profile FROM feeds JOIN users ON feeds.author = users.username WHERE feeds.id = $1 LIMIT 1
-`
-
-type GetProductWithAuthorRow struct {
-	ID        int64              `json:"id"`
-	Author    string             `json:"author"`
-	Content   string             `json:"content"`
-	Medias    []string           `json:"medias"`
-	Views     pgtype.Int8        `json:"views"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	Email     string             `json:"email"`
-	Phone     pgtype.Text        `json:"phone"`
-	Profile   pgtype.Text        `json:"profile"`
-}
-
-func (q *Queries) GetProductWithAuthor(ctx context.Context, id int64) (GetProductWithAuthorRow, error) {
-	row := q.db.QueryRow(ctx, getProductWithAuthor, id)
-	var i GetProductWithAuthorRow
-	err := row.Scan(
-		&i.ID,
-		&i.Author,
-		&i.Content,
-		&i.Medias,
-		&i.Views,
-		&i.CreatedAt,
-		&i.Email,
-		&i.Phone,
-		&i.Profile,
-	)
-	return i, err
-}
-
 const updateFeed = `-- name: UpdateFeed :exec
 UPDATE feeds SET content = $2, medias = $3 WHERE id = $1
 `

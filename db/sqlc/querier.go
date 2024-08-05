@@ -43,7 +43,6 @@ type Querier interface {
 	GetLikeWithFeed(ctx context.Context, arg GetLikeWithFeedParams) (LikeWithFeed, error)
 	GetMessagesByRoom(ctx context.Context, roomID int64) ([]Message, error)
 	GetProduct(ctx context.Context, id int64) (Product, error)
-	GetProductWithAuthor(ctx context.Context, id int64) (GetProductWithAuthorRow, error)
 	GetProductWithSellor(ctx context.Context, id int64) (GetProductWithSellorRow, error)
 	GetProducts(ctx context.Context, arg GetProductsParams) ([]Product, error)
 	GetProductsWithSeller(ctx context.Context, arg GetProductsWithSellerParams) ([]GetProductsWithSellerRow, error)

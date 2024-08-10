@@ -71,6 +71,8 @@ type Querier interface {
 	UpdateTransactionStatus(ctx context.Context, arg UpdateTransactionStatusParams) (Transaction, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpsertSearchCount(ctx context.Context, searchText string) (SearchCount, error)
+	ViewFeed(ctx context.Context, id int64) error
+	ViewProduct(ctx context.Context, id int64) error
 }
 
 var _ Querier = (*Queries)(nil)

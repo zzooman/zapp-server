@@ -122,7 +122,7 @@ func (server *Server) getFeeds(ctx *gin.Context) {
 
 
 type GetFeedDetailRequest struct {
-	Id int `json:"id"`	
+	Id int `uri:"id" binding:"required"`
 }
 type Comment struct {
 	ID              int64              `json:"id"`
@@ -150,10 +150,17 @@ func (server *Server) getFeed(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
+	
 	feedWithAuthor, err := server.store.GetFeedWithAuthor(ctx, int64(req.Id))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	err = server.store.ViewFeed(ctx, feedWithAuthor.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	username := ""

@@ -306,3 +306,12 @@ func (q *Queries) UpdateFeed(ctx context.Context, arg UpdateFeedParams) error {
 	_, err := q.db.Exec(ctx, updateFeed, arg.ID, arg.Content, arg.Medias)
 	return err
 }
+
+const viewFeed = `-- name: ViewFeed :exec
+UPDATE feeds SET views = views + 1 WHERE id = $1
+`
+
+func (q *Queries) ViewFeed(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, viewFeed, id)
+	return err
+}

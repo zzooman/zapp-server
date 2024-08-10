@@ -452,3 +452,12 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) er
 	)
 	return err
 }
+
+const viewProduct = `-- name: ViewProduct :exec
+UPDATE products SET views = views + 1 WHERE id = $1
+`
+
+func (q *Queries) ViewProduct(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, viewProduct, id)
+	return err
+}

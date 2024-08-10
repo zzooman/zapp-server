@@ -70,20 +70,30 @@ func (server *Server) getProduct(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+
 	id, err := strconv.ParseInt(req.Id, 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+
 	productWithSeller, err := server.store.GetProductWithSellor(ctx, id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	err = server.store.ViewProduct(ctx, productWithSeller.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
 	_, err = server.store.GetWishWithProduct(ctx, db.GetWishWithProductParams{
 		ProductID:  productWithSeller.ID,
 		Username: 	productWithSeller.Seller,
 	})
+	
 	ctx.JSON(http.StatusOK, ProductResponse{
 		ID:        	productWithSeller.ID,
 		Title:     	productWithSeller.Title,

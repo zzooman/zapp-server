@@ -25,6 +25,9 @@ SELECT products.*, users.email, users.phone, users.profile FROM products JOIN us
 -- name: GetProductsWithSellerThatISold :many
 SELECT products.*, users.email, users.phone, users.profile FROM products JOIN users ON products.seller = users.username JOIN transactions ON products.id = transactions.feed_id WHERE transactions.seller = $1 ORDER BY products.created_at DESC LIMIT $2 OFFSET $3;
 
+-- name: ViewProduct :exec
+UPDATE products SET views = views + 1 WHERE id = $1;
+
 -- name: UpdateProduct :exec
 UPDATE products SET title = $2, content = $3, price = $4, medias = $5 WHERE id = $1;
 

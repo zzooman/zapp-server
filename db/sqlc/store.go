@@ -11,7 +11,8 @@ import (
 
 type Store interface {
 	// TransferTx(ctx context.Context, arg CreateTransferParams) (TransferTxResult, error)
-	SearchProductsTx(ctx context.Context, arg SearchProductsParams) (SearchProductsResult, error)
+	SearchProductsTx(ctx context.Context, arg SearchParams) (SearchProductsResult, error)
+	SearchFeedsTx(ctx context.Context, arg SearchParams) (SearchFeedsResult, error)
 	Querier
 } 
 
@@ -46,7 +47,7 @@ func (store *SQLStore) execTx(context context.Context, callback func(*Queries) e
 	return tx.Commit(context)
 }	
 
-type SearchProductsParams struct {
+type SearchParams struct {
 	Query string `uri:"query" binding:"required"`
 	Limit int32  `uri:"limit" binding:"required"`
 	Offset int32 `uri:"offset" binding:"required"`
@@ -54,7 +55,7 @@ type SearchProductsParams struct {
 type SearchProductsResult struct {
 	Products []GetProductsWithSellerByQueryRow `json:"products"`
 }
-func (store *SQLStore) SearchProductsTx(ctx context.Context, arg SearchProductsParams) (SearchProductsResult, error) {
+func (store *SQLStore) SearchProductsTx(ctx context.Context, arg SearchParams) (SearchProductsResult, error) {
 	var result SearchProductsResult		
 	err := store.execTx(ctx, func(queries *Queries) error {		
 		_, err := queries.UpsertSearchCount(ctx, arg.Query)
@@ -69,5 +70,27 @@ func (store *SQLStore) SearchProductsTx(ctx context.Context, arg SearchProductsP
 
 		return nil
 	})
+	return result, err
+}
+
+type SearchFeedsResult struct {
+	Feeds []GetFeedsWithAuthorByQueryRow `json:"feeds"`
+}
+func (store *SQLStore) SearchFeedsTx(ctx context.Context, arg SearchParams) (SearchFeedsResult, error) {
+	var result SearchFeedsResult
+	err := store.execTx(ctx, func (queries *Queries) error  {
+		_, err := queries.UpsertSearchCount(ctx, arg.Query)
+		if err != nil { return err }
+
+		result.Feeds, err = queries.GetFeedsWithAuthorByQuery(ctx, GetFeedsWithAuthorByQueryParams{
+			Column1: pgtype.Text{String: arg.Query, Valid: true},			
+			Limit: arg.Limit,
+			Offset: arg.Offset,		
+		})
+		if err != nil {return err}
+
+		return nil
+	})
+
 	return result, err
 }

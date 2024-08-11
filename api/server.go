@@ -34,8 +34,10 @@ func (server *Server) setUpRouter(router *gin.Engine) {
 	router.GET("/feeds", server.getFeeds)	
 	router.GET("/feed/:id", server.getFeed)
 	router.GET("/products", server.getProducts)		
-	router.GET("/products/search", server.searchProducts)
 	router.GET("/product/:id", server.getProduct)
+
+	router.GET("/feeds/search", server.searchFeeds)
+	router.GET("/products/search", server.searchProducts)
 	router.GET("/search/hot", server.hotSearchTexts)
 	
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))

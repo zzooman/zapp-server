@@ -30,7 +30,9 @@ type Querier interface {
 	DeleteTransaction(ctx context.Context, transactionID int64) error
 	DeleteUser(ctx context.Context, username string) error
 	DeleteWishWithProduct(ctx context.Context, arg DeleteWishWithProductParams) error
+	GetBuyRoomByUser(ctx context.Context, guest string) ([]Room, error)
 	GetBuyerTransactions(ctx context.Context, arg GetBuyerTransactionsParams) ([]Transaction, error)
+	GetChatsRoomByUser(ctx context.Context, host string) ([]Room, error)
 	GetComment(ctx context.Context, id int64) (Comment, error)
 	GetComments(ctx context.Context, arg GetCommentsParams) ([]Comment, error)
 	GetCountOfComments(ctx context.Context, feedID int64) (int64, error)
@@ -54,8 +56,9 @@ type Querier interface {
 	GetReview(ctx context.Context, id int64) (Review, error)
 	GetReviews(ctx context.Context, arg GetReviewsParams) ([]Review, error)
 	GetRoom(ctx context.Context, id int64) (Room, error)
-	GetRoomsByUser(ctx context.Context, userA string) ([]Room, error)
+	GetRoomsByUser(ctx context.Context, host string) ([]Room, error)
 	GetSearchCount(ctx context.Context, searchText string) (SearchCount, error)
+	GetSellRoomByUser(ctx context.Context, host string) ([]Room, error)
 	GetSellerTransactions(ctx context.Context, arg GetSellerTransactionsParams) ([]Transaction, error)
 	GetTransaction(ctx context.Context, transactionID int64) (Transaction, error)
 	GetUser(ctx context.Context, username string) (User, error)

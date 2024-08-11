@@ -17,7 +17,7 @@ func createRandomUser(t *testing.T) User {
 	arg := CreateUserParams{
 		Username: utils.RandomString(6),
 		Password: hashedPassword,
-		Email:    utils.RandomString(12),
+		Email:    pgtype.Text{String: utils.RandomString(12), Valid: true},
 		Phone:    pgtype.Text{String: "1234567890", Valid: true},		
 	}
 
@@ -67,7 +67,7 @@ func TestUpdateUser(t *testing.T) {
 		Username: user.Username,
 		Password: "newpassword",
 		Phone:    pgtype.Text{String: "9876543210", Valid: true},
-		Email:    utils.RandomString(12),	
+		Email:    pgtype.Text{String: utils.RandomString(12), Valid: true},
 		Profile: pgtype.Text{String: "profile", Valid: true},
 	}
 

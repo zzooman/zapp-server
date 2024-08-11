@@ -79,7 +79,7 @@ type GetFeedWithAuthorRow struct {
 	Medias    []string           `json:"medias"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	Email     string             `json:"email"`
+	Email     pgtype.Text        `json:"email"`
 	Phone     pgtype.Text        `json:"phone"`
 	Profile   pgtype.Text        `json:"profile"`
 }
@@ -153,7 +153,7 @@ type GetFeedsWithAuthorRow struct {
 	Medias    []string           `json:"medias"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	Email     string             `json:"email"`
+	Email     pgtype.Text        `json:"email"`
 	Phone     pgtype.Text        `json:"phone"`
 	Profile   pgtype.Text        `json:"profile"`
 }
@@ -205,7 +205,7 @@ type GetFeedsWithAuthorByQueryRow struct {
 	Medias    []string           `json:"medias"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	Email     string             `json:"email"`
+	Email     pgtype.Text        `json:"email"`
 	Phone     pgtype.Text        `json:"phone"`
 	Profile   pgtype.Text        `json:"profile"`
 }
@@ -257,7 +257,7 @@ type GetFeedsWithAuthorThatILikedRow struct {
 	Medias    []string           `json:"medias"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	Email     string             `json:"email"`
+	Email     pgtype.Text        `json:"email"`
 	Phone     pgtype.Text        `json:"phone"`
 	Profile   pgtype.Text        `json:"profile"`
 }

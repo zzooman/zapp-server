@@ -18,7 +18,7 @@ INSERT INTO users (username, password, email, phone) VALUES ($1, $2, $3, $4) RET
 type CreateUserParams struct {
 	Username string      `json:"username"`
 	Password string      `json:"password"`
-	Email    string      `json:"email"`
+	Email    pgtype.Text `json:"email"`
 	Phone    pgtype.Text `json:"phone"`
 }
 
@@ -78,7 +78,7 @@ type UpdateUserParams struct {
 	Username string      `json:"username"`
 	Password string      `json:"password"`
 	Phone    pgtype.Text `json:"phone"`
-	Email    string      `json:"email"`
+	Email    pgtype.Text `json:"email"`
 	Profile  pgtype.Text `json:"profile"`
 }
 

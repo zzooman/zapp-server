@@ -89,7 +89,7 @@ type GetProductWithSellorRow struct {
 	Price     int64              `json:"price"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	Email     string             `json:"email"`
+	Email     pgtype.Text        `json:"email"`
 	Phone     pgtype.Text        `json:"phone"`
 	Profile   pgtype.Text        `json:"profile"`
 }
@@ -169,7 +169,7 @@ type GetProductsWithSellerRow struct {
 	Price     int64              `json:"price"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	Email     string             `json:"email"`
+	Email     pgtype.Text        `json:"email"`
 	Phone     pgtype.Text        `json:"phone"`
 	Profile   pgtype.Text        `json:"profile"`
 }
@@ -225,7 +225,7 @@ type GetProductsWithSellerByQueryRow struct {
 	Price     int64              `json:"price"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	Email     string             `json:"email"`
+	Email     pgtype.Text        `json:"email"`
 	Phone     pgtype.Text        `json:"phone"`
 	Profile   pgtype.Text        `json:"profile"`
 }
@@ -281,7 +281,7 @@ type GetProductsWithSellerThatIBoughtRow struct {
 	Price     int64              `json:"price"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	Email     string             `json:"email"`
+	Email     pgtype.Text        `json:"email"`
 	Phone     pgtype.Text        `json:"phone"`
 	Profile   pgtype.Text        `json:"profile"`
 }
@@ -337,7 +337,7 @@ type GetProductsWithSellerThatILikedRow struct {
 	Price     int64              `json:"price"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	Email     string             `json:"email"`
+	Email     pgtype.Text        `json:"email"`
 	Phone     pgtype.Text        `json:"phone"`
 	Profile   pgtype.Text        `json:"profile"`
 }
@@ -393,7 +393,7 @@ type GetProductsWithSellerThatISoldRow struct {
 	Price     int64              `json:"price"`
 	Views     pgtype.Int8        `json:"views"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	Email     string             `json:"email"`
+	Email     pgtype.Text        `json:"email"`
 	Phone     pgtype.Text        `json:"phone"`
 	Profile   pgtype.Text        `json:"profile"`
 }

@@ -19,6 +19,9 @@ migrateup1:
 migratedown1:
 	migrate -source file://db/migration -database postgresql://postgres:1033@localhost:5432/zapp?sslmode=disable -verbose down 1
 
+migrateclear:
+	migrate -source file://db/migration -database postgresql://postgres:1033@localhost:5432/zapp?sslmode=disable -verbose force 1
+
 sqlc:
 	sqlc generate
 

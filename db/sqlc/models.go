@@ -62,9 +62,9 @@ type Review struct {
 
 type Room struct {
 	ID        int64              `json:"id"`
-	UserA     string             `json:"user_a"`
-	UserB     string             `json:"user_b"`
-	Type      pgtype.Text        `json:"type"`
+	Host      string             `json:"host"`
+	Guest     string             `json:"guest"`
+	ProductID pgtype.Int8        `json:"product_id"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
@@ -87,7 +87,7 @@ type Transaction struct {
 type User struct {
 	Username          string             `json:"username"`
 	Password          string             `json:"password"`
-	Email             string             `json:"email"`
+	Email             pgtype.Text        `json:"email"`
 	Phone             pgtype.Text        `json:"phone"`
 	PasswordChangedAt pgtype.Timestamptz `json:"password_changed_at"`
 	Profile           pgtype.Text        `json:"profile"`

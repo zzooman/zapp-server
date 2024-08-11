@@ -2,7 +2,7 @@
 CREATE TABLE users (
     username VARCHAR(255) PRIMARY KEY,
     password VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE,
     phone VARCHAR(15),
     password_changed_at TIMESTAMPTZ NOT NULL DEFAULT '0001-01-01 00:00:00Z',
     profile VARCHAR(255),
@@ -125,16 +125,17 @@ CREATE INDEX idx_search_count_search_text ON search_count(search_text);
 /* 채팅방 */
 CREATE TABLE rooms (
     id BIGSERIAL PRIMARY KEY,
-    user_a VARCHAR(255) NOT NULL,
-    user_b VARCHAR(255) NOT NULL,
-    type VARCHAR(255) DEFAULT 'chat',
+    host VARCHAR(255) NOT NULL,
+    guest VARCHAR(255) NOT NULL,
+    product_id BIGINT,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_a) REFERENCES users(username),
-    FOREIGN KEY (user_b) REFERENCES users(username),
-    CONSTRAINT unique_users UNIQUE (user_a, user_b)
+    FOREIGN KEY (host) REFERENCES users(username),
+    FOREIGN KEY (guest) REFERENCES users(username),
+    FOREIGN KEY (product_id) REFERENCES products(id),
+    CONSTRAINT unique_users UNIQUE (host, guest)
 );
-CREATE INDEX idx_rooms_user_a ON rooms(user_a);
-CREATE INDEX idx_rooms_user_b ON rooms(user_b);
+CREATE INDEX idx_rooms_host ON rooms(host);
+CREATE INDEX idx_rooms_guest ON rooms(guest);
 
 
 /* 메세지 */

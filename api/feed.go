@@ -12,7 +12,7 @@ import (
 
 type Author struct {	
 	Username 	string      `json:"username"`
-	Email    	string      `json:"email"`
+	Email    	pgtype.Text `json:"email"`
 	Phone    	pgtype.Text `json:"phone"`
 	Profile  	pgtype.Text `json:"profile"`
 }

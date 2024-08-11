@@ -1,14 +1,23 @@
 -- name: CheckRoom :one
-SELECT * FROM Rooms WHERE (user_a = $1 AND user_b = $2) OR (user_a = $2 AND user_b = $1) LIMIT 1;
+SELECT * FROM Rooms WHERE (host = $1 AND guest = $2) OR (host = $2 AND guest = $1) LIMIT 1;
 
 -- name: CreateRoom :one
-INSERT INTO Rooms (user_a, user_b) VALUES ($1, $2) RETURNING *;
+INSERT INTO Rooms (host, guest, product_id) VALUES ($1, $2, $3) RETURNING *;
 
 -- name: GetRoom :one
 SELECT * FROM Rooms WHERE id = $1 LIMIT 1;
 
 -- name: GetRoomsByUser :many
-SELECT * FROM Rooms WHERE user_a = $1 OR user_b = $1 ORDER BY id;
+SELECT * FROM Rooms WHERE host = $1 OR guest = $1 ORDER BY id;
+
+-- name: GetChatsRoomByUser :many
+SELECT * FROM Rooms WHERE (host = $1 OR guest = $1) AND product_id IS NULL;
+
+-- name: GetSellRoomByUser :many
+SELECT * FROM Rooms WHERE host = $1 AND product_id IS NOT NULL;
+
+-- name: GetBuyRoomByUser :many
+SELECT * FROM Rooms WHERE guest = $1 AND product_id IS NOT NUll;
 
 -- name: DeleteRoom :one
 DELETE FROM Rooms WHERE id = $1 RETURNING *;

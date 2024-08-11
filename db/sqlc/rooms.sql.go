@@ -7,54 +7,57 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const checkRoom = `-- name: CheckRoom :one
-SELECT id, user_a, user_b, type, created_at FROM Rooms WHERE (user_a = $1 AND user_b = $2) OR (user_a = $2 AND user_b = $1) LIMIT 1
+SELECT id, host, guest, product_id, created_at FROM Rooms WHERE (host = $1 AND guest = $2) OR (host = $2 AND guest = $1) LIMIT 1
 `
 
 type CheckRoomParams struct {
-	UserA string `json:"user_a"`
-	UserB string `json:"user_b"`
+	Host  string `json:"host"`
+	Guest string `json:"guest"`
 }
 
 func (q *Queries) CheckRoom(ctx context.Context, arg CheckRoomParams) (Room, error) {
-	row := q.db.QueryRow(ctx, checkRoom, arg.UserA, arg.UserB)
+	row := q.db.QueryRow(ctx, checkRoom, arg.Host, arg.Guest)
 	var i Room
 	err := row.Scan(
 		&i.ID,
-		&i.UserA,
-		&i.UserB,
-		&i.Type,
+		&i.Host,
+		&i.Guest,
+		&i.ProductID,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const createRoom = `-- name: CreateRoom :one
-INSERT INTO Rooms (user_a, user_b) VALUES ($1, $2) RETURNING id, user_a, user_b, type, created_at
+INSERT INTO Rooms (host, guest, product_id) VALUES ($1, $2, $3) RETURNING id, host, guest, product_id, created_at
 `
 
 type CreateRoomParams struct {
-	UserA string `json:"user_a"`
-	UserB string `json:"user_b"`
+	Host      string      `json:"host"`
+	Guest     string      `json:"guest"`
+	ProductID pgtype.Int8 `json:"product_id"`
 }
 
 func (q *Queries) CreateRoom(ctx context.Context, arg CreateRoomParams) (Room, error) {
-	row := q.db.QueryRow(ctx, createRoom, arg.UserA, arg.UserB)
+	row := q.db.QueryRow(ctx, createRoom, arg.Host, arg.Guest, arg.ProductID)
 	var i Room
 	err := row.Scan(
 		&i.ID,
-		&i.UserA,
-		&i.UserB,
-		&i.Type,
+		&i.Host,
+		&i.Guest,
+		&i.ProductID,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const deleteRoom = `-- name: DeleteRoom :one
-DELETE FROM Rooms WHERE id = $1 RETURNING id, user_a, user_b, type, created_at
+DELETE FROM Rooms WHERE id = $1 RETURNING id, host, guest, product_id, created_at
 `
 
 func (q *Queries) DeleteRoom(ctx context.Context, id int64) (Room, error) {
@@ -62,37 +65,20 @@ func (q *Queries) DeleteRoom(ctx context.Context, id int64) (Room, error) {
 	var i Room
 	err := row.Scan(
 		&i.ID,
-		&i.UserA,
-		&i.UserB,
-		&i.Type,
+		&i.Host,
+		&i.Guest,
+		&i.ProductID,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
-const getRoom = `-- name: GetRoom :one
-SELECT id, user_a, user_b, type, created_at FROM Rooms WHERE id = $1 LIMIT 1
+const getBuyRoomByUser = `-- name: GetBuyRoomByUser :many
+SELECT id, host, guest, product_id, created_at FROM Rooms WHERE guest = $1 AND product_id IS NOT NUll
 `
 
-func (q *Queries) GetRoom(ctx context.Context, id int64) (Room, error) {
-	row := q.db.QueryRow(ctx, getRoom, id)
-	var i Room
-	err := row.Scan(
-		&i.ID,
-		&i.UserA,
-		&i.UserB,
-		&i.Type,
-		&i.CreatedAt,
-	)
-	return i, err
-}
-
-const getRoomsByUser = `-- name: GetRoomsByUser :many
-SELECT id, user_a, user_b, type, created_at FROM Rooms WHERE user_a = $1 OR user_b = $1 ORDER BY id
-`
-
-func (q *Queries) GetRoomsByUser(ctx context.Context, userA string) ([]Room, error) {
-	rows, err := q.db.Query(ctx, getRoomsByUser, userA)
+func (q *Queries) GetBuyRoomByUser(ctx context.Context, guest string) ([]Room, error) {
+	rows, err := q.db.Query(ctx, getBuyRoomByUser, guest)
 	if err != nil {
 		return nil, err
 	}
@@ -102,9 +88,116 @@ func (q *Queries) GetRoomsByUser(ctx context.Context, userA string) ([]Room, err
 		var i Room
 		if err := rows.Scan(
 			&i.ID,
-			&i.UserA,
-			&i.UserB,
-			&i.Type,
+			&i.Host,
+			&i.Guest,
+			&i.ProductID,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getChatsRoomByUser = `-- name: GetChatsRoomByUser :many
+SELECT id, host, guest, product_id, created_at FROM Rooms WHERE (host = $1 OR guest = $1) AND product_id IS NULL
+`
+
+func (q *Queries) GetChatsRoomByUser(ctx context.Context, host string) ([]Room, error) {
+	rows, err := q.db.Query(ctx, getChatsRoomByUser, host)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Room{}
+	for rows.Next() {
+		var i Room
+		if err := rows.Scan(
+			&i.ID,
+			&i.Host,
+			&i.Guest,
+			&i.ProductID,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRoom = `-- name: GetRoom :one
+SELECT id, host, guest, product_id, created_at FROM Rooms WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetRoom(ctx context.Context, id int64) (Room, error) {
+	row := q.db.QueryRow(ctx, getRoom, id)
+	var i Room
+	err := row.Scan(
+		&i.ID,
+		&i.Host,
+		&i.Guest,
+		&i.ProductID,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getRoomsByUser = `-- name: GetRoomsByUser :many
+SELECT id, host, guest, product_id, created_at FROM Rooms WHERE host = $1 OR guest = $1 ORDER BY id
+`
+
+func (q *Queries) GetRoomsByUser(ctx context.Context, host string) ([]Room, error) {
+	rows, err := q.db.Query(ctx, getRoomsByUser, host)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Room{}
+	for rows.Next() {
+		var i Room
+		if err := rows.Scan(
+			&i.ID,
+			&i.Host,
+			&i.Guest,
+			&i.ProductID,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSellRoomByUser = `-- name: GetSellRoomByUser :many
+SELECT id, host, guest, product_id, created_at FROM Rooms WHERE host = $1 AND product_id IS NOT NULL
+`
+
+func (q *Queries) GetSellRoomByUser(ctx context.Context, host string) ([]Room, error) {
+	rows, err := q.db.Query(ctx, getSellRoomByUser, host)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Room{}
+	for rows.Next() {
+		var i Room
+		if err := rows.Scan(
+			&i.ID,
+			&i.Host,
+			&i.Guest,
+			&i.ProductID,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err

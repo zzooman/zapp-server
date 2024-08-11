@@ -27,12 +27,12 @@ func newUserResponse(user db.User) userResponse {
 type createUserRequest struct {
 	Username string   `json:"username" binding:"required,alphanum,min=4,max=32"`
 	Password string   `json:"password" binding:"required,min=6,max=32"`
-	Email    string   `json:"email" binding:"required,email,max=64"`
+	Email    string   `json:"email" email,max=64"`
 	Phone    string   `json:"phone" binding:"omitempty"`	
 }
 type userResponse struct {
 	Username          string             `json:"username"`	
-	Email             string             `json:"email"`
+	Email             pgtype.Text        `json:"email"`
 	Phone             pgtype.Text        `json:"phone"`	
 	Profile		   	  pgtype.Text        `json:"profile"`
 	PasswordChangedAt pgtype.Timestamptz `json:"password_changed_at"`
@@ -52,9 +52,9 @@ func (server *Server) createUser(ctx *gin.Context) {
 
 	payload := db.CreateUserParams{
 		Username: req.Username,
-		Password: hashedPassword,
-		Email:    req.Email,					
+		Password: hashedPassword,					
 	}	
+	if req.Email != "" {payload.Email = pgtype.Text{String: req.Email, Valid: true}}
 	if req.Phone != "" {payload.Phone = pgtype.Text{String: req.Phone, Valid: true}}
 
 	user, err := server.store.CreateUser(ctx, payload)
@@ -109,7 +109,7 @@ func (server *Server) updateUser(ctx *gin.Context) {
 
 	// Update the user with the provided values
 	if req.Email != "" {
-		user.Email = req.Email
+		user.Email = pgtype.Text{String: req.Email, Valid: true}
 	}
 	if req.Phone != "" {
 		user.Phone = pgtype.Text{String: req.Phone, Valid: true}
@@ -212,7 +212,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 type meResponse struct {
 	Username 			string 				`json:"username"`
 	PasswordChangedAt 	pgtype.Timestamptz 	`json:"password_changed_at"`
-	Email    			string 				`json:"email"`
+	Email    			pgtype.Text  		`json:"email"`
 	Phone    			pgtype.Text 		`json:"phone"`
 	Profile  			pgtype.Text 		`json:"profile"`
 	CreatedAt 			pgtype.Timestamptz 	`json:"created_at"`		
